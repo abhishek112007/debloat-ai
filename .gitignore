@@ -11,6 +11,7 @@ dist-ssr/
 
 # Tauri build files
 src-tauri/target/
+backend/tauri/target/
 
 # Logs
 *.log

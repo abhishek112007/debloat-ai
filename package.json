@@ -4,12 +4,12 @@
   "description": "Android Debloater - Remove bloatware safely from Android devices",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
+    "dev": "cd frontend && vite",
+    "build": "cd frontend && tsc && vite build",
+    "preview": "cd frontend && vite preview",
     "tauri": "tauri",
-    "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build"
+    "tauri:dev": "cd backend/tauri && tauri dev",
+    "tauri:build": "cd backend/tauri && tauri build"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.0.0",
