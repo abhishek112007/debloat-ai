@@ -231,10 +231,7 @@ const PackageList: React.FC<PackageListProps> = ({
             filtered.map((pkg, index) => (
               <div key={pkg.packageName} className="animate-fade-in" style={{ animationDelay: `${Math.min(index * 0.02, 0.5)}s` }}>
                 {/* Mobile Card View (below sm breakpoint) */}
-                <div
-                  className="sm:hidden border-b border-gray-200 dark:border-dark-border p-4 hover:bg-primary-50/50 dark:hover:bg-primary-500/5 active:bg-primary-100/50 dark:active:bg-primary-500/10 active:scale-[0.99] cursor-pointer transition-all duration-200"
-                  onClick={() => setDetailPackage(pkg)}
-                >
+                <div className="sm:hidden border-b border-gray-200 dark:border-dark-border p-4 transition-all duration-200">
                   <div className="flex items-start gap-3">
                     <div className="flex items-center pt-1">
                       <input
@@ -247,7 +244,9 @@ const PackageList: React.FC<PackageListProps> = ({
                         className="checkbox-modern"
                       />
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 cursor-pointer hover:bg-primary-50/30 dark:hover:bg-primary-500/5 -m-2 p-2 rounded-lg transition-colors duration-200"
+                      onClick={() => setDetailPackage(pkg)}
+                    >
                       <div className="font-semibold text-sm text-gray-900 dark:text-text-primary mb-1.5 flex items-center gap-2 transition-colors duration-200">
                         <FiPackage className="w-4 h-4 text-primary-600 dark:text-primary-400 flex-shrink-0 transition-transform duration-200 group-hover:scale-110" />
                         {pkg.appName}
@@ -264,8 +263,7 @@ const PackageList: React.FC<PackageListProps> = ({
 
                 {/* Desktop Table View (sm and above) */}
                 <div
-                  className="hidden sm:grid grid-cols-[56px_2fr_2fr_160px] border-b border-gray-200 dark:border-dark-border hover:bg-primary-50/50 dark:hover:bg-primary-500/5 hover:-translate-y-0.5 hover:shadow-sm active:scale-[0.99] cursor-pointer transition-all duration-200 group"
-                  onClick={() => setDetailPackage(pkg)}
+                  className="hidden sm:grid grid-cols-[56px_2fr_2fr_160px] border-b border-gray-200 dark:border-dark-border transition-all duration-200 group"
                 >
                   <div className="px-5 py-4 flex items-center">
                     <input
@@ -278,10 +276,14 @@ const PackageList: React.FC<PackageListProps> = ({
                       className="checkbox-modern"
                     />
                   </div>
-                  <div className="px-4 py-4 text-sm font-mono text-gray-700 dark:text-text-secondary truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors duration-200 font-medium">
+                  <div className="px-4 py-4 text-sm font-mono text-gray-700 dark:text-text-secondary truncate font-medium cursor-pointer hover:bg-primary-50/30 dark:hover:bg-primary-500/5 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-200"
+                    onClick={() => setDetailPackage(pkg)}
+                  >
                     {pkg.packageName}
                   </div>
-                  <div className="px-4 py-4 text-sm font-semibold text-gray-900 dark:text-text-primary truncate flex items-center gap-2.5 transition-colors duration-200">
+                  <div className="px-4 py-4 text-sm font-semibold text-gray-900 dark:text-text-primary truncate flex items-center gap-2.5 cursor-pointer hover:bg-primary-50/30 dark:hover:bg-primary-500/5 transition-all duration-200"
+                    onClick={() => setDetailPackage(pkg)}
+                  >
                     <FiPackage className="w-4 h-4 text-primary-600 dark:text-primary-400 flex-shrink-0 group-hover:scale-110 transition-transform duration-200" />
                     {pkg.appName}
                   </div>

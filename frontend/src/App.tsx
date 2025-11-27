@@ -196,7 +196,7 @@ const App: React.FC = () => {
       <header className="border-b-2 bg-theme-card shadow-sm flex-shrink-0 animate-slide-down" style={{borderColor: 'var(--theme-border)', backgroundColor: 'var(--theme-card)'}}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-4 sm:px-6 py-4 gap-3">
           <div className="group">
-            <h1 className="text-xl sm:text-2xl font-bold text-primary-600 dark:text-primary-400 transition-all duration-300 hover:scale-105">
+            <h1 className="text-xl sm:text-2xl font-bold text-primary-600 dark:text-primary-400 transition-all duration-200 cursor-default">
               Debloat AI
             </h1>
             <p className="text-xs sm:text-sm text-gray-600 dark:text-text-tertiary mt-0.5 transition-colors duration-200">
@@ -208,12 +208,12 @@ const App: React.FC = () => {
             {/* View Backups Button */}
             <button
               onClick={() => setShowBackupManager(!showBackupManager)}
-              className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm border-2 rounded-lg transition-all duration-200 font-medium flex items-center justify-center gap-2 hover:-translate-y-0.5 hover:shadow-md active:scale-95"
+              className="group flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm border-2 rounded-lg transition-all duration-200 font-medium flex items-center justify-center gap-2 hover:-translate-y-0.5 hover:shadow-md active:scale-95"
               style={{borderColor: 'var(--theme-border)', backgroundColor: 'var(--theme-card)', color: 'var(--theme-text-primary)'}}
             >
               {showBackupManager ? (
                 <>
-                  <FiList className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12" />
+                  <FiList className="w-4 h-4 transition-transform duration-200 group-hover:rotate-6" />
                   <span>Package List</span>
                 </>
               ) : (
@@ -231,36 +231,30 @@ const App: React.FC = () => {
 
         {/* Action Bar */}
         <div className="border-t px-4 sm:px-6 py-3 transition-all duration-300" style={{borderColor: 'var(--theme-border)', backgroundColor: 'var(--theme-bg)'}}>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="text-xs sm:text-sm font-medium transition-all duration-200" style={{color: 'var(--theme-text-secondary)'}}>
-              <span className={`inline-block transition-all duration-300 ${selectedPackages.size > 0 ? 'scale-110 text-primary-600 dark:text-primary-400' : ''}`}>
-                {selectedPackages.size}
-              </span> package(s) selected
-            </div>
-            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto"
->
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-end gap-3">
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <button
                 onClick={handleBackupSelected}
                 disabled={selectedPackages.size === 0}
-                className="btn-success w-full sm:w-auto text-sm shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                className="group btn-success w-full sm:w-auto text-sm shadow-md hover:shadow-lg flex items-center justify-center gap-2"
               >
-                <FiDownload className="w-4 h-4" />
+                <FiDownload className="w-4 h-4 transition-transform duration-200 group-hover:-translate-y-0.5" />
                 Backup ({selectedPackages.size})
               </button>
               <button
                 onClick={handleUninstallSelected}
                 disabled={selectedPackages.size === 0}
-                className="btn-danger w-full sm:w-auto text-sm shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                className="group btn-danger w-full sm:w-auto text-sm shadow-md hover:shadow-lg flex items-center justify-center gap-2"
               >
-                <FiTrash2 className="w-4 h-4" />
+                <FiTrash2 className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12" />
                 Uninstall ({selectedPackages.size})
               </button>
               <button
                 onClick={() => setSelectedPackages(new Set())}
                 disabled={selectedPackages.size === 0}
-                className="btn-secondary w-full sm:w-auto text-sm flex items-center justify-center gap-2"
+                className="group btn-secondary w-full sm:w-auto text-sm flex items-center justify-center gap-2"
               >
-                <FiX className="w-4 h-4" />
+                <FiX className="w-4 h-4 transition-transform duration-200 group-hover:rotate-90" />
                 Clear
               </button>
             </div>
@@ -272,89 +266,99 @@ const App: React.FC = () => {
       <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
         {/* Left Sidebar - Device Panel */}
         <aside className="w-full lg:w-[320px] border-b lg:border-b-0 lg:border-r-2 p-5 overflow-y-auto" style={{borderColor: 'var(--theme-border)', backgroundColor: 'var(--theme-card)'}}>
+          {/* Selection Summary */}
+          {selectedPackages.size > 0 && (
+            <div className="mb-5 p-4 rounded-xl border-2 border-primary-200 dark:border-primary-700 bg-primary-50 dark:bg-primary-900/20 animate-slide-down">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-primary-500 rounded-full animate-pulse" />
+                  <span className="text-sm font-bold text-primary-700 dark:text-primary-300">Active Selection</span>
+                </div>
+                <button
+                  onClick={() => setSelectedPackages(new Set())}
+                  className="group p-1 hover:bg-primary-100 dark:hover:bg-primary-800/40 rounded-md transition-all duration-200 hover:scale-110 active:scale-95"
+                  title="Clear selection"
+                >
+                  <FiX className="w-4 h-4 text-primary-600 dark:text-primary-400 group-hover:rotate-90 transition-transform duration-200" />
+                </button>
+              </div>
+              <div className="text-2xl font-bold text-primary-600 dark:text-primary-400 mb-1">
+                {selectedPackages.size}
+              </div>
+              <div className="text-xs text-primary-600 dark:text-primary-400 opacity-80">
+                package{selectedPackages.size !== 1 ? 's' : ''} selected
+              </div>
+            </div>
+          )}
+          
           <DevicePanel />
         </aside>
 
         {/* Main Content */}
         <main className="flex-1 p-4 md:p-6 overflow-y-auto" style={{backgroundColor: 'var(--theme-bg)'}}>
-          {/* Filter Indicator */}
-          {filterBySafety && (
-            <div className="mb-4 flex items-center gap-2 p-3 bg-primary-50 dark:bg-primary-500/10 border-2 border-primary-200 dark:border-primary-500/30 rounded-lg shadow-sm">
-              <span className="text-sm text-blue-800 dark:text-blue-200">
-                Filtering by: <strong>{filterBySafety}</strong>
-              </span>
-              <button
-                onClick={() => setFilterBySafety(null)}
-                className="ml-auto px-3 py-1 text-xs bg-blue-600 text-white hover:bg-blue-700"
-              >
-                Clear Filter
-              </button>
-            </div>
-          )}
-          
           {/* Filter Controls - Only show when not in backup mode */}
           {!showBackupManager && (
             <div className="mb-6 flex flex-wrap items-center gap-2 p-4 rounded-xl border-2 shadow-sm" style={{backgroundColor: 'var(--theme-card)', borderColor: 'var(--theme-border)'}}>
               <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5" style={{color: 'var(--theme-text-primary)'}}>
-                <FiFilter className="w-4 h-4" /> Filter:
+                <FiFilter className="w-4 h-4 transition-transform duration-200 hover:rotate-12" /> Filter:
               </span>
               <button
                 onClick={() => setFilterBySafety(null)}
-                className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 ${
+                className={`group px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 hover:-translate-y-0.5 active:scale-95 flex items-center gap-1.5 ${
                   filterBySafety === null
-                    ? 'bg-primary-600 text-white shadow-md scale-105'
+                    ? 'bg-primary-600 text-white shadow-md'
                     : 'border-2 hover:shadow-sm'
                 }`}
                 style={filterBySafety === null ? {} : {backgroundColor: 'var(--theme-card)', borderColor: 'var(--theme-border)', color: 'var(--theme-text-primary)'}}
               >
-                All Packages
+                <FiList className="w-3.5 h-3.5 transition-transform duration-200 group-hover:scale-110" /> All Packages
               </button>
               <button
                 onClick={() => setFilterBySafety('Safe')}
-                className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 flex items-center gap-1.5 ${
+                className={`group px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 flex items-center gap-1.5 hover:-translate-y-0.5 active:scale-95 ${
                   filterBySafety === 'Safe'
-                    ? 'bg-success-600 text-white shadow-md scale-105'
+                    ? 'bg-success-600 text-white shadow-md'
                     : 'bg-white dark:bg-gray-800 border-2 border-success-300 dark:border-success-700 text-success-700 dark:text-success-400 hover:border-success-500 hover:shadow-sm'
                 }`}
               >
-                <FiCheckCircle className="w-3.5 h-3.5" /> Safe
+                <FiCheckCircle className="w-3.5 h-3.5 transition-transform duration-300 group-hover:rotate-180 group-hover:scale-110" /> Safe
               </button>
               <button
                 onClick={() => setFilterBySafety('Caution')}
-                className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 flex items-center gap-1.5 ${
+                className={`group px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 flex items-center gap-1.5 hover:-translate-y-0.5 active:scale-95 ${
                   filterBySafety === 'Caution'
-                    ? 'bg-warning-600 text-white shadow-md scale-105'
+                    ? 'bg-warning-600 text-white shadow-md'
                     : 'bg-white dark:bg-gray-800 border-2 border-warning-300 dark:border-warning-700 text-warning-700 dark:text-warning-400 hover:border-warning-500 hover:shadow-sm'
                 }`}
               >
-                <FiAlertTriangle className="w-3.5 h-3.5" /> Caution
+                <FiAlertTriangle className="w-3.5 h-3.5 transition-transform duration-300 group-hover:rotate-180 group-hover:scale-110" /> Caution
               </button>
               <button
                 onClick={() => setFilterBySafety('Expert')}
-                className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 flex items-center gap-1.5 ${
+                className={`group px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 flex items-center gap-1.5 hover:-translate-y-0.5 active:scale-95 ${
                   filterBySafety === 'Expert'
-                    ? 'bg-orange-600 text-white shadow-md scale-105'
+                    ? 'bg-orange-600 text-white shadow-md'
                     : 'bg-white dark:bg-gray-800 border-2 border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-400 hover:border-orange-500 hover:shadow-sm'
                 }`}
               >
-                <FiZap className="w-3.5 h-3.5" /> Expert
+                <FiZap className="w-3.5 h-3.5 transition-transform duration-300 group-hover:rotate-180 group-hover:scale-110" /> Expert
               </button>
               <button
                 onClick={() => setFilterBySafety('Dangerous')}
-                className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 flex items-center gap-1.5 ${
+                className={`group px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 flex items-center gap-1.5 hover:-translate-y-0.5 active:scale-95 ${
                   filterBySafety === 'Dangerous'
-                    ? 'bg-danger-600 text-white shadow-md scale-105'
+                    ? 'bg-danger-600 text-white shadow-md'
                     : 'bg-white dark:bg-gray-800 border-2 border-danger-300 dark:border-danger-700 text-danger-700 dark:text-danger-400 hover:border-danger-500 hover:shadow-sm'
                 }`}
               >
-                <FiXOctagon className="w-3.5 h-3.5" /> Dangerous
+                <FiXOctagon className="w-3.5 h-3.5 transition-transform duration-300 group-hover:rotate-180 group-hover:scale-110" /> Dangerous
               </button>
               {filterBySafety && (
                 <button
                   onClick={() => setFilterBySafety(null)}
-                  className="ml-auto px-4 py-2 text-xs font-semibold rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 shadow-sm hover:shadow flex items-center gap-1.5"
+                  className="group ml-auto px-4 py-2 text-xs font-semibold rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 shadow-sm hover:shadow flex items-center gap-1.5 hover:-translate-y-0.5 active:scale-95"
                 >
-                  <FiX className="w-3.5 h-3.5" /> Clear
+                  <FiX className="w-3.5 h-3.5 transition-transform duration-200 group-hover:rotate-90" /> Clear
                 </button>
               )}
             </div>
@@ -376,9 +380,9 @@ const App: React.FC = () => {
         {/* Right Sidebar - Quick Stats (Hidden on mobile, shown on large screens) */}
         <aside className="hidden lg:flex lg:flex-col w-[280px] border-l-2 overflow-hidden animate-slide-in-right" style={{borderColor: 'var(--theme-border)', backgroundColor: 'var(--theme-card)'}}>
           {/* Header - Fixed */}
-          <div className="flex-shrink-0 p-5 border-b-2 bg-gradient-to-br from-primary-50 via-blue-50 to-purple-50 dark:from-primary-900/30 dark:via-blue-900/20 dark:to-purple-900/20 backdrop-blur-sm animate-gradient-x" style={{borderColor: 'var(--theme-border)'}}>
-            <h3 className="text-lg font-bold flex items-center gap-2 animate-bounce-subtle" style={{color: 'var(--theme-text-primary)'}}>
-              <FiFilter className="w-5 h-5 text-primary-600 dark:text-primary-400 animate-pulse" />
+          <div className="flex-shrink-0 p-5 border-b-2 bg-white dark:bg-dark-card" style={{borderColor: 'var(--theme-border)'}}>
+            <h3 className="text-lg font-bold flex items-center gap-2" style={{color: 'var(--theme-text-primary)'}}>
+              <FiFilter className="w-5 h-5 text-primary-600 dark:text-primary-400" />
               Quick Stats
             </h3>
             <p className="text-xs mt-1" style={{color: 'var(--theme-text-secondary)'}}>
@@ -388,36 +392,30 @@ const App: React.FC = () => {
 
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto p-5 space-y-4">
-            {/* Total Packages - EXTREME CARD */}
-            <div className="group relative card p-4 border-2 border-primary-200 dark:border-primary-800 bg-gradient-to-br from-primary-100 via-blue-50 to-purple-50 dark:from-primary-900/30 dark:via-blue-900/20 dark:to-purple-900/20 hover:scale-110 hover:rotate-2 hover:shadow-2xl hover:shadow-primary-500/50 transition-all duration-500 cursor-pointer overflow-hidden animate-slide-up">
-              {/* Animated background */}
-              <div className="absolute inset-0 bg-gradient-to-r from-primary-400/20 via-blue-400/20 to-purple-400/20 opacity-0 group-hover:opacity-100 animate-gradient-x transition-opacity duration-500" />
+            {/* Total Packages */}
+            <div className="group relative card p-4 border-2 border-primary-200 dark:border-primary-700 bg-white dark:bg-dark-card hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden animate-slide-up">
+              {/* Subtle glow on hover */}
+              <div className="absolute inset-0 bg-primary-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               
-              {/* Sparkle effects */}
-              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-yellow-400 to-transparent rounded-full blur-xl opacity-0 group-hover:opacity-60 group-hover:scale-150 transition-all duration-700" />
-              
-              <div className="relative z-10 text-3xl font-bold text-primary-600 dark:text-primary-400 group-hover:scale-125 group-hover:text-primary-700 dark:group-hover:text-primary-300 transition-all duration-500">
+              <div className="relative z-10 text-3xl font-bold text-primary-600 dark:text-primary-400 transition-colors duration-200">
                 {stats.total}
               </div>
-              <div className="relative z-10 text-xs font-semibold text-gray-600 dark:text-text-tertiary uppercase tracking-wide mt-1 group-hover:tracking-wider transition-all duration-300">
+              <div className="relative z-10 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mt-1">
                 Total Packages
               </div>
             </div>
 
-            {/* Selected - WILD CARD */}
-            <div className={`group relative card p-4 border-2 transition-all duration-500 cursor-pointer overflow-hidden ${stats.selected > 0 ? 'animate-bounce-subtle border-info-400 dark:border-info-600 bg-gradient-to-br from-info-100 via-cyan-50 to-blue-50 dark:from-info-900/30 dark:via-cyan-900/20 dark:to-blue-900/20' : 'border-info-200 dark:border-info-800 bg-gradient-to-br from-info-50 to-white dark:from-info-900/20 dark:to-dark-card'} hover:scale-110 hover:-rotate-2 hover:shadow-2xl hover:shadow-info-500/50`} style={{animationDelay: '100ms'}}>
-              {/* Pulse ring */}
+            {/* Selected */}
+            <div className={`group relative card p-4 border-2 transition-all duration-300 cursor-pointer overflow-hidden hover:shadow-lg hover:-translate-y-1 ${stats.selected > 0 ? 'border-primary-400 dark:border-primary-600 bg-primary-50 dark:bg-primary-900/20' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card'}`} style={{animationDelay: '100ms'}}>
+              {/* Subtle pulse when selected */}
               {stats.selected > 0 && (
-                <div className="absolute inset-0 border-4 border-info-400 rounded-xl animate-ping opacity-20" />
+                <div className="absolute inset-0 bg-primary-500/5 animate-pulse" />
               )}
               
-              {/* Animated shine */}
-              <div className="absolute -top-full left-0 w-full h-full bg-gradient-to-b from-transparent via-white/50 to-transparent group-hover:top-full transition-all duration-1000" />
-              
-              <div className={`relative z-10 text-3xl font-bold transition-all duration-500 ${stats.selected > 0 ? 'text-info-600 dark:text-info-400 group-hover:scale-150 animate-pulse' : 'text-info-600 dark:text-info-400 group-hover:scale-125'}`}>
+              <div className={`relative z-10 text-3xl font-bold transition-colors duration-200 ${stats.selected > 0 ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-400'}`}>
                 {stats.selected}
               </div>
-              <div className="relative z-10 text-xs font-semibold text-gray-600 dark:text-text-tertiary uppercase tracking-wide mt-1 group-hover:tracking-widest transition-all duration-300">
+              <div className="relative z-10 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mt-1">
                 Selected
               </div>
             </div>
@@ -433,20 +431,17 @@ const App: React.FC = () => {
               {/* Safe */}
               <button
                 onClick={() => setFilterBySafety(filterBySafety === 'Safe' ? null : 'Safe')}
-                className={`group relative w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all duration-300 overflow-hidden ${
+                className={`group relative w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all duration-200 overflow-hidden hover:-translate-y-0.5 hover:shadow-md active:scale-95 ${
                   filterBySafety === 'Safe'
-                    ? 'bg-gradient-to-r from-success-100 via-green-100 to-emerald-100 dark:from-success-800/50 dark:via-green-800/50 dark:to-emerald-800/50 border-success-500 shadow-lg shadow-success-500/50 scale-105 animate-pulse'
-                    : 'bg-success-50 dark:bg-success-900/20 border-success-200 dark:border-success-800 hover:bg-gradient-to-r hover:from-success-100 hover:to-green-100 dark:hover:from-success-800/40 dark:hover:to-green-800/40 hover:shadow-lg hover:scale-105 hover:border-success-400 active:scale-95'
+                    ? 'bg-success-50 dark:bg-success-900/30 border-success-500 shadow-md'
+                    : 'bg-white dark:bg-dark-card border-success-200 dark:border-success-800 hover:border-success-400'
                 }`}
               >
-                {/* Glowing orb */}
-                <div className={`absolute inset-0 bg-gradient-to-r from-success-400/20 to-green-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${filterBySafety === 'Safe' ? 'animate-gradient-x' : ''}`} />
-                
-                <span className="relative z-10 text-sm font-semibold text-success-800 dark:text-success-200 flex items-center gap-2 group-hover:scale-110 transition-transform duration-300">
-                  <FiCheckCircle className={`w-4 h-4 ${filterBySafety === 'Safe' ? 'animate-spin' : 'group-hover:rotate-180'} transition-transform duration-500`} />
+                <span className="relative z-10 text-sm font-semibold text-success-700 dark:text-success-300 flex items-center gap-2">
+                  <FiCheckCircle className="w-4 h-4 group-hover:rotate-180 group-hover:scale-110 transition-transform duration-300" />
                   Safe
                 </span>
-                <span className={`relative z-10 text-lg font-bold text-success-600 dark:text-success-400 group-hover:scale-125 transition-transform duration-300 ${stats.safe > 0 ? 'animate-bounce-subtle' : ''}`}>
+                <span className="relative z-10 text-lg font-bold text-success-600 dark:text-success-400 transition-colors duration-200">
                   {stats.safe}
                 </span>
               </button>
@@ -454,20 +449,17 @@ const App: React.FC = () => {
               {/* Caution */}
               <button
                 onClick={() => setFilterBySafety(filterBySafety === 'Caution' ? null : 'Caution')}
-                className={`group relative w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all duration-300 overflow-hidden hover:scale-105 hover:shadow-lg hover:shadow-warning-500/50 ${
+                className={`group relative w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all duration-200 overflow-hidden hover:-translate-y-0.5 hover:shadow-md active:scale-95 ${
                   filterBySafety === 'Caution'
-                    ? 'bg-gradient-to-r from-warning-100 via-yellow-100 to-amber-100 dark:bg-gradient-to-r dark:from-warning-800/50 dark:via-yellow-800/50 dark:to-amber-800/50 border-warning-500 shadow-lg shadow-warning-500/50 scale-105 animate-pulse'
-                    : 'bg-gradient-to-r from-warning-50 via-yellow-50/50 to-amber-50/30 dark:bg-gradient-to-r dark:from-warning-900/20 dark:via-yellow-900/20 dark:to-amber-900/20 border-warning-200 dark:border-warning-800 hover:border-warning-400'
+                    ? 'bg-warning-50 dark:bg-warning-900/30 border-warning-500 shadow-md'
+                    : 'bg-white dark:bg-dark-card border-warning-200 dark:border-warning-800 hover:border-warning-400'
                 }`}
               >
-                {/* Glowing orb effect */}
-                <div className="absolute -right-8 -top-8 w-24 h-24 bg-gradient-to-br from-warning-400/30 to-yellow-500/30 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500" />
-                
-                <span className="text-sm font-semibold text-warning-800 dark:text-warning-200 flex items-center gap-2 relative z-10">
-                  <FiAlertTriangle className={`w-4 h-4 transition-all duration-500 ${filterBySafety === 'Caution' ? 'animate-spin' : 'group-hover:rotate-180'}`} />
+                <span className="text-sm font-semibold text-warning-700 dark:text-warning-300 flex items-center gap-2 relative z-10">
+                  <FiAlertTriangle className="w-4 h-4 group-hover:rotate-180 group-hover:scale-110 transition-transform duration-300" />
                   Caution
                 </span>
-                <span className={`text-lg font-bold text-warning-600 dark:text-warning-400 relative z-10 transition-all duration-300 ${filterBySafety === 'Caution' ? 'scale-125' : 'group-hover:scale-110'}`}>
+                <span className="text-lg font-bold text-warning-600 dark:text-warning-400 relative z-10 transition-colors duration-200">
                   {stats.caution}
                 </span>
               </button>
@@ -475,21 +467,17 @@ const App: React.FC = () => {
               {/* Expert */}
               <button
                 onClick={() => setFilterBySafety(filterBySafety === 'Expert' ? null : 'Expert')}
-                className={`group relative w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all duration-300 overflow-hidden hover:scale-105 hover:shadow-lg hover:shadow-orange-500/50 hover:-rotate-1 ${
+                className={`group relative w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all duration-200 overflow-hidden hover:-translate-y-0.5 hover:shadow-md active:scale-95 ${
                   filterBySafety === 'Expert'
-                    ? 'bg-gradient-to-r from-orange-100 via-amber-100 to-yellow-100 dark:bg-gradient-to-r dark:from-orange-800/50 dark:via-amber-800/50 dark:to-yellow-800/50 border-orange-500 shadow-lg shadow-orange-500/50 scale-105 animate-bounce-subtle'
-                    : 'bg-gradient-to-r from-orange-50 via-amber-50/50 to-yellow-50/30 dark:bg-gradient-to-r dark:from-orange-900/20 dark:via-amber-900/20 dark:to-yellow-900/20 border-orange-200 dark:border-orange-800 hover:border-orange-400'
+                    ? 'bg-orange-50 dark:bg-orange-900/30 border-orange-500 shadow-md'
+                    : 'bg-white dark:bg-dark-card border-orange-200 dark:border-orange-800 hover:border-orange-400'
                 }`}
               >
-                {/* Lightning bolt effect */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-orange-300/20 via-transparent to-yellow-300/20 group-hover:animate-pulse" />
-                <div className="absolute -right-6 -bottom-6 w-20 h-20 bg-gradient-to-tl from-orange-500/40 to-yellow-500/40 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-500" />
-                
-                <span className="text-sm font-semibold text-orange-800 dark:text-orange-200 flex items-center gap-2 relative z-10">
-                  <FiZap className={`w-4 h-4 transition-all duration-500 ${filterBySafety === 'Expert' ? 'animate-spin' : 'group-hover:rotate-[360deg] group-hover:scale-125'}`} />
+                <span className="text-sm font-semibold text-orange-700 dark:text-orange-300 flex items-center gap-2 relative z-10">
+                  <FiZap className="w-4 h-4 group-hover:rotate-180 group-hover:scale-110 transition-transform duration-300" />
                   Expert
                 </span>
-                <span className={`text-lg font-bold text-orange-600 dark:text-orange-400 relative z-10 transition-all duration-300 ${filterBySafety === 'Expert' ? 'scale-125 animate-bounce-subtle' : 'group-hover:scale-110'}`}>
+                <span className="text-lg font-bold text-orange-600 dark:text-orange-400 relative z-10 transition-colors duration-200">
                   {stats.expert}
                 </span>
               </button>
@@ -497,21 +485,17 @@ const App: React.FC = () => {
               {/* Dangerous */}
               <button
                 onClick={() => setFilterBySafety(filterBySafety === 'Dangerous' ? null : 'Dangerous')}
-                className={`group relative w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all duration-300 overflow-hidden hover:scale-105 hover:shadow-2xl hover:shadow-danger-500/60 ${
+                className={`group relative w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all duration-200 overflow-hidden hover:-translate-y-0.5 hover:shadow-md active:scale-95 ${
                   filterBySafety === 'Dangerous'
-                    ? 'bg-gradient-to-r from-danger-100 via-red-100 to-pink-100 dark:bg-gradient-to-r dark:from-danger-800/50 dark:via-red-800/50 dark:to-pink-800/50 border-danger-500 shadow-2xl shadow-danger-500/60 scale-105 animate-shake'
-                    : 'bg-gradient-to-r from-danger-50 via-red-50/50 to-pink-50/30 dark:bg-gradient-to-r dark:from-danger-900/20 dark:via-red-900/20 dark:to-pink-900/20 border-danger-200 dark:border-danger-800 hover:border-danger-400 hover:animate-shake'
+                    ? 'bg-danger-50 dark:bg-danger-900/30 border-danger-500 shadow-md'
+                    : 'bg-white dark:bg-dark-card border-danger-200 dark:border-danger-800 hover:border-danger-400'
                 }`}
               >
-                {/* Danger glow effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-danger-400/30 via-red-500/20 to-pink-500/30 group-hover:animate-pulse" />
-                <div className="absolute -left-8 -bottom-8 w-32 h-32 bg-gradient-to-tr from-danger-500/50 via-red-600/40 to-pink-500/50 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500" />
-                
-                <span className="text-sm font-semibold text-danger-800 dark:text-danger-200 flex items-center gap-2 relative z-10">
-                  <FiXOctagon className={`w-4 h-4 transition-all duration-500 ${filterBySafety === 'Dangerous' ? 'animate-spin' : 'group-hover:rotate-180 group-hover:scale-125'}`} />
+                <span className="text-sm font-semibold text-danger-700 dark:text-danger-300 flex items-center gap-2 relative z-10">
+                  <FiXOctagon className="w-4 h-4 group-hover:rotate-180 group-hover:scale-110 transition-transform duration-300" />
                   Dangerous
                 </span>
-                <span className={`text-lg font-bold text-danger-600 dark:text-danger-400 relative z-10 transition-all duration-300 ${filterBySafety === 'Dangerous' ? 'scale-150 animate-bounce-subtle' : 'group-hover:scale-125'}`}>
+                <span className="text-lg font-bold text-danger-600 dark:text-danger-400 relative z-10 transition-colors duration-200">
                   {stats.dangerous}
                 </span>
               </button>

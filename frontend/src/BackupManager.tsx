@@ -156,7 +156,7 @@ const BackupManager: React.FC = () => {
           </div>
           <button
             onClick={loadBackups}
-            className="px-4 py-2 text-sm font-medium border-2 border-gray-300 dark:border-dark-border bg-white dark:bg-dark-card hover:bg-gray-50 dark:hover:bg-dark-hover rounded-lg transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
+            className="px-4 py-2 text-sm font-medium border-2 border-gray-300 dark:border-dark-border bg-white dark:bg-dark-card hover:bg-gray-50 dark:hover:bg-dark-hover rounded-lg transition-colors duration-200 flex items-center gap-2"
           >
             <FiRefreshCw className="w-4 h-4" />
             Refresh
