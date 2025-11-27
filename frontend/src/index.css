@@ -88,24 +88,24 @@
 }
 
 @layer components {
-  /* Modern Button Styles */
+  /* Modern Button Styles with Microinteractions */
   .btn-primary {
-    @apply px-4 py-2.5 bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-md focus:ring-2 focus:ring-primary-400 focus:ring-offset-2;
+    @apply px-4 py-2.5 bg-primary-500 hover:bg-primary-600 active:bg-primary-700 active:scale-[0.98] text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-md disabled:hover:translate-y-0 focus:ring-2 focus:ring-primary-400 focus:ring-offset-2;
   }
   
   .btn-success {
-    @apply px-4 py-2.5 bg-success-600 hover:bg-success-700 active:bg-success-800 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:shadow-success-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-success-400 focus:ring-offset-2;
+    @apply px-4 py-2.5 bg-success-600 hover:bg-success-700 active:bg-success-800 active:scale-[0.98] text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:shadow-success-500/20 hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 focus:ring-2 focus:ring-success-400 focus:ring-offset-2;
   }
   
   .btn-danger {
-    @apply px-4 py-2.5 bg-danger-500 hover:bg-danger-600 active:bg-danger-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:shadow-danger-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-danger-400 focus:ring-offset-2;
+    @apply px-4 py-2.5 bg-danger-500 hover:bg-danger-600 active:bg-danger-700 active:scale-[0.98] text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:shadow-danger-500/20 hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 focus:ring-2 focus:ring-danger-400 focus:ring-offset-2;
   }
   
   .btn-secondary {
     background-color: var(--theme-card);
     border-color: var(--theme-border);
     color: var(--theme-text-primary);
-    @apply px-4 py-2.5 border-2 font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-primary-400 focus:ring-offset-2;
+    @apply px-4 py-2.5 border-2 font-semibold rounded-lg hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 focus:ring-2 focus:ring-primary-400 focus:ring-offset-2;
   }
   
   .btn-secondary:hover {
@@ -113,7 +113,7 @@
     border-color: var(--theme-hover);
   }
   
-  /* Card Styles */
+  /* Card Styles with Microinteractions */
   .card {
     background-color: var(--theme-card);
     border-color: var(--theme-border);
@@ -121,34 +121,38 @@
   }
   
   .card-hover {
-    @apply hover:shadow-soft-xl hover:-translate-y-0.5 transition-all duration-300;
+    @apply hover:shadow-soft-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer;
   }
   
   .card-hover:hover {
     border-color: var(--theme-hover);
   }
   
-  /* Input Styles */
+  .card-hover:active {
+    @apply scale-[0.99] translate-y-0;
+  }
+  
+  /* Input Styles with Microinteractions */
   .input-modern {
     background-color: var(--theme-card);
     border-color: var(--theme-border);
     color: var(--theme-text-primary);
-    @apply w-full px-4 py-2.5 border-2 rounded-lg placeholder-gray-400 dark:placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200;
+    @apply w-full px-4 py-2.5 border-2 rounded-lg placeholder-gray-400 dark:placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:scale-[1.01] transition-all duration-200;
   }
   
   .input-modern:hover {
     border-color: var(--theme-hover);
   }
   
-  /* Checkbox Styles */
+  /* Checkbox Styles with Microinteractions */
   .checkbox-modern {
     border-color: var(--theme-border);
-    @apply w-5 h-5 rounded border-2 text-primary-600 focus:ring-2 focus:ring-primary-500 focus:ring-offset-0 cursor-pointer transition-all duration-150 hover:border-primary-400 dark:hover:border-primary-500 checked:bg-primary-500 checked:border-primary-500;
+    @apply w-5 h-5 rounded border-2 text-primary-600 focus:ring-2 focus:ring-primary-500 focus:ring-offset-0 cursor-pointer transition-all duration-150 hover:border-primary-400 hover:scale-110 active:scale-95 dark:hover:border-primary-500 checked:bg-primary-500 checked:border-primary-500 checked:scale-110;
   }
   
-  /* Badge Styles */
+  /* Badge Styles with Microinteractions */
   .badge-safe {
-    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold;
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 hover:scale-105 hover:shadow-sm;
     background-color: #dcfce7;
     color: #166534;
     border: 1px solid #bbf7d0;
@@ -161,7 +165,7 @@
   }
   
   .badge-caution {
-    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold;
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 hover:scale-105 hover:shadow-sm;
     background-color: #fef3c7;
     color: #92400e;
     border: 1px solid #fde68a;
@@ -174,7 +178,7 @@
   }
   
   .badge-expert {
-    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold;
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 hover:scale-105 hover:shadow-sm;
     background-color: #fed7aa;
     color: #9a3412;
     border: 1px solid #fdba74;
@@ -187,7 +191,7 @@
   }
   
   .badge-dangerous {
-    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold;
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 hover:scale-105 hover:shadow-sm;
     background-color: #fee2e2;
     color: #991b1b;
     border: 1px solid #fecaca;

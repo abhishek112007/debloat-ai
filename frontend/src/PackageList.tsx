@@ -155,18 +155,18 @@ const PackageList: React.FC<PackageListProps> = ({
   };
 
   return (
-    <div className="w-full bg-white dark:bg-dark-card text-gray-800 dark:text-text-primary p-5 md:p-6 rounded-xl shadow-soft-lg border border-gray-200 dark:border-dark-border transition-all duration-200">
+    <div className="w-full bg-white dark:bg-dark-card text-gray-800 dark:text-text-primary p-5 md:p-6 rounded-xl shadow-soft-lg border border-gray-200 dark:border-dark-border transition-all duration-300 animate-scale-in hover:shadow-soft-xl">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <div>
-          <h3 className="text-lg md:text-xl font-bold text-gray-900 dark:text-text-primary flex items-center gap-3">
-            <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-lg">
+          <h3 className="text-lg md:text-xl font-bold text-gray-900 dark:text-text-primary flex items-center gap-3 transition-colors duration-200">
+            <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-lg transition-all duration-300 hover:scale-110 hover:rotate-12">
               <FiPackage className="w-5 h-5 text-primary-600 dark:text-primary-400" />
             </div>
             Installed Packages
           </h3>
-          <p className="text-xs sm:text-sm text-gray-500 dark:text-text-tertiary mt-2 ml-11">
-            <span className="font-semibold text-primary-600 dark:text-primary-400">{selectedPackages.size}</span> selected • 
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-text-tertiary mt-2 ml-11 transition-colors duration-200">
+            <span className={`font-semibold text-primary-600 dark:text-primary-400 transition-all duration-300 ${selectedPackages.size > 0 ? 'scale-110 inline-block' : ''}`}>{selectedPackages.size}</span> selected • 
             <span className="ml-1"><span className="font-semibold">{filtered.length}</span> of {packages.length} packages</span>
           </p>
         </div>
@@ -175,7 +175,7 @@ const PackageList: React.FC<PackageListProps> = ({
       {/* Search Bar */}
       <div className="relative mb-6 group">
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <FiSearch className="w-5 h-5 text-gray-400 group-focus-within:text-primary-500 transition-colors duration-200" />
+          <FiSearch className="w-5 h-5 text-gray-400 group-focus-within:text-primary-500 group-focus-within:scale-110 transition-all duration-200" />
         </div>
         <input
           type="text"
@@ -187,7 +187,7 @@ const PackageList: React.FC<PackageListProps> = ({
         {search && (
           <button
             onClick={() => setSearch('')}
-            className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-danger-500 dark:hover:text-danger-400 transition-colors duration-200"
+            className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-danger-500 dark:hover:text-danger-400 hover:scale-110 active:scale-95 transition-all duration-200"
             aria-label="Clear search"
           >
             <FiX className="w-5 h-5" />
@@ -196,43 +196,43 @@ const PackageList: React.FC<PackageListProps> = ({
       </div>      {loading ? (
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-16 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-lg animate-pulse" />
+            <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" style={{animationDelay: `${i * 100}ms`}} />
           ))}
         </div>
       ) : (
-        <div className="card overflow-hidden border-2">
+        <div className="card overflow-hidden border-2 animate-scale-in">
           <div className="max-h-[calc(100vh-400px)] md:max-h-[500px] overflow-auto scrollbar-custom">
             {/* Header - Hidden on small mobile, visible on larger screens */}
-            <div className="hidden sm:grid grid-cols-[56px_2fr_2fr_160px] bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100 dark:from-dark-bg dark:via-dark-card dark:to-dark-bg border-b-2 border-gray-300 dark:border-dark-border sticky top-0 z-10 shadow-sm">
+            <div className="hidden sm:grid grid-cols-[56px_2fr_2fr_160px] bg-gray-100 dark:bg-dark-bg border-b-2 border-gray-300 dark:border-dark-border sticky top-0 z-10 shadow-sm">
               <div className="px-5 py-4 flex items-center">
                 <div className="w-5 h-5"></div>
               </div>
-              <div className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-text-secondary flex items-center gap-2">
+              <div className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-text-secondary flex items-center gap-2 transition-colors duration-200">
                 <FiPackage className="w-4 h-4" />
                 Package Name
               </div>
-              <div className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-text-secondary flex items-center gap-2">
+              <div className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-text-secondary flex items-center gap-2 transition-colors duration-200">
                 <FiPackage className="w-4 h-4" />
                 App Name
               </div>
-              <div className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-text-secondary">
+              <div className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-text-secondary transition-colors duration-200">
                 Safety Level
               </div>
             </div>
 
           {/* Rows */}
           {filtered.length === 0 ? (
-            <div className="px-4 py-16 text-center">
-              <FiPackage className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
-              <p className="text-base font-medium text-gray-600 dark:text-gray-400">No packages found</p>
-              <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">Try adjusting your search or filters</p>
+            <div className="px-4 py-16 text-center animate-fade-in">
+              <FiPackage className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600 animate-float" />
+              <p className="text-base font-medium text-gray-600 dark:text-gray-400 transition-colors duration-200">No packages found</p>
+              <p className="text-sm text-gray-500 dark:text-gray-500 mt-2 transition-colors duration-200">Try adjusting your search or filters</p>
             </div>
           ) : (
             filtered.map((pkg, index) => (
-              <div key={pkg.packageName} className="animate-fade-in" style={{ animationDelay: `${index * 0.02}s` }}>
+              <div key={pkg.packageName} className="animate-fade-in" style={{ animationDelay: `${Math.min(index * 0.02, 0.5)}s` }}>
                 {/* Mobile Card View (below sm breakpoint) */}
                 <div
-                  className="sm:hidden border-b border-gray-200 dark:border-dark-border p-4 hover:bg-gradient-to-r hover:from-primary-50/50 hover:to-transparent dark:hover:from-primary-500/5 cursor-pointer transition-all duration-200 active:bg-primary-100/50 dark:active:bg-primary-500/10"
+                  className="sm:hidden border-b border-gray-200 dark:border-dark-border p-4 hover:bg-primary-50/50 dark:hover:bg-primary-500/5 active:bg-primary-100/50 dark:active:bg-primary-500/10 active:scale-[0.99] cursor-pointer transition-all duration-200"
                   onClick={() => setDetailPackage(pkg)}
                 >
                   <div className="flex items-start gap-3">
@@ -248,11 +248,11 @@ const PackageList: React.FC<PackageListProps> = ({
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-sm text-gray-900 dark:text-text-primary mb-1.5 flex items-center gap-2">
-                        <FiPackage className="w-4 h-4 text-primary-600 dark:text-primary-400 flex-shrink-0" />
+                      <div className="font-semibold text-sm text-gray-900 dark:text-text-primary mb-1.5 flex items-center gap-2 transition-colors duration-200">
+                        <FiPackage className="w-4 h-4 text-primary-600 dark:text-primary-400 flex-shrink-0 transition-transform duration-200 group-hover:scale-110" />
                         {pkg.appName}
                       </div>
-                      <div className="text-xs font-mono text-gray-500 dark:text-text-tertiary mb-2 bg-gray-100 dark:bg-dark-bg px-2.5 py-1.5 rounded-md border border-gray-200 dark:border-dark-border">
+                      <div className="text-xs font-mono text-gray-500 dark:text-text-tertiary mb-2 bg-gray-100 dark:bg-dark-bg px-2.5 py-1.5 rounded-md border border-gray-200 dark:border-dark-border transition-all duration-200">
                         {pkg.packageName}
                       </div>
                       <span className={getSafetyStyles(pkg.safetyLevel)}>
@@ -264,7 +264,7 @@ const PackageList: React.FC<PackageListProps> = ({
 
                 {/* Desktop Table View (sm and above) */}
                 <div
-                  className="hidden sm:grid grid-cols-[56px_2fr_2fr_160px] border-b border-gray-200 dark:border-dark-border hover:bg-gradient-to-r hover:from-primary-50/50 hover:to-transparent dark:hover:from-primary-500/5 cursor-pointer transition-all duration-200 group"
+                  className="hidden sm:grid grid-cols-[56px_2fr_2fr_160px] border-b border-gray-200 dark:border-dark-border hover:bg-primary-50/50 dark:hover:bg-primary-500/5 hover:-translate-y-0.5 hover:shadow-sm active:scale-[0.99] cursor-pointer transition-all duration-200 group"
                   onClick={() => setDetailPackage(pkg)}
                 >
                   <div className="px-5 py-4 flex items-center">
@@ -278,11 +278,11 @@ const PackageList: React.FC<PackageListProps> = ({
                       className="checkbox-modern"
                     />
                   </div>
-                  <div className="px-4 py-4 text-sm font-mono text-gray-700 dark:text-text-secondary truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors font-medium">
+                  <div className="px-4 py-4 text-sm font-mono text-gray-700 dark:text-text-secondary truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors duration-200 font-medium">
                     {pkg.packageName}
                   </div>
-                  <div className="px-4 py-4 text-sm font-semibold text-gray-900 dark:text-text-primary truncate flex items-center gap-2.5">
-                    <FiPackage className="w-4 h-4 text-primary-600 dark:text-primary-400 flex-shrink-0" />
+                  <div className="px-4 py-4 text-sm font-semibold text-gray-900 dark:text-text-primary truncate flex items-center gap-2.5 transition-colors duration-200">
+                    <FiPackage className="w-4 h-4 text-primary-600 dark:text-primary-400 flex-shrink-0 group-hover:scale-110 transition-transform duration-200" />
                     {pkg.appName}
                   </div>
                   <div className="px-4 py-4 text-sm">

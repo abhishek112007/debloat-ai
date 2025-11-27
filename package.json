@@ -1,15 +1,16 @@
 {
-  "name": "android-debloater",
+  "name": "debloat-ai",
   "version": "1.0.0",
-  "description": "Android Debloater - Remove bloatware safely from Android devices",
+  "description": "Debloat AI - Remove bloatware safely from Android devices",
   "type": "module",
   "scripts": {
-    "dev": "cd frontend && vite",
+    "dev": "concurrently \"npm run frontend\" \"npm run tauri\" --names \"VITE,TAURI\" --prefix-colors \"cyan,magenta\"",
+    "frontend": "cd frontend && vite",
     "build": "cd frontend && tsc && vite build",
     "preview": "cd frontend && vite preview",
-    "tauri": "tauri",
-    "tauri:dev": "cd backend/tauri && tauri dev",
-    "tauri:build": "cd backend/tauri && tauri build"
+    "tauri": "tauri dev",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.0.0",
@@ -25,6 +26,7 @@
     "@types/react-dom": "^18.2.17",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.16",
+    "concurrently": "^9.2.1",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.4.0",
     "typescript": "^5.3.3",

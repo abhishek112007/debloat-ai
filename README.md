@@ -1,149 +1,179 @@
-# Android Debloater
+# Debloat AI 🤖
 
-A cross-platform desktop application built with Tauri and React to safely remove bloatware from Android devices using ADB (Android Debug Bridge).
+> AI-powered Android debloater - Safely remove bloatware from your Android devices using ADB
 
-## 🏗️ Project Structure
+A modern cross-platform desktop application built with **Tauri 2.0** and **React** that helps you identify and remove unwanted bloatware from Android devices without requiring root access.
 
-```
-android-debloater/
-├── frontend/               # React + TypeScript frontend
-│   ├── src/               # React components and utilities
-│   ├── index.html         # Entry HTML file
-│   ├── vite.config.ts     # Vite configuration
-│   ├── tailwind.config.js # Tailwind CSS configuration
-│   └── tsconfig.json      # TypeScript configuration
-│
-├── backend/               # Rust backend
-│   └── tauri/            # Tauri application
-│       ├── src/          # Rust source code
-│       ├── Cargo.toml    # Rust dependencies
-│       └── tauri.conf.json # Tauri configuration
-│
-├── docs/                  # Project documentation
-│   ├── APP_INTEGRATION_GUIDE.md
-│   ├── DARKMODE_HOOK.md
-│   ├── FEATURE_REFERENCE.md
-│   ├── PACKAGE_DATABASE.md
-│   ├── PROJECT_READINESS_ANALYSIS.md
-│   ├── PROJECT_STRUCTURE.md
-│   ├── SETTINGS_DOCUMENTATION.md
-│   ├── TAURI_SETUP.md
-│   ├── TOAST_DOCUMENTATION.md
-│   └── TOAST_QUICK_REFERENCE.md
-│
-├── package.json           # Project dependencies and scripts
-├── .gitignore            # Git ignore rules
-└── README.md             # Component documentation
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Tauri](https://img.shields.io/badge/Tauri-2.0-24C8D8.svg)
+![React](https://img.shields.io/badge/React-18.2-61DAFB.svg)
 
-```
+## ✨ Features
 
-## 🚀 Features
+- 🔌 **Device Management** - Auto-detect and connect to Android devices via ADB
+- 📦 **Smart Package Analysis** - Categorize 50+ bloatware packages with safety ratings
+- 🛡️ **Safety First** - Color-coded safety levels (Safe/Caution/Expert/Dangerous)
+- 💾 **Backup System** - Create and restore backups before removing packages
+- 🎨 **Modern UI** - Beautiful interface with dark mode and multiple themes
+- 🚀 **No Root Required** - Works with ADB, no device rooting needed
+- 🔄 **Real-time Monitoring** - Live device connection status
+- 📊 **Filtering & Search** - Easy package discovery and filtering
 
-- **Device Management**: Connect and manage multiple Android devices
-- **Package Analysis**: List and categorize installed packages
-- **Safe Debloating**: Remove bloatware without root access
-- **Backup System**: Create backups before making changes
-- **Modern UI**: Clean, flat design with dark mode support
-- **Cross-platform**: Works on Windows, macOS, and Linux
+## 🚀 Quick Start
 
-## 📋 Prerequisites
+### Prerequisites
+- **Node.js** 16+ 
+- **Rust** (stable toolchain)
+- **ADB** (Android Debug Bridge) - [Download here](https://developer.android.com/tools/releases/platform-tools)
 
-- **Node.js** (v16 or higher)
-- **Rust** (latest stable version)
-- **ADB** (Android Debug Bridge)
-- **Tauri CLI**
+### Installation
 
-## 🛠️ Installation
-
-1. Clone the repository:
+1. **Clone the repository**
 ```bash
-git clone https://github.com/abhishek112007/debloat_ai.git
-cd debloat_ai
+git clone https://github.com/abhishek112007/debloat-ai.git
+cd debloat-ai
 ```
 
-2. Install dependencies:
+2. **Install dependencies**
 ```bash
 npm install
 ```
 
-3. Install frontend dependencies:
+3. **Run the application**
 ```bash
-cd frontend
-npm install
-cd ..
+npm run dev
 ```
 
-## 💻 Development
+The app will start with:
+- Frontend at `http://localhost:1420`
+- Tauri backend running concurrently
 
-Run the application in development mode:
-
-```bash
-npm run tauri:dev
-```
-
-This will:
-- Start the Vite dev server for the frontend
-- Launch the Tauri application with hot-reload
-
-## 🏗️ Building
-
-Build the application for production:
+### Building for Production
 
 ```bash
 npm run tauri:build
 ```
 
-The built application will be in `backend/tauri/target/release/`.
+Executables will be in `backend/tauri/target/release/`
 
-## 📚 Documentation
+## 🏗️ Architecture
 
-Detailed documentation is available in the `docs/` directory:
-
-- **[APP_INTEGRATION_GUIDE.md](docs/APP_INTEGRATION_GUIDE.md)** - Complete integration guide
-- **[FEATURE_REFERENCE.md](docs/FEATURE_REFERENCE.md)** - Feature specifications
-- **[TAURI_SETUP.md](docs/TAURI_SETUP.md)** - Tauri setup instructions
-- **[SETTINGS_DOCUMENTATION.md](docs/SETTINGS_DOCUMENTATION.md)** - Settings configuration
+```
+debloat-ai/
+├── frontend/                # React + TypeScript UI
+│   ├── src/
+│   │   ├── App.tsx         # Main application
+│   │   ├── DevicePanel.tsx # Device connection UI
+│   │   ├── PackageList.tsx # Package management
+│   │   ├── BackupManager.tsx # Backup operations
+│   │   └── themes.ts       # Theme system
+│   └── public/             # Static assets & icons
+│
+├── backend/tauri/          # Rust backend
+│   ├── src/
+│   │   ├── main.rs        # Entry point
+│   │   ├── adb.rs         # ADB communication layer
+│   │   ├── commands.rs    # Tauri commands
+│   │   ├── package_database.rs # Bloatware definitions
+│   │   └── backup.rs      # Backup system
+│   └── icons/             # App icons (all platforms)
+│
+└── package.json           # Project configuration
+```
 
 ## 🎨 Tech Stack
 
 ### Frontend
-- **React 18.2** - UI library
-- **TypeScript 5.3** - Type-safe JavaScript
-- **Tailwind CSS 3.4** - Utility-first CSS
-- **Vite 4.2** - Build tool
+- **React 18.2** - UI framework
+- **TypeScript 5.3** - Type safety
+- **Tailwind CSS 3.4** - Styling
+- **Vite 5.0** - Build tool
 - **React Icons** - Icon library
 
 ### Backend
-- **Tauri 2.0** - Desktop application framework
-- **Rust** - System programming language
-- **ADB** - Android Debug Bridge integration
+- **Tauri 2.0** - Desktop framework
+- **Rust** - Backend language
+- **ADB** - Android communication
+- **Serde** - Serialization
 
-## 📝 Scripts
+## 📱 Usage
 
-- `npm run dev` - Start Vite dev server (frontend only)
-- `npm run build` - Build frontend for production
-- `npm run tauri:dev` - Run Tauri app in development mode
-- `npm run tauri:build` - Build Tauri app for production
+1. **Enable USB Debugging** on your Android device:
+   - Go to Settings → About Phone
+   - Tap "Build Number" 7 times to enable Developer Options
+   - Go to Settings → Developer Options → Enable USB Debugging
+
+2. **Connect Device** via USB
+
+3. **Launch Debloat AI** and authorize the connection on your device
+
+4. **Select Packages** to remove based on safety ratings:
+   - 🟢 **Safe** - No system impact
+   - 🟡 **Caution** - Minor feature loss
+   - 🟠 **Expert** - Advanced users only
+   - 🔴 **Dangerous** - Critical system components
+
+5. **Create Backup** before removing (recommended)
+
+6. **Uninstall** selected packages
+
+## 🔧 Available Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server (frontend + backend) |
+| `npm run frontend` | Start Vite dev server only |
+| `npm run build` | Build frontend for production |
+| `npm run tauri` | Run Tauri in dev mode |
+| `npm run tauri:build` | Build production executable |
+
+## 🐛 Troubleshooting
+
+**Device not detected?**
+- Ensure ADB is installed and in PATH
+- Enable USB Debugging on device
+- Try different USB cable/port
+- Check device drivers (Windows)
+
+**Build errors?**
+- Clear target directory: `Remove-Item target -Recurse -Force`
+- Clean npm cache: `npm cache clean --force`
+- Reinstall dependencies: `npm install`
+
+## 📦 Package Database
+
+The app includes 50+ pre-classified bloatware packages with safety ratings. Common categories:
+- Google apps (Gmail, Drive, Photos)
+- OEM bloatware (Samsung, Xiaomi, OPPO)
+- Social media apps
+- Pre-installed games
+- Carrier apps
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please read the documentation in the `docs/` folder to understand the project structure.
+Contributions are welcome! Areas for improvement:
+- Add more bloatware packages
+- Support for wireless ADB
+- Package restore functionality
+- Multi-language support
 
 ## 📄 License
 
-This project is open source and available under the MIT License.
-
-## 🐛 Issues
-
-If you encounter any issues, please file them in the [GitHub Issues](https://github.com/abhishek112007/debloat_ai/issues) section.
+This project is licensed under the MIT License.
 
 ## 👤 Author
 
 **Abhishek**
 - GitHub: [@abhishek112007](https://github.com/abhishek112007)
+- Repository: [debloat-ai](https://github.com/abhishek112007/debloat-ai)
 
 ## 🙏 Acknowledgments
 
-- Tauri team for the amazing framework
-- React team for the powerful UI library
-- ADB for device communication capabilities
+- [Tauri](https://tauri.app/) - Amazing desktop framework
+- [React](https://react.dev/) - UI library
+- [Android ADB](https://developer.android.com/tools/adb) - Device communication
+- Community bloatware lists
+
+---
+
+⭐ **Star this repo if you find it helpful!**

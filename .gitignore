@@ -8,10 +8,12 @@ yarn.lock
 dist/
 dist-ssr/
 *.local
+frontend/dist/
 
 # Tauri build files
 src-tauri/target/
 backend/tauri/target/
+target/
 
 # Logs
 *.log
@@ -21,7 +23,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Editor directories
+# Editor directories and temp files
 .vscode/*
 !.vscode/extensions.json
 .idea/
@@ -31,6 +33,7 @@ lerna-debug.log*
 *.njsproj
 *.sln
 *.sw?
+flycheck*
 
 # Environment
 .env
@@ -39,3 +42,8 @@ lerna-debug.log*
 
 # OS
 Thumbs.db
+
+# Example/Documentation files (keep README.md only)
+*Example*.tsx
+ICON_GENERATION_GUIDE.md
+docs/
