@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { motion, AnimatePresence } from 'framer-motion';
 import DevicePanel from './DevicePanel';
 import PackageList from './PackageList';
 import BackupManager from './BackupManager';
@@ -16,10 +17,12 @@ import {
   FiAlertTriangle,
   FiZap,
   FiXOctagon,
-  FiFilter,
-  FiInfo,
-  FiRefreshCw,
 } from 'react-icons/fi';
+import { 
+  buttonHover, 
+  glowButton, 
+  filterChipTap
+} from './animations';
 
 // Theme Context
 interface ThemeContextType {
@@ -94,6 +97,7 @@ interface PackageStats {
 
 // Main App Component
 const App: React.FC = () => {
+  const { theme } = useTheme();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [selectedPackages, setSelectedPackages] = useState<Set<string>>(new Set());
   const [stats, setStats] = useState<PackageStats>({
@@ -108,6 +112,8 @@ const App: React.FC = () => {
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [filterBySafety, setFilterBySafety] = useState<string | null>(null);
   const [packageData, setPackageData] = useState<Array<{packageName: string; safetyLevel: string}>>([]);
+  
+  const isLightMode = theme === 'light';
 
   // Add notification
   const addNotification = (message: string, type: 'success' | 'error' | 'info') => {
@@ -191,101 +197,120 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="h-full w-full overflow-hidden bg-theme-bg text-theme-text-primary transition-colors duration-300 flex flex-col animate-fade-in" style={{backgroundColor: 'var(--theme-bg)', color: 'var(--theme-text-primary)'}}>
-      {/* Header */}
-      <header className="border-b-2 bg-theme-card shadow-sm flex-shrink-0 animate-slide-down" style={{borderColor: 'var(--theme-border)', backgroundColor: 'var(--theme-card)'}}>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-4 sm:px-6 py-4 gap-3">
-          <div className="group">
-            <h1 className="text-xl sm:text-2xl font-bold text-primary-600 dark:text-primary-400 transition-all duration-200 cursor-default">
+    <div className="h-full w-full overflow-hidden flex flex-col" style={{backgroundColor: 'var(--theme-bg)', color: 'var(--theme-text-primary)'}}>
+      {/* Ultra-Thin Glass Navbar */}
+      <nav className="flex-shrink-0 px-6 py-3 relative z-50" style={{
+        background: isLightMode 
+          ? 'linear-gradient(180deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.45) 100%)'
+          : 'linear-gradient(180deg, rgba(17, 17, 17, 0.4) 0%, rgba(13, 13, 13, 0.2) 100%)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        borderBottom: isLightMode ? '1px solid rgba(0, 0, 0, 0.05)' : '1px solid rgba(255, 255, 255, 0.04)',
+        boxShadow: isLightMode 
+          ? '0 1px 0 rgba(255, 255, 255, 0.5) inset, 0 2px 8px rgba(0, 0, 0, 0.06)'
+          : '0 1px 0 rgba(255, 255, 255, 0.02) inset, 0 2px 8px rgba(0, 0, 0, 0.04)'
+      }}>
+        <div className="flex items-center justify-between max-w-[1800px] mx-auto">
+          {/* Logo & Title - Minimal */}
+          <div className="flex items-center gap-3">
+            <h1 className="text-lg font-semibold tracking-tight" style={{
+              color: 'var(--theme-text-primary)',
+              letterSpacing: '-0.02em'
+            }}>
               Debloat AI
             </h1>
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-text-tertiary mt-0.5 transition-colors duration-200">
-              AI-powered Android debloater - Remove bloatware safely
-            </p>
+            <span className="text-xs px-2 py-0.5 rounded-full" style={{
+              background: isLightMode ? 'rgba(46, 196, 182, 0.12)' : 'rgba(88, 166, 175, 0.12)',
+              color: 'var(--theme-accent)',
+              fontWeight: 500
+            }}>
+              ADB Tool
+            </span>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-            {/* View Backups Button */}
-            <button
+          {/* Right Controls - Minimal Icons */}
+          <div className="flex items-center gap-2">
+            <motion.button
               onClick={() => setShowBackupManager(!showBackupManager)}
-              className="group flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm border-2 rounded-lg transition-all duration-200 font-medium flex items-center justify-center gap-2 hover:-translate-y-0.5 hover:shadow-md active:scale-95"
-              style={{borderColor: 'var(--theme-border)', backgroundColor: 'var(--theme-card)', color: 'var(--theme-text-primary)'}}
+              className="px-3 py-1.5 rounded-lg flex items-center gap-2 text-sm"
+              style={{
+                background: isLightMode 
+                  ? 'rgba(0, 0, 0, 0.03)'
+                  : 'rgba(255, 255, 255, 0.03)',
+                color: 'var(--theme-text-secondary)',
+                border: isLightMode ? '1px solid rgba(0, 0, 0, 0.05)' : 'none'
+              }}
+              variants={buttonHover}
+              initial="rest"
+              whileHover="hover"
+              whileTap="tap"
+              animate={{
+                ...glowButton.rest,
+                background: isLightMode ? 'rgba(0, 0, 0, 0.03)' : 'rgba(255, 255, 255, 0.03)'
+              }}
+              onHoverStart={() => {}}
             >
-              {showBackupManager ? (
-                <>
-                  <FiList className="w-4 h-4 transition-transform duration-200 group-hover:rotate-6" />
-                  <span>Package List</span>
-                </>
-              ) : (
-                <>
-                  <FiArchive className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
-                  <span>View Backups</span>
-                </>
-              )}
-            </button>
-
-            {/* Theme Selector */}
+              <motion.div
+                animate={showBackupManager ? { rotate: 0 } : { rotate: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {showBackupManager ? (
+                  <FiList className="w-4 h-4" />
+                ) : (
+                  <FiArchive className="w-4 h-4" />
+                )}
+              </motion.div>
+              <span className="hidden sm:inline">
+                {showBackupManager ? 'Packages' : 'Backups'}
+              </span>
+            </motion.button>
+            
             <ThemeSelector />
           </div>
         </div>
+      </nav>
 
-        {/* Action Bar */}
-        <div className="border-t px-4 sm:px-6 py-3 transition-all duration-300" style={{borderColor: 'var(--theme-border)', backgroundColor: 'var(--theme-bg)'}}>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-end gap-3">
-            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-              <button
-                onClick={handleBackupSelected}
-                disabled={selectedPackages.size === 0}
-                className="group btn-success w-full sm:w-auto text-sm shadow-md hover:shadow-lg flex items-center justify-center gap-2"
-              >
-                <FiDownload className="w-4 h-4 transition-transform duration-200 group-hover:-translate-y-0.5" />
-                Backup ({selectedPackages.size})
-              </button>
-              <button
-                onClick={handleUninstallSelected}
-                disabled={selectedPackages.size === 0}
-                className="group btn-danger w-full sm:w-auto text-sm shadow-md hover:shadow-lg flex items-center justify-center gap-2"
-              >
-                <FiTrash2 className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12" />
-                Uninstall ({selectedPackages.size})
-              </button>
-              <button
-                onClick={() => setSelectedPackages(new Set())}
-                disabled={selectedPackages.size === 0}
-                className="group btn-secondary w-full sm:w-auto text-sm flex items-center justify-center gap-2"
-              >
-                <FiX className="w-4 h-4 transition-transform duration-200 group-hover:rotate-90" />
-                Clear
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Layout - Responsive Grid */}
-      <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
-        {/* Left Sidebar - Device Panel */}
-        <aside className="w-full lg:w-[320px] border-b lg:border-b-0 lg:border-r-2 p-5 overflow-y-auto" style={{borderColor: 'var(--theme-border)', backgroundColor: 'var(--theme-card)'}}>
-          {/* Selection Summary */}
+      {/* Main Layout - Floating Panels */}
+      <div className="flex flex-col lg:flex-row flex-1 overflow-hidden px-4 py-4 gap-4 max-w-[1800px] mx-auto w-full">
+        {/* Left Sidebar - Device Panel - Floating Glass */}
+        <aside className="w-full lg:w-[300px] overflow-y-auto glass-card-float p-5" style={{
+          background: isLightMode
+            ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.55) 100%)'
+            : 'linear-gradient(135deg, rgba(17, 17, 17, 0.6) 0%, rgba(13, 13, 13, 0.6) 100%)',
+          backdropFilter: 'blur(16px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+          boxShadow: isLightMode
+            ? '0 4px 10px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.4)'
+            : '0 4px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.04)',
+          border: isLightMode ? '1px solid rgba(0, 0, 0, 0.05)' : 'none',
+          borderRadius: '12px'
+        }}>
+          {/* Selection Summary - Only show when active */}
           {selectedPackages.size > 0 && (
-            <div className="mb-5 p-4 rounded-xl border-2 border-primary-200 dark:border-primary-700 bg-primary-50 dark:bg-primary-900/20 animate-slide-down">
+            <div className="mb-5 p-4 rounded-xl transition-all duration-300 device-connected-pulse" style={{
+              background: isLightMode ? 'rgba(46, 196, 182, 0.10)' : 'rgba(88, 166, 175, 0.08)',
+              boxShadow: isLightMode
+                ? '0 0 24px rgba(46, 196, 182, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5)'
+                : '0 0 24px rgba(88, 166, 175, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+              border: isLightMode ? '1px solid rgba(46, 196, 182, 0.15)' : 'none'
+            }}>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-primary-500 rounded-full animate-pulse" />
-                  <span className="text-sm font-bold text-primary-700 dark:text-primary-300">Active Selection</span>
+                  <div className="status-dot status-connected" />
+                  <span className="text-sm font-semibold" style={{color: 'var(--theme-accent)'}}>Active Selection</span>
                 </div>
                 <button
                   onClick={() => setSelectedPackages(new Set())}
-                  className="group p-1 hover:bg-primary-100 dark:hover:bg-primary-800/40 rounded-md transition-all duration-200 hover:scale-110 active:scale-95"
+                  className="p-1.5 rounded-lg transition-all duration-200 hover:bg-white/5"
                   title="Clear selection"
                 >
-                  <FiX className="w-4 h-4 text-primary-600 dark:text-primary-400 group-hover:rotate-90 transition-transform duration-200" />
+                  <FiX className="w-4 h-4 transition-transform duration-200 hover:rotate-90" style={{color: 'var(--theme-accent)'}} />
                 </button>
               </div>
-              <div className="text-2xl font-bold text-primary-600 dark:text-primary-400 mb-1">
+              <div className="text-3xl font-bold mb-1" style={{color: 'var(--theme-accent)'}}>
                 {selectedPackages.size}
               </div>
-              <div className="text-xs text-primary-600 dark:text-primary-400 opacity-80">
+              <div className="text-xs opacity-70" style={{color: 'var(--theme-accent)'}}>
                 package{selectedPackages.size !== 1 ? 's' : ''} selected
               </div>
             </div>
@@ -294,73 +319,141 @@ const App: React.FC = () => {
           <DevicePanel />
         </aside>
 
-        {/* Main Content */}
-        <main className="flex-1 p-4 md:p-6 overflow-y-auto" style={{backgroundColor: 'var(--theme-bg)'}}>
-          {/* Filter Controls - Only show when not in backup mode */}
+        {/* Main Content - Floating Panel */}
+        <main className="flex-1 overflow-y-auto glass-card p-6" style={{
+          background: isLightMode
+            ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.55) 100%)'
+            : 'linear-gradient(135deg, rgba(17, 17, 17, 0.6) 0%, rgba(13, 13, 13, 0.6) 100%)',
+          backdropFilter: 'blur(16px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+          boxShadow: isLightMode
+            ? '0 4px 10px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.4)'
+            : '0 4px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.04)',
+          border: isLightMode ? '1px solid rgba(0, 0, 0, 0.05)' : 'none',
+          borderRadius: '12px'
+        }}>
+          {/* Minimal Filter Chips */}
           {!showBackupManager && (
-            <div className="mb-6 flex flex-wrap items-center gap-2 p-4 rounded-xl border-2 shadow-sm" style={{backgroundColor: 'var(--theme-card)', borderColor: 'var(--theme-border)'}}>
-              <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5" style={{color: 'var(--theme-text-primary)'}}>
-                <FiFilter className="w-4 h-4 transition-transform duration-200 hover:rotate-12" /> Filter:
-              </span>
-              <button
+            <div className="mb-6 flex flex-wrap items-center gap-2">
+              <motion.button
                 onClick={() => setFilterBySafety(null)}
-                className={`group px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 hover:-translate-y-0.5 active:scale-95 flex items-center gap-1.5 ${
-                  filterBySafety === null
-                    ? 'bg-primary-600 text-white shadow-md'
-                    : 'border-2 hover:shadow-sm'
+                className={`px-4 py-2 text-xs font-medium rounded-lg flex items-center gap-1.5 ${
+                  filterBySafety === null ? 'active-filter' : ''
                 }`}
-                style={filterBySafety === null ? {} : {backgroundColor: 'var(--theme-card)', borderColor: 'var(--theme-border)', color: 'var(--theme-text-primary)'}}
+                style={{
+                  background: filterBySafety === null ? 'var(--theme-accent)' : (isLightMode ? 'rgba(0, 0, 0, 0.02)' : 'rgba(255, 255, 255, 0.03)'),
+                  color: filterBySafety === null ? 'white' : 'var(--theme-text-secondary)',
+                  border: isLightMode ? '1px solid rgba(0, 0, 0, 0.05)' : 'none',
+                  boxShadow: filterBySafety === null 
+                    ? (isLightMode ? '0 2px 8px rgba(46, 196, 182, 0.2)' : '0 2px 8px rgba(88, 166, 175, 0.2)')
+                    : 'none'
+                }}
+                variants={filterChipTap}
+                initial="rest"
+                whileTap="tap"
+                whileHover={{
+                  scale: 1.04,
+                  y: -1,
+                  boxShadow: filterBySafety === null 
+                    ? (isLightMode ? '0 4px 12px rgba(46, 196, 182, 0.25)' : '0 4px 12px rgba(88, 166, 175, 0.25)')
+                    : (isLightMode ? '0 2px 8px rgba(46, 196, 182, 0.15)' : '0 2px 8px rgba(88, 166, 175, 0.15)'),
+                  transition: { duration: 0.15 }
+                }}
               >
-                <FiList className="w-3.5 h-3.5 transition-transform duration-200 group-hover:scale-110" /> All Packages
-              </button>
-              <button
+                <FiList className="w-3.5 h-3.5" /> All
+              </motion.button>
+              <motion.button
                 onClick={() => setFilterBySafety('Safe')}
-                className={`group px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 flex items-center gap-1.5 hover:-translate-y-0.5 active:scale-95 ${
-                  filterBySafety === 'Safe'
-                    ? 'bg-success-600 text-white shadow-md'
-                    : 'bg-white dark:bg-gray-800 border-2 border-success-300 dark:border-success-700 text-success-700 dark:text-success-400 hover:border-success-500 hover:shadow-sm'
-                }`}
+                className="px-4 py-2 text-xs font-medium rounded-lg flex items-center gap-1.5"
+                style={{
+                  background: filterBySafety === 'Safe' ? 'rgba(16, 185, 129, 0.15)' : (isLightMode ? 'rgba(0, 0, 0, 0.02)' : 'rgba(255, 255, 255, 0.03)'),
+                  color: filterBySafety === 'Safe' ? '#10B981' : 'var(--theme-text-secondary)',
+                  border: isLightMode ? '1px solid rgba(0, 0, 0, 0.05)' : 'none',
+                  boxShadow: filterBySafety === 'Safe' ? '0 2px 8px rgba(16, 185, 129, 0.15)' : 'none'
+                }}
+                variants={filterChipTap}
+                initial="rest"
+                whileTap="tap"
+                whileHover={{
+                  scale: 1.04,
+                  y: -1,
+                  boxShadow: filterBySafety === 'Safe' 
+                    ? '0 4px 12px rgba(16, 185, 129, 0.25)' 
+                    : '0 2px 8px rgba(16, 185, 129, 0.15)',
+                  transition: { duration: 0.15 }
+                }}
               >
-                <FiCheckCircle className="w-3.5 h-3.5 transition-transform duration-300 group-hover:rotate-180 group-hover:scale-110" /> Safe
-              </button>
-              <button
+                <FiCheckCircle className="w-3.5 h-3.5" /> Safe
+              </motion.button>
+              <motion.button
                 onClick={() => setFilterBySafety('Caution')}
-                className={`group px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 flex items-center gap-1.5 hover:-translate-y-0.5 active:scale-95 ${
-                  filterBySafety === 'Caution'
-                    ? 'bg-warning-600 text-white shadow-md'
-                    : 'bg-white dark:bg-gray-800 border-2 border-warning-300 dark:border-warning-700 text-warning-700 dark:text-warning-400 hover:border-warning-500 hover:shadow-sm'
-                }`}
+                className="px-4 py-2 text-xs font-medium rounded-lg flex items-center gap-1.5"
+                style={{
+                  background: filterBySafety === 'Caution' ? 'rgba(251, 191, 36, 0.15)' : (isLightMode ? 'rgba(0, 0, 0, 0.02)' : 'rgba(255, 255, 255, 0.03)'),
+                  color: filterBySafety === 'Caution' ? '#F59E0B' : 'var(--theme-text-secondary)',
+                  border: isLightMode ? '1px solid rgba(0, 0, 0, 0.05)' : 'none',
+                  boxShadow: filterBySafety === 'Caution' ? '0 2px 8px rgba(251, 191, 36, 0.15)' : 'none'
+                }}
+                variants={filterChipTap}
+                initial="rest"
+                whileTap="tap"
+                whileHover={{
+                  scale: 1.04,
+                  y: -1,
+                  boxShadow: filterBySafety === 'Caution' 
+                    ? '0 4px 12px rgba(251, 191, 36, 0.25)' 
+                    : '0 2px 8px rgba(251, 191, 36, 0.15)',
+                  transition: { duration: 0.15 }
+                }}
               >
-                <FiAlertTriangle className="w-3.5 h-3.5 transition-transform duration-300 group-hover:rotate-180 group-hover:scale-110" /> Caution
-              </button>
-              <button
+                <FiAlertTriangle className="w-3.5 h-3.5" /> Caution
+              </motion.button>
+              <motion.button
                 onClick={() => setFilterBySafety('Expert')}
-                className={`group px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 flex items-center gap-1.5 hover:-translate-y-0.5 active:scale-95 ${
-                  filterBySafety === 'Expert'
-                    ? 'bg-orange-600 text-white shadow-md'
-                    : 'bg-white dark:bg-gray-800 border-2 border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-400 hover:border-orange-500 hover:shadow-sm'
-                }`}
+                className="px-4 py-2 text-xs font-medium rounded-lg flex items-center gap-1.5"
+                style={{
+                  background: filterBySafety === 'Expert' ? 'rgba(249, 115, 22, 0.15)' : (isLightMode ? 'rgba(0, 0, 0, 0.02)' : 'rgba(255, 255, 255, 0.03)'),
+                  color: filterBySafety === 'Expert' ? '#F97316' : 'var(--theme-text-secondary)',
+                  border: isLightMode ? '1px solid rgba(0, 0, 0, 0.05)' : 'none',
+                  boxShadow: filterBySafety === 'Expert' ? '0 2px 8px rgba(249, 115, 22, 0.15)' : 'none'
+                }}
+                variants={filterChipTap}
+                initial="rest"
+                whileTap="tap"
+                whileHover={{
+                  scale: 1.04,
+                  y: -1,
+                  boxShadow: filterBySafety === 'Expert' 
+                    ? '0 4px 12px rgba(249, 115, 22, 0.25)' 
+                    : '0 2px 8px rgba(249, 115, 22, 0.15)',
+                  transition: { duration: 0.15 }
+                }}
               >
-                <FiZap className="w-3.5 h-3.5 transition-transform duration-300 group-hover:rotate-180 group-hover:scale-110" /> Expert
-              </button>
-              <button
+                <FiZap className="w-3.5 h-3.5" /> Expert
+              </motion.button>
+              <motion.button
                 onClick={() => setFilterBySafety('Dangerous')}
-                className={`group px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 flex items-center gap-1.5 hover:-translate-y-0.5 active:scale-95 ${
-                  filterBySafety === 'Dangerous'
-                    ? 'bg-danger-600 text-white shadow-md'
-                    : 'bg-white dark:bg-gray-800 border-2 border-danger-300 dark:border-danger-700 text-danger-700 dark:text-danger-400 hover:border-danger-500 hover:shadow-sm'
-                }`}
+                className="px-4 py-2 text-xs font-medium rounded-lg flex items-center gap-1.5"
+                style={{
+                  background: filterBySafety === 'Dangerous' ? 'rgba(239, 68, 68, 0.15)' : (isLightMode ? 'rgba(0, 0, 0, 0.02)' : 'rgba(255, 255, 255, 0.03)'),
+                  color: filterBySafety === 'Dangerous' ? '#EF4444' : 'var(--theme-text-secondary)',
+                  border: isLightMode ? '1px solid rgba(0, 0, 0, 0.05)' : 'none',
+                  boxShadow: filterBySafety === 'Dangerous' ? '0 2px 8px rgba(239, 68, 68, 0.15)' : 'none'
+                }}
+                variants={filterChipTap}
+                initial="rest"
+                whileTap="tap"
+                whileHover={{
+                  scale: 1.04,
+                  y: -1,
+                  boxShadow: filterBySafety === 'Dangerous' 
+                    ? '0 4px 12px rgba(239, 68, 68, 0.25)' 
+                    : '0 2px 8px rgba(239, 68, 68, 0.15)',
+                  transition: { duration: 0.15 }
+                }}
               >
-                <FiXOctagon className="w-3.5 h-3.5 transition-transform duration-300 group-hover:rotate-180 group-hover:scale-110" /> Dangerous
-              </button>
-              {filterBySafety && (
-                <button
-                  onClick={() => setFilterBySafety(null)}
-                  className="group ml-auto px-4 py-2 text-xs font-semibold rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 shadow-sm hover:shadow flex items-center gap-1.5 hover:-translate-y-0.5 active:scale-95"
-                >
-                  <FiX className="w-3.5 h-3.5 transition-transform duration-200 group-hover:rotate-90" /> Clear
-                </button>
-              )}
+                <FiTrash2 className="w-3.5 h-3.5" /> Dangerous
+              </motion.button>
             </div>
           )}
           
@@ -377,171 +470,279 @@ const App: React.FC = () => {
           )}
         </main>
 
-        {/* Right Sidebar - Quick Stats (Hidden on mobile, shown on large screens) */}
-        <aside className="hidden lg:flex lg:flex-col w-[280px] border-l-2 overflow-hidden animate-slide-in-right" style={{borderColor: 'var(--theme-border)', backgroundColor: 'var(--theme-card)'}}>
-          {/* Header - Fixed */}
-          <div className="flex-shrink-0 p-5 border-b-2 bg-white dark:bg-dark-card" style={{borderColor: 'var(--theme-border)'}}>
-            <h3 className="text-lg font-bold flex items-center gap-2" style={{color: 'var(--theme-text-primary)'}}>
-              <FiFilter className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              Quick Stats
-            </h3>
-            <p className="text-xs mt-1" style={{color: 'var(--theme-text-secondary)'}}>
-              Package overview & filters
-            </p>
+        {/* Right Sidebar - Stats - Floating Minimal */}
+        <aside className="hidden lg:flex lg:flex-col w-[280px] overflow-y-auto glass-card p-5 space-y-3" style={{
+          background: isLightMode
+            ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.55) 100%)'
+            : 'linear-gradient(135deg, rgba(17, 17, 17, 0.6) 0%, rgba(13, 13, 13, 0.6) 100%)',
+          backdropFilter: 'blur(16px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+          boxShadow: isLightMode
+            ? '0 4px 10px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.4)'
+            : '0 4px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.04)',
+          border: isLightMode ? '1px solid rgba(0, 0, 0, 0.05)' : 'none',
+          borderRadius: '12px'
+        }}>
+          {/* Total & Selected - Minimal Cards */}
+          <div className="p-4 rounded-xl transition-all duration-200" style={{
+            background: isLightMode ? 'rgba(0, 0, 0, 0.02)' : 'rgba(255, 255, 255, 0.02)',
+            boxShadow: isLightMode ? '0 2px 6px rgba(0, 0, 0, 0.04)' : '0 1px 3px rgba(0, 0, 0, 0.04)',
+            border: isLightMode ? '1px solid rgba(0, 0, 0, 0.05)' : 'none'
+          }}>
+            <div className="text-2xl font-bold mb-1" style={{color: 'var(--theme-text-primary)'}}>
+              {stats.total}
+            </div>
+            <div className="text-xs font-medium opacity-60" style={{color: 'var(--theme-text-secondary)'}}>
+              Total Packages
+            </div>
           </div>
 
-          {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-4">
-            {/* Total Packages */}
-            <div className="group relative card p-4 border-2 border-primary-200 dark:border-primary-700 bg-white dark:bg-dark-card hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden animate-slide-up">
-              {/* Subtle glow on hover */}
-              <div className="absolute inset-0 bg-primary-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              
-              <div className="relative z-10 text-3xl font-bold text-primary-600 dark:text-primary-400 transition-colors duration-200">
-                {stats.total}
-              </div>
-              <div className="relative z-10 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mt-1">
-                Total Packages
-              </div>
+          <div className={`p-4 rounded-xl transition-all duration-200 ${stats.selected > 0 ? 'device-connected-pulse' : ''}`} style={{
+            background: stats.selected > 0 
+              ? (isLightMode ? 'rgba(46, 196, 182, 0.10)' : 'rgba(88, 166, 175, 0.08)')
+              : (isLightMode ? 'rgba(0, 0, 0, 0.02)' : 'rgba(255, 255, 255, 0.02)'),
+            boxShadow: stats.selected > 0 
+              ? (isLightMode ? '0 0 20px rgba(46, 196, 182, 0.15)' : '0 0 20px rgba(88, 166, 175, 0.12)')
+              : (isLightMode ? '0 2px 6px rgba(0, 0, 0, 0.04)' : '0 1px 3px rgba(0, 0, 0, 0.04)'),
+            border: isLightMode ? '1px solid rgba(0, 0, 0, 0.05)' : 'none'
+          }}>
+            <div className="text-2xl font-bold mb-1" style={{
+              color: stats.selected > 0 ? 'var(--theme-accent)' : 'var(--theme-text-primary)'
+            }}>
+              {stats.selected}
             </div>
-
-            {/* Selected */}
-            <div className={`group relative card p-4 border-2 transition-all duration-300 cursor-pointer overflow-hidden hover:shadow-lg hover:-translate-y-1 ${stats.selected > 0 ? 'border-primary-400 dark:border-primary-600 bg-primary-50 dark:bg-primary-900/20' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card'}`} style={{animationDelay: '100ms'}}>
-              {/* Subtle pulse when selected */}
-              {stats.selected > 0 && (
-                <div className="absolute inset-0 bg-primary-500/5 animate-pulse" />
-              )}
-              
-              <div className={`relative z-10 text-3xl font-bold transition-colors duration-200 ${stats.selected > 0 ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-400'}`}>
-                {stats.selected}
-              </div>
-              <div className="relative z-10 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mt-1">
-                Selected
-              </div>
+            <div className="text-xs font-medium opacity-60" style={{
+              color: stats.selected > 0 ? 'var(--theme-accent)' : 'var(--theme-text-secondary)'
+            }}>
+              Selected
             </div>
+          </div>
 
-            {/* Safety Breakdown */}
-            <div className="space-y-2 animate-fade-in" style={{animationDelay: '200ms'}}>
-              <div className="text-xs font-bold text-gray-700 dark:text-text-secondary uppercase tracking-wider mb-3 flex items-center gap-2">
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 dark:via-dark-border to-transparent animate-pulse"></div>
-                Safety Levels
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 dark:via-dark-border to-transparent animate-pulse"></div>
-              </div>
+          {/* Divider */}
+          <div className="h-px my-2" style={{background: isLightMode ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.06)'}} />
 
-              {/* Safe */}
-              <button
-                onClick={() => setFilterBySafety(filterBySafety === 'Safe' ? null : 'Safe')}
-                className={`group relative w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all duration-200 overflow-hidden hover:-translate-y-0.5 hover:shadow-md active:scale-95 ${
-                  filterBySafety === 'Safe'
-                    ? 'bg-success-50 dark:bg-success-900/30 border-success-500 shadow-md'
-                    : 'bg-white dark:bg-dark-card border-success-200 dark:border-success-800 hover:border-success-400'
-                }`}
-              >
-                <span className="relative z-10 text-sm font-semibold text-success-700 dark:text-success-300 flex items-center gap-2">
-                  <FiCheckCircle className="w-4 h-4 group-hover:rotate-180 group-hover:scale-110 transition-transform duration-300" />
-                  Safe
-                </span>
-                <span className="relative z-10 text-lg font-bold text-success-600 dark:text-success-400 transition-colors duration-200">
-                  {stats.safe}
-                </span>
-              </button>
+          {/* Safety Levels - Minimal Buttons */}
+          <div className="space-y-2">{/* Safe */}
+            <button
+              onClick={() => setFilterBySafety(filterBySafety === 'Safe' ? null : 'Safe')}
+              className="w-full flex items-center justify-between p-3 rounded-lg transition-all duration-200"
+              style={{
+                background: filterBySafety === 'Safe' ? 'rgba(16, 185, 129, 0.12)' : (isLightMode ? 'rgba(0, 0, 0, 0.02)' : 'rgba(255, 255, 255, 0.02)'),
+                boxShadow: filterBySafety === 'Safe' ? '0 0 16px rgba(16, 185, 129, 0.15)' : 'none',
+                border: isLightMode ? '1px solid rgba(0, 0, 0, 0.04)' : 'none'
+              }}
+              onMouseEnter={(e) => {
+                if (filterBySafety !== 'Safe') {
+                  e.currentTarget.style.background = 'rgba(16, 185, 129, 0.06)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (filterBySafety !== 'Safe') {
+                  e.currentTarget.style.background = isLightMode ? 'rgba(0, 0, 0, 0.02)' : 'rgba(255, 255, 255, 0.02)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }
+              }}
+            >
+              <span className="text-sm font-medium flex items-center gap-2" style={{color: '#10B981'}}>
+                <FiCheckCircle className="w-4 h-4" />
+                Safe
+              </span>
+              <span className="text-lg font-bold" style={{color: '#10B981'}}>
+                {stats.safe}
+              </span>
+            </button>
 
-              {/* Caution */}
-              <button
-                onClick={() => setFilterBySafety(filterBySafety === 'Caution' ? null : 'Caution')}
-                className={`group relative w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all duration-200 overflow-hidden hover:-translate-y-0.5 hover:shadow-md active:scale-95 ${
-                  filterBySafety === 'Caution'
-                    ? 'bg-warning-50 dark:bg-warning-900/30 border-warning-500 shadow-md'
-                    : 'bg-white dark:bg-dark-card border-warning-200 dark:border-warning-800 hover:border-warning-400'
-                }`}
-              >
-                <span className="text-sm font-semibold text-warning-700 dark:text-warning-300 flex items-center gap-2 relative z-10">
-                  <FiAlertTriangle className="w-4 h-4 group-hover:rotate-180 group-hover:scale-110 transition-transform duration-300" />
-                  Caution
-                </span>
-                <span className="text-lg font-bold text-warning-600 dark:text-warning-400 relative z-10 transition-colors duration-200">
-                  {stats.caution}
-                </span>
-              </button>
+            {/* Caution */}
+            <button
+              onClick={() => setFilterBySafety(filterBySafety === 'Caution' ? null : 'Caution')}
+              className="w-full flex items-center justify-between p-3 rounded-lg transition-all duration-200"
+              style={{
+                background: filterBySafety === 'Caution' ? 'rgba(251, 191, 36, 0.12)' : (isLightMode ? 'rgba(0, 0, 0, 0.02)' : 'rgba(255, 255, 255, 0.02)'),
+                boxShadow: filterBySafety === 'Caution' ? '0 0 16px rgba(251, 191, 36, 0.15)' : 'none',
+                border: isLightMode ? '1px solid rgba(0, 0, 0, 0.04)' : 'none'
+              }}
+              onMouseEnter={(e) => {
+                if (filterBySafety !== 'Caution') {
+                  e.currentTarget.style.background = 'rgba(251, 191, 36, 0.06)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (filterBySafety !== 'Caution') {
+                  e.currentTarget.style.background = isLightMode ? 'rgba(0, 0, 0, 0.02)' : 'rgba(255, 255, 255, 0.02)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }
+              }}
+            >
+              <span className="text-sm font-medium flex items-center gap-2" style={{color: '#F59E0B'}}>
+                <FiAlertTriangle className="w-4 h-4" />
+                Caution
+              </span>
+              <span className="text-lg font-bold" style={{color: '#F59E0B'}}>
+                {stats.caution}
+              </span>
+            </button>
 
-              {/* Expert */}
-              <button
-                onClick={() => setFilterBySafety(filterBySafety === 'Expert' ? null : 'Expert')}
-                className={`group relative w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all duration-200 overflow-hidden hover:-translate-y-0.5 hover:shadow-md active:scale-95 ${
-                  filterBySafety === 'Expert'
-                    ? 'bg-orange-50 dark:bg-orange-900/30 border-orange-500 shadow-md'
-                    : 'bg-white dark:bg-dark-card border-orange-200 dark:border-orange-800 hover:border-orange-400'
-                }`}
-              >
-                <span className="text-sm font-semibold text-orange-700 dark:text-orange-300 flex items-center gap-2 relative z-10">
-                  <FiZap className="w-4 h-4 group-hover:rotate-180 group-hover:scale-110 transition-transform duration-300" />
-                  Expert
-                </span>
-                <span className="text-lg font-bold text-orange-600 dark:text-orange-400 relative z-10 transition-colors duration-200">
-                  {stats.expert}
-                </span>
-              </button>
+            {/* Expert */}
+            <button
+              onClick={() => setFilterBySafety(filterBySafety === 'Expert' ? null : 'Expert')}
+              className="w-full flex items-center justify-between p-3 rounded-lg transition-all duration-200"
+              style={{
+                background: filterBySafety === 'Expert' ? 'rgba(249, 115, 22, 0.12)' : (isLightMode ? 'rgba(0, 0, 0, 0.02)' : 'rgba(255, 255, 255, 0.02)'),
+                boxShadow: filterBySafety === 'Expert' ? '0 0 16px rgba(249, 115, 22, 0.15)' : 'none',
+                border: isLightMode ? '1px solid rgba(0, 0, 0, 0.04)' : 'none'
+              }}
+              onMouseEnter={(e) => {
+                if (filterBySafety !== 'Expert') {
+                  e.currentTarget.style.background = 'rgba(249, 115, 22, 0.06)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (filterBySafety !== 'Expert') {
+                  e.currentTarget.style.background = isLightMode ? 'rgba(0, 0, 0, 0.02)' : 'rgba(255, 255, 255, 0.02)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }
+              }}
+            >
+              <span className="text-sm font-medium flex items-center gap-2" style={{color: '#F97316'}}>
+                <FiZap className="w-4 h-4" />
+                Expert
+              </span>
+              <span className="text-lg font-bold" style={{color: '#F97316'}}>
+                {stats.expert}
+              </span>
+            </button>
 
-              {/* Dangerous */}
-              <button
-                onClick={() => setFilterBySafety(filterBySafety === 'Dangerous' ? null : 'Dangerous')}
-                className={`group relative w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all duration-200 overflow-hidden hover:-translate-y-0.5 hover:shadow-md active:scale-95 ${
-                  filterBySafety === 'Dangerous'
-                    ? 'bg-danger-50 dark:bg-danger-900/30 border-danger-500 shadow-md'
-                    : 'bg-white dark:bg-dark-card border-danger-200 dark:border-danger-800 hover:border-danger-400'
-                }`}
-              >
-                <span className="text-sm font-semibold text-danger-700 dark:text-danger-300 flex items-center gap-2 relative z-10">
-                  <FiXOctagon className="w-4 h-4 group-hover:rotate-180 group-hover:scale-110 transition-transform duration-300" />
-                  Dangerous
-                </span>
-                <span className="text-lg font-bold text-danger-600 dark:text-danger-400 relative z-10 transition-colors duration-200">
-                  {stats.dangerous}
-                </span>
-              </button>
-            </div>
-
-            {/* Safety Tips */}
-            <div className="mt-6 space-y-3">
-              <div className="text-xs font-bold text-gray-700 dark:text-text-secondary uppercase tracking-wider mb-3 flex items-center gap-2">
-                <div className="h-px flex-1 bg-gray-300 dark:bg-dark-border"></div>
-                Safety Tips
-                <div className="h-px flex-1 bg-gray-300 dark:bg-dark-border"></div>
-              </div>
-              
-              <div className="p-4 bg-info-50 dark:bg-info-900/20 border-2 border-info-200 dark:border-info-800 rounded-xl">
-                <div className="text-xs text-info-800 dark:text-info-200 space-y-3">
-                  <div className="flex items-start gap-2">
-                    <FiDownload className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                    <p><strong>Backup First:</strong> Always create a backup before uninstalling packages.</p>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <FiCheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                    <p><strong>Start Safe:</strong> Begin with "Safe" packages if you're unsure.</p>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <FiInfo className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                    <p><strong>Research:</strong> Google package names to understand their purpose.</p>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <FiRefreshCw className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                    <p><strong>Reboot:</strong> Some changes require a device restart to take effect.</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-4 bg-warning-50 dark:bg-warning-900/20 border-2 border-warning-200 dark:border-warning-800 rounded-xl">
-                <div className="flex items-start gap-3">
-                  <FiAlertTriangle className="w-5 h-5 text-warning-600 dark:text-warning-400 flex-shrink-0 mt-0.5" />
-                  <div className="text-xs text-warning-800 dark:text-warning-200">
-                    <strong>Warning:</strong> System apps marked "Dangerous" can brick your device. Only remove if you know what you're doing.
-                  </div>
-                </div>
-              </div>
-            </div>
+            {/* Dangerous */}
+            <button
+              onClick={() => setFilterBySafety(filterBySafety === 'Dangerous' ? null : 'Dangerous')}
+              className="w-full flex items-center justify-between p-3 rounded-lg transition-all duration-200"
+              style={{
+                background: filterBySafety === 'Dangerous' ? 'rgba(239, 68, 68, 0.12)' : (isLightMode ? 'rgba(0, 0, 0, 0.02)' : 'rgba(255, 255, 255, 0.02)'),
+                boxShadow: filterBySafety === 'Dangerous' ? '0 0 16px rgba(239, 68, 68, 0.15)' : 'none',
+                border: isLightMode ? '1px solid rgba(0, 0, 0, 0.04)' : 'none'
+              }}
+              onMouseEnter={(e) => {
+                if (filterBySafety !== 'Dangerous') {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.06)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (filterBySafety !== 'Dangerous') {
+                  e.currentTarget.style.background = isLightMode ? 'rgba(0, 0, 0, 0.02)' : 'rgba(255, 255, 255, 0.02)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }
+              }}
+            >
+              <span className="text-sm font-medium flex items-center gap-2" style={{color: '#EF4444'}}>
+                <FiXOctagon className="w-4 h-4" />
+                Dangerous
+              </span>
+              <span className="text-lg font-bold" style={{color: '#EF4444'}}>
+                {stats.dangerous}
+              </span>
+            </button>
           </div>
         </aside>
       </div>
+
+      {/* Floating Action Bar - Appears when packages selected */}
+      <AnimatePresence>
+        {selectedPackages.size > 0 && (
+          <motion.div 
+            className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50"
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          >
+          <div className="flex items-center gap-3 px-6 py-4 rounded-2xl backdrop-blur-xl" style={{
+            background: isLightMode
+              ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.90) 100%)'
+              : 'linear-gradient(135deg, rgba(17, 17, 17, 0.9) 0%, rgba(13, 13, 13, 0.9) 100%)',
+            backdropFilter: 'blur(24px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+            boxShadow: isLightMode
+              ? '0 8px 32px rgba(0, 0, 0, 0.12), 0 0 40px rgba(46, 196, 182, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.8)'
+              : '0 8px 32px rgba(0, 0, 0, 0.3), 0 0 40px rgba(88, 166, 175, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
+            border: isLightMode ? '1px solid rgba(0, 0, 0, 0.06)' : '1px solid rgba(255, 255, 255, 0.06)'
+          }}>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{
+              background: isLightMode ? 'rgba(46, 196, 182, 0.12)' : 'rgba(88, 166, 175, 0.12)',
+              color: 'var(--theme-accent)'
+            }}>
+              <span className="text-sm font-semibold">{selectedPackages.size}</span>
+              <span className="text-xs opacity-70">selected</span>
+            </div>
+
+            <div className="w-px h-8 opacity-20" style={{background: 'var(--theme-text-secondary)'}} />
+
+            <motion.button
+              onClick={handleBackupSelected}
+              className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
+              style={{
+                background: 'rgba(16, 185, 129, 0.15)',
+                color: '#10B981',
+                border: 'none'
+              }}
+              whileHover={{
+                scale: 1.04,
+                y: -2,
+                boxShadow: '0 4px 16px rgba(16, 185, 129, 0.25)',
+                transition: { duration: 0.15 }
+              }}
+              whileTap={{ scale: 0.97 }}
+            >
+              <FiDownload className="w-4 h-4" />
+              Backup
+            </motion.button>
+
+            <motion.button
+              onClick={handleUninstallSelected}
+              className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
+              style={{
+                background: 'rgba(239, 68, 68, 0.15)',
+                color: '#EF4444',
+                border: 'none'
+              }}
+              whileHover={{
+                scale: 1.04,
+                y: -2,
+                boxShadow: '0 4px 16px rgba(239, 68, 68, 0.25)',
+                transition: { duration: 0.15 }
+              }}
+              whileTap={{ scale: 0.97 }}
+            >
+              <FiTrash2 className="w-4 h-4" />
+              Uninstall
+            </motion.button>
+
+            <motion.button
+              onClick={() => setSelectedPackages(new Set())}
+              className="p-2 rounded-lg text-sm"
+              style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                color: 'var(--theme-text-secondary)',
+                border: 'none'
+              }}
+              whileHover={{
+                scale: 1.04,
+                rotate: 90,
+                background: 'rgba(255, 255, 255, 0.08)',
+                transition: { duration: 0.15 }
+              }}
+              whileTap={{ scale: 0.96 }}
+              title="Clear selection"
+            >
+              <FiX className="w-4 h-4" />
+            </motion.button>
+          </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Notification System */}
       <div className="fixed bottom-4 right-4 space-y-2 z-50">

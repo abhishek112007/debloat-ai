@@ -39,6 +39,7 @@ flycheck*
 .env
 .env.local
 .env.production
+backend/tauri/.env
 
 # OS
 Thumbs.db

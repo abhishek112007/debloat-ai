@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 // Import modules from crate root
 use crate::package_database::{get_safety_level, get_display_name};
 use crate::adb::{self, AdbError};
+use crate::ai_advisor::{self, PackageAnalysis};
 
 // Data structures for JSON responses
 
@@ -208,4 +209,10 @@ pub fn uninstall_package(package_name: String) -> UninstallResult {
             error: Some(adb_error_to_string(e)),
         },
     }
+}
+
+/// Analyzes an Android package using AI to provide safety recommendations
+#[tauri::command]
+pub async fn analyze_package(package_name: String) -> Result<PackageAnalysis, String> {
+    ai_advisor::analyze_package(&package_name).await
 }

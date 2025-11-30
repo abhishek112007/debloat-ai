@@ -1,0 +1,834 @@
+/* ============================================
+   DEBLOAT AI - PREMIUM ULTRA-MINIMAL DESIGN SYSTEM
+   ============================================
+   Color Palette: Charcoal Black (#0F0F0F) • Pure White (#FFFFFF) • Teal Accent (#24C8D8)
+   Style: Apple-like polish + Tesla-like futurism
+   ============================================ */
+
+/* ============================================
+   DESIGN TOKENS
+   ============================================ */
+:root {
+  /* Colors - Soft Desaturated Teal Accent */
+  --color-charcoal: #0A0A0A;
+  --color-white: #F5F5F7;
+  --color-teal: #58A6AF;
+  --color-teal-hover: #6BB8C1;
+  --color-gray-light: #86868B;
+  --color-gray-dark: #6E6E73;
+  
+  /* Typography - Inter/SF Pro inspired */
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'SF Mono', 'Consolas', 'Monaco', monospace;
+  
+  /* Animation Timings */
+  --timing-instant: 100ms;
+  --timing-fast: 150ms;
+  --timing-base: 200ms;
+  --timing-smooth: 250ms;
+  --timing-slow: 350ms;
+  
+  /* Easing Functions */
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.6, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  
+  /* Blur Effects */
+  --blur-sm: 12px;
+  --blur-md: 24px;
+  --blur-lg: 40px;
+  
+  /* Shadows - Ultra Soft & Ambient */
+  --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.02);
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 20px rgba(0, 0, 0, 0.08);
+  --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.10);
+  
+  /* Soft Glow for Hover States */
+  --glow-soft: 0 0 24px rgba(88, 166, 175, 0.12);
+  --glow-medium: 0 0 32px rgba(88, 166, 175, 0.18);
+  --glow-strong: 0 0 40px rgba(88, 166, 175, 0.25);
+  
+  /* Spacing Scale (8px base) */
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.25rem;  /* 20px */
+  --space-6: 1.5rem;   /* 24px */
+  --space-8: 2rem;     /* 32px */
+  --space-10: 2.5rem;  /* 40px */
+  --space-12: 3rem;    /* 48px */
+  --space-16: 4rem;    /* 64px */
+}
+
+/* ============================================
+   GLASSY SURFACE COMPONENTS
+   ============================================ */
+
+/* Premium Glassmorphic Card */
+.glass-card {
+  background: linear-gradient(135deg, 
+    rgba(17, 17, 17, 0.6) 0%, 
+    rgba(13, 13, 13, 0.6) 100%);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: none;
+  border-radius: 12px;
+  transition: all var(--timing-smooth) var(--ease-out);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06),
+              inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Floating Card with Magnetic Lift Effect */
+.glass-card-float {
+  background: linear-gradient(135deg, 
+    rgba(17, 17, 17, 0.6) 0%, 
+    rgba(13, 13, 13, 0.6) 100%);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: none;
+  border-radius: 12px;
+  transition: all var(--timing-smooth) var(--ease-out);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06),
+              inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.glass-card-float:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12),
+              var(--glow-soft),
+              inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.glass-card-float:active {
+  transform: translateY(-2px);
+  transition: all var(--timing-instant) var(--ease-out);
+}
+
+/* Futuristic Chip Card */
+.chip-card {
+  composes: glass-card;
+  background: linear-gradient(135deg, var(--theme-glass) 0%, var(--theme-card) 100%);
+  position: relative;
+}
+
+.chip-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, 
+    transparent 0%, 
+    var(--theme-accent) 50%, 
+    transparent 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity var(--timing-base) var(--ease-out);
+}
+
+.chip-card:hover::before {
+  opacity: 0.6;
+  animation: borderGlow 3s ease-in-out infinite;
+}
+
+@keyframes borderGlow {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+}
+
+/* ============================================
+   MAGNETIC BUTTON SYSTEM
+   ============================================ */
+
+/* Premium Magnetic Button */
+.btn-magnetic {
+  position: relative;
+  padding: var(--space-4) var(--space-6);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.011em;
+  color: white;
+  background: var(--theme-accent);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all var(--timing-smooth) var(--ease-out);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.btn-magnetic::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.08) 0%, 
+    transparent 100%);
+  opacity: 0;
+  transition: opacity var(--timing-fast) var(--ease-out);
+}
+
+.btn-magnetic:hover {
+  background: var(--theme-accent-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12),
+              var(--glow-soft),
+              inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.btn-magnetic:hover::before {
+  opacity: 1;
+}
+
+.btn-magnetic:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: all var(--timing-instant) var(--ease-out);
+}
+
+.btn-magnetic:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Ghost Button - Ultra Minimal */
+.btn-ghost {
+  padding: var(--space-3) var(--space-5);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--theme-text-primary);
+  background: rgba(255, 255, 255, 0.02);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all var(--timing-smooth) var(--ease-out);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03),
+              inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+.btn-ghost:hover {
+  background: var(--theme-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06),
+              var(--glow-soft),
+              inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.btn-ghost:active {
+  transform: translateY(0);
+  transition: all var(--timing-instant) var(--ease-out);
+}
+
+/* ============================================
+   PREMIUM INPUT SYSTEM
+   ============================================ */
+
+.input-glass {
+  width: 100%;
+  padding: var(--space-4) var(--space-5);
+  font-size: 15px;
+  font-family: var(--font-primary);
+  letter-spacing: -0.011em;
+  color: var(--theme-text-primary);
+  background: var(--theme-glass);
+  border: 1px solid var(--theme-border);
+  border-radius: 14px;
+  backdrop-filter: blur(var(--blur-sm));
+  transition: all var(--timing-base) var(--ease-out);
+  outline: none;
+}
+
+.input-glass::placeholder {
+  color: var(--theme-text-secondary);
+  opacity: 0.6;
+}
+
+.input-glass:hover {
+  border-color: var(--theme-accent);
+  background: var(--theme-hover);
+}
+
+.input-glass:focus {
+  border-color: var(--theme-accent);
+  background: var(--theme-card);
+  box-shadow: 0 0 0 4px var(--theme-glow),
+              0 4px 20px var(--theme-shadow);
+}
+
+/* Search Input with Icon */
+.search-container {
+  position: relative;
+  width: 100%;
+}
+
+.search-icon {
+  position: absolute;
+  left: var(--space-5);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--theme-text-secondary);
+  transition: all var(--timing-base) var(--ease-out);
+  pointer-events: none;
+}
+
+.search-container:focus-within .search-icon {
+  color: var(--theme-accent);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.input-glass.with-icon {
+  padding-left: var(--space-12);
+}
+
+/* ============================================
+   SAFETY BADGE SYSTEM
+   ============================================ */
+
+.badge-minimal {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  border-radius: 10px;
+  backdrop-filter: blur(8px);
+  transition: all var(--timing-base) var(--ease-out);
+  cursor: default;
+}
+
+.badge-safe {
+  background: rgba(16, 185, 129, 0.08);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.15);
+}
+
+.badge-safe:hover {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.3);
+  transform: translateY(-1px);
+}
+
+.badge-caution {
+  background: rgba(251, 191, 36, 0.08);
+  color: #D97706;
+  border: 1px solid rgba(251, 191, 36, 0.15);
+}
+
+.badge-caution:hover {
+  background: rgba(251, 191, 36, 0.12);
+  border-color: rgba(251, 191, 36, 0.3);
+  transform: translateY(-1px);
+}
+
+.badge-expert {
+  background: rgba(249, 115, 22, 0.08);
+  color: #EA580C;
+  border: 1px solid rgba(249, 115, 22, 0.15);
+}
+
+.badge-expert:hover {
+  background: rgba(249, 115, 22, 0.12);
+  border-color: rgba(249, 115, 22, 0.3);
+  transform: translateY(-1px);
+}
+
+.badge-dangerous {
+  background: rgba(239, 68, 68, 0.08);
+  color: #DC2626;
+  border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+.badge-dangerous:hover {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Dark Mode Adjustments */
+.dark .badge-safe {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10B981;
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+.dark .badge-caution {
+  background: rgba(251, 191, 36, 0.12);
+  color: #FBBF24;
+  border-color: rgba(251, 191, 36, 0.25);
+}
+
+.dark .badge-expert {
+  background: rgba(249, 115, 22, 0.12);
+  color: #FB923C;
+  border-color: rgba(249, 115, 22, 0.25);
+}
+
+.dark .badge-dangerous {
+  background: rgba(239, 68, 68, 0.12);
+  color: #F87171;
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+/* ============================================
+   LOADING & SKELETON SYSTEM
+   ============================================ */
+
+/* Shimmer Effect */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--theme-border) 0%,
+    rgba(36, 200, 216, 0.1) 50%,
+    var(--theme-border) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+  border-radius: 8px;
+}
+
+/* Pulse Loader */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+.pulse-loader {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--theme-accent);
+  box-shadow: 0 0 20px var(--theme-glow);
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+/* Spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--theme-border);
+  border-top-color: var(--theme-accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* ============================================
+   CONNECTION STATUS ANIMATIONS
+   ============================================ */
+
+@keyframes usb-pulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+.connection-pulse {
+  animation: usb-pulse 2s ease-in-out infinite;
+}
+
+@keyframes device-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.device-appear {
+  animation: device-fade-in 0.8s var(--ease-spring) forwards;
+}
+
+/* Device Connection Glow Pulse */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06),
+                0 0 20px rgba(88, 166, 175, 0.0);
+  }
+  50% {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06),
+                0 0 32px rgba(88, 166, 175, 0.25);
+  }
+}
+
+.device-connected-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* Status Indicator Dot */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  position: relative;
+}
+
+.status-dot::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  opacity: 0;
+  animation: ping 1.5s ease-in-out infinite;
+}
+
+@keyframes ping {
+  0% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2);
+  }
+}
+
+.status-connected {
+  background: #10B981;
+  color: #10B981;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+}
+
+.status-disconnected {
+  background: #6B6B6B;
+  color: #6B6B6B;
+}
+
+/* ============================================
+   PAGE TRANSITIONS
+   ============================================ */
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fade-in var(--timing-smooth) var(--ease-out) forwards;
+}
+
+.slide-up {
+  animation: slide-up var(--timing-smooth) var(--ease-spring) forwards;
+}
+
+.slide-down {
+  animation: slide-down var(--timing-smooth) var(--ease-spring) forwards;
+}
+
+/* Stagger Animation */
+.stagger-child {
+  opacity: 0;
+  animation: slide-up var(--timing-smooth) var(--ease-spring) forwards;
+}
+
+.stagger-child:nth-child(1) { animation-delay: 0ms; }
+.stagger-child:nth-child(2) { animation-delay: 50ms; }
+.stagger-child:nth-child(3) { animation-delay: 100ms; }
+.stagger-child:nth-child(4) { animation-delay: 150ms; }
+.stagger-child:nth-child(5) { animation-delay: 200ms; }
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.text-gradient-teal {
+  background: linear-gradient(135deg, var(--theme-accent) 0%, #60E6F0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glow-accent {
+  box-shadow: 0 0 20px var(--theme-glow);
+}
+
+.frosted-glass {
+  backdrop-filter: blur(var(--blur-md)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--blur-md)) saturate(180%);
+}
+
+/* Smooth Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--theme-border);
+  border-radius: 3px;
+  transition: background var(--timing-base);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-accent);
+}
+
+/* Selection */
+::selection {
+  background: var(--theme-accent);
+  color: white;
+}
+
+::-moz-selection {
+  background: var(--theme-accent);
+  color: white;
+}
+
+/* ============================================
+   LIGHT MODE OVERRIDES - PREMIUM GLASSY AESTHETIC
+   ============================================ */
+
+/* Light Mode Base */
+:root:not(.dark) {
+  --color-charcoal: #F4F4F5;
+  --color-white: #1A1A1A;
+  --color-teal: #2EC4B6;
+  --color-teal-hover: #3DD9CA;
+  
+  /* Light Mode Shadows - More Pronounced for Depth */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 20px rgba(0, 0, 0, 0.08);
+  --shadow-xl: 0 16px 40px rgba(0, 0, 0, 0.10);
+  
+  /* Light Mode Glows */
+  --glow-soft: 0 0 20px rgba(46, 196, 182, 0.15);
+  --glow-medium: 0 0 28px rgba(46, 196, 182, 0.20);
+  --glow-strong: 0 0 36px rgba(46, 196, 182, 0.25);
+}
+
+/* Light Mode Glass Cards */
+:root:not(.dark) .glass-card {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.65) 0%, 
+    rgba(255, 255, 255, 0.55) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06),
+              0 1px 3px rgba(0, 0, 0, 0.04),
+              inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+:root:not(.dark) .glass-card-float {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.65) 0%, 
+    rgba(255, 255, 255, 0.55) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06),
+              0 1px 3px rgba(0, 0, 0, 0.04),
+              inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+:root:not(.dark) .glass-card-float:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 20px rgba(46, 196, 182, 0.15),
+              0 8px 24px rgba(0, 0, 0, 0.10),
+              0 2px 6px rgba(0, 0, 0, 0.06),
+              inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Light Mode Buttons */
+:root:not(.dark) .btn-magnetic {
+  background: rgba(0, 0, 0, 0.03);
+  color: #1A1A1A;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06),
+              inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+:root:not(.dark) .btn-magnetic:hover {
+  background: rgba(0, 0, 0, 0.05);
+  box-shadow: 0 0 12px rgba(46, 196, 182, 0.12),
+              0 4px 10px rgba(0, 0, 0, 0.08),
+              inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transform: translateY(-2px);
+}
+
+:root:not(.dark) .btn-ghost {
+  background: rgba(0, 0, 0, 0.02);
+  color: #1A1A1A;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+:root:not(.dark) .btn-ghost:hover {
+  background: rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+/* Light Mode Accent Elements */
+:root:not(.dark) .text-accent {
+  color: #2EC4B6;
+}
+
+:root:not(.dark) .bg-accent {
+  background-color: rgba(46, 196, 182, 0.12);
+}
+
+/* Light Mode Device Panel Pulse */
+:root:not(.dark) .device-connected-pulse {
+  animation: devicePulseLight 2s ease-in-out infinite;
+}
+
+@keyframes devicePulseLight {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(46, 196, 182, 0.12),
+                0 4px 10px rgba(0, 0, 0, 0.06);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(46, 196, 182, 0.20),
+                0 6px 16px rgba(0, 0, 0, 0.08);
+  }
+}
+
+/* Light Mode Scrollbar */
+:root:not(.dark) ::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+:root:not(.dark) ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border: 2px solid #F4F4F5;
+}
+
+:root:not(.dark) ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.18);
+}
+
+/* Light Mode Input Fields */
+:root:not(.dark) input[type="text"],
+:root:not(.dark) input[type="search"] {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  color: #1A1A1A;
+}
+
+:root:not(.dark) input[type="text"]:focus,
+:root:not(.dark) input[type="search"]:focus {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(46, 196, 182, 0.25);
+  box-shadow: 0 0 12px rgba(46, 196, 182, 0.12);
+}
+
+/* Light Mode Chip Card */
+:root:not(.dark) .chip-card {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.70) 0%, 
+    rgba(255, 255, 255, 0.60) 100%);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Light Mode Status Badges */
+:root:not(.dark) .badge-safe {
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+  border: 1px solid rgba(16, 185, 129, 0.15);
+}
+
+:root:not(.dark) .badge-caution {
+  background: rgba(245, 158, 11, 0.12);
+  color: #B45309;
+  border: 1px solid rgba(245, 158, 11, 0.15);
+}
+
+:root:not(.dark) .badge-expert {
+  background: rgba(249, 115, 22, 0.12);
+  color: #C2410C;
+  border: 1px solid rgba(249, 115, 22, 0.15);
+}
+
+:root:not(.dark) .badge-dangerous {
+  background: rgba(239, 68, 68, 0.12);
+  color: #B91C1C;
+  border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+/* Light Mode Checkbox */
+:root:not(.dark) .checkbox-modern {
+  border: 1.5px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+:root:not(.dark) .checkbox-modern:checked {
+  background: #2EC4B6;
+  border-color: #2EC4B6;
+}
+

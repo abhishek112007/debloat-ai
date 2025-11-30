@@ -1,19 +1,38 @@
 /* eslint-disable */
 /* stylelint-disable */
+@import './premium-design.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  /* Theme CSS Variables */
+  /* Premium Ultra-Minimal Design Tokens */
   :root {
-    --theme-bg: #f9fafb;
-    --theme-card: #ffffff;
-    --theme-border: #e5e7eb;
-    --theme-hover: #f3f4f6;
-    --theme-text-primary: #111827;
-    --theme-text-secondary: #6b7280;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    --theme-bg: #FAFAFA;
+    --theme-card: #FFFFFF;
+    --theme-border: rgba(0, 0, 0, 0.08);
+    --theme-hover: rgba(36, 200, 216, 0.05);
+    --theme-text-primary: #0F0F0F;
+    --theme-text-secondary: #6B6B6B;
+    --theme-accent: #24C8D8;
+    --theme-accent-hover: #1BA6B4;
+    --theme-glass: rgba(255, 255, 255, 0.7);
+    --theme-shadow: rgba(0, 0, 0, 0.08);
+    --theme-glow: rgba(36, 200, 216, 0.3);
+    
+    /* Typography */
+    --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    
+    /* Animation Timings */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Spacing & Depth */
+    --blur-sm: 12px;
+    --blur-md: 24px;
+    --blur-lg: 40px;
   }
   
   html, body, #root {
@@ -26,9 +45,14 @@
   
   body {
     @apply antialiased;
+    font-family: var(--font-primary);
     background-color: var(--theme-bg);
     color: var(--theme-text-primary);
-    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background-color var(--transition-smooth), color var(--transition-smooth);
+    font-feature-settings: 'cv11', 'ss01';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.011em;
   }
   
   /* Smooth transitions for theme-aware elements */
@@ -88,9 +112,35 @@
 }
 
 @layer components {
-  /* Modern Button Styles with Microinteractions */
+  /* Premium Magnetic Button System */
   .btn-primary {
-    @apply px-4 py-2.5 bg-primary-500 hover:bg-primary-600 active:bg-primary-700 active:scale-[0.98] text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-md disabled:hover:translate-y-0 focus:ring-2 focus:ring-primary-400 focus:ring-offset-2;
+    @apply px-6 py-3 font-medium rounded-xl relative overflow-hidden;
+    background: var(--theme-accent);
+    color: white;
+    border: 1px solid transparent;
+    transition: all var(--transition-base);
+    box-shadow: 0 4px 12px rgba(36, 200, 216, 0.2),
+                0 0 0 0 rgba(36, 200, 216, 0);
+    backdrop-filter: blur(12px);
+  }
+  
+  .btn-primary:hover {
+    background: var(--theme-accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(36, 200, 216, 0.3),
+                0 0 30px rgba(36, 200, 216, 0.2);
+  }
+  
+  .btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(36, 200, 216, 0.2);
+  }
+  
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
   }
   
   .btn-success {
@@ -113,39 +163,90 @@
     border-color: var(--theme-hover);
   }
   
-  /* Card Styles with Microinteractions */
+  /* Premium Glassy Card System */
   .card {
-    background-color: var(--theme-card);
-    border-color: var(--theme-border);
-    @apply rounded-xl shadow-soft-lg border transition-all duration-200;
+    background: var(--theme-glass);
+    border: 1px solid var(--theme-border);
+    @apply rounded-2xl relative overflow-hidden;
+    backdrop-filter: blur(var(--blur-sm));
+    -webkit-backdrop-filter: blur(var(--blur-sm));
+    transition: all var(--transition-base);
+    box-shadow: 0 1px 3px var(--theme-shadow),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.1);
   }
   
   .card-hover {
-    @apply hover:shadow-soft-xl hover:-translate-y-0.5 transition-all duration-200 cursor-pointer;
+    @apply cursor-pointer;
+    transition: all var(--transition-base);
   }
   
   .card-hover:hover {
-    border-color: var(--theme-hover);
+    transform: translateY(-4px);
+    border-color: var(--theme-accent);
+    box-shadow: 0 8px 24px var(--theme-shadow),
+                0 0 0 1px var(--theme-accent),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.2);
   }
   
   .card-hover:active {
-    @apply scale-[0.99] translate-y-0;
+    transform: translateY(-2px);
+    transition: all 100ms;
   }
   
-  /* Input Styles with Microinteractions */
+  /* Futuristic Chip Card */
+  .card-chip {
+    @apply card;
+    background: linear-gradient(135deg, var(--theme-glass) 0%, var(--theme-card) 100%);
+    border: 1px solid var(--theme-border);
+    position: relative;
+  }
+  
+  .card-chip::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, transparent 0%, var(--theme-accent) 50%, transparent 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity var(--transition-base);
+  }
+  
+  .card-chip:hover::before {
+    opacity: 0.5;
+  }
+  
+  /* Premium Glassy Input System */
   .input-modern {
-    background-color: var(--theme-card);
-    border-color: var(--theme-border);
+    @apply w-full px-5 py-3.5 rounded-xl;
+    background: var(--theme-glass);
+    border: 1px solid var(--theme-border);
     color: var(--theme-text-primary);
-    @apply w-full px-4 py-2.5 border-2 rounded-lg placeholder-gray-400 dark:placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200;
+    backdrop-filter: blur(var(--blur-sm));
+    transition: all var(--transition-base);
+    font-size: 15px;
+    letter-spacing: -0.011em;
+  }
+  
+  .input-modern::placeholder {
+    color: var(--theme-text-secondary);
+    opacity: 0.6;
   }
   
   .input-modern:hover {
-    border-color: #94a3b8;
+    border-color: var(--theme-accent);
+    background: var(--theme-hover);
   }
   
   .input-modern:focus {
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    outline: none;
+    border-color: var(--theme-accent);
+    box-shadow: 0 0 0 3px var(--theme-glow),
+                0 4px 16px var(--theme-shadow);
+    background: var(--theme-card);
   }
   
   /* Checkbox Styles with Microinteractions */
@@ -154,18 +255,27 @@
     @apply w-5 h-5 rounded border-2 text-primary-600 focus:ring-2 focus:ring-primary-500 focus:ring-offset-0 cursor-pointer transition-all duration-200 hover:border-primary-400 hover:scale-105 active:scale-95 dark:hover:border-primary-500 checked:bg-primary-500 checked:border-primary-500;
   }
   
-  /* Badge Styles with Microinteractions */
+  /* Premium Minimal Safety Badges */
   .badge-safe {
-    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 hover:scale-105 hover:shadow-sm cursor-default;
-    background-color: #dcfce7;
-    color: #166534;
-    border: 1px solid #bbf7d0;
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium;
+    background: rgba(16, 185, 129, 0.08);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.15);
+    backdrop-filter: blur(8px);
+    transition: all var(--transition-base);
+    letter-spacing: 0.02em;
+  }
+  
+  .badge-safe:hover {
+    background: rgba(16, 185, 129, 0.12);
+    border-color: rgba(16, 185, 129, 0.3);
+    transform: translateY(-1px);
   }
   
   :is(.dark .badge-safe) {
-    background-color: rgba(22, 101, 52, 0.2);
-    color: #86efac;
-    border-color: rgba(22, 101, 52, 0.5);
+    background: rgba(16, 185, 129, 0.1);
+    color: #10B981;
+    border-color: rgba(16, 185, 129, 0.2);
   }
   
   .badge-caution {

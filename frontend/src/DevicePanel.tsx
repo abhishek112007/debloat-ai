@@ -14,47 +14,45 @@ const DevicePanel: React.FC = () => {
 
   return (
     <div
-      className="w-full bg-white dark:bg-dark-card text-gray-800 dark:text-text-primary p-6 rounded-xl border border-gray-200 dark:border-dark-border shadow-soft-lg hover:shadow-soft-xl transition-all duration-300 animate-scale-in"
+      className="w-full device-appear"
       role="region"
       aria-label="Device panel"
     >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      {/* Header - Minimal */}
+      <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-primary-50 dark:bg-primary-500/10 rounded-lg transition-all duration-300 hover:scale-110 hover:rotate-12">
-            <FiSmartphone className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+          <div className="p-2 rounded-lg transition-all duration-200" style={{background: 'rgba(88, 166, 175, 0.10)'}}>
+            <FiSmartphone className="w-5 h-5" style={{color: 'var(--theme-accent)'}} />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-gray-900 dark:text-text-primary transition-colors duration-200">
-              Device Status
+            <h3 className="text-base font-semibold" style={{color: 'var(--theme-text-primary)'}}>
+              Device
             </h3>
-            <p className="text-xs text-gray-500 dark:text-text-tertiary transition-colors duration-200">
-              {isConnected ? 'ADB Connected' : 'Waiting for connection'}
+            <p className="text-xs" style={{color: 'var(--theme-text-secondary)'}}>
+              {isConnected ? 'Connected' : 'Waiting...'}
             </p>
           </div>
         </div>
         
-        {/* Connection Status Badge */}
+        {/* Connection Status Indicator */}
         <div className="relative">
-          <span
-            className={`
-              inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 hover:scale-105
-              ${isConnected
-                ? 'bg-success-50 dark:bg-success-500/10 text-success-700 dark:text-success-400 border-2 border-success-200 dark:border-success-500/30'
-                : 'bg-danger-50 dark:bg-danger-500/10 text-danger-700 dark:text-danger-400 border-2 border-danger-200 dark:border-danger-500/30'
-              }
-            `}
-            aria-live="polite"
-          >
-            {/* Status Dot with Pulse Animation */}
-            <span className="relative flex h-2.5 w-2.5">
-              {isConnected && (
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success-400 opacity-75"></span>
-              )}
-              <span className={`relative inline-flex rounded-full h-2.5 w-2.5 transition-all duration-300 ${isConnected ? 'bg-success-500' : 'bg-danger-500'}`}></span>
-            </span>
-            {isConnected ? 'Connected' : 'Disconnected'}
-          </span>
+          {isConnected ? (
+            <div className="flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium" style={{
+              background: 'rgba(16, 185, 129, 0.12)',
+              color: '#10B981'
+            }}>
+              <div className="status-dot status-connected" />
+              <span>Active</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium" style={{
+              background: 'rgba(239, 68, 68, 0.12)',
+              color: '#EF4444'
+            }}>
+              <div className="status-dot status-disconnected" />
+              <span>Offline</span>
+            </div>
+          )}
         </div>
       </div>
 

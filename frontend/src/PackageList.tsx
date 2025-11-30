@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useDeviceMonitor } from './useDeviceMonitor';
+import { useTheme } from './App';
+import AIPackageAdvisor from './AIPackageAdvisor';
 import {
   FiPackage,
   FiAlertTriangle,
@@ -11,6 +14,12 @@ import {
   FiXOctagon,
   FiInfo,
 } from 'react-icons/fi';
+import {
+  packageListContainer,
+  packageListItem,
+  buttonHover,
+  fadeSlideUp
+} from './animations';
 
 type SafetyLevel = 'Safe' | 'Caution' | 'Expert' | 'Dangerous';
 
@@ -44,10 +53,13 @@ const PackageList: React.FC<PackageListProps> = ({
   filterBySafety,
   onPackageDataChange,
 }) => {
+  const { theme } = useTheme();
+  const isLightMode = theme === 'light';
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [search, setSearch] = useState<string>('');
   const [detailPackage, setDetailPackage] = useState<Package | null>(null);
+  const [aiAdvisorPackage, setAiAdvisorPackage] = useState<string | null>(null);
   const { isConnected, deviceId } = useDeviceMonitor();
 
   const fetchPackages = async () => {
@@ -155,207 +167,335 @@ const PackageList: React.FC<PackageListProps> = ({
   };
 
   return (
-    <div className="w-full bg-white dark:bg-dark-card text-gray-800 dark:text-text-primary p-5 md:p-6 rounded-xl shadow-soft-lg border border-gray-200 dark:border-dark-border transition-all duration-300 animate-scale-in hover:shadow-soft-xl">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-        <div>
-          <h3 className="text-lg md:text-xl font-bold text-gray-900 dark:text-text-primary flex items-center gap-3 transition-colors duration-200">
-            <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-lg transition-all duration-300 hover:scale-110 hover:rotate-12">
-              <FiPackage className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-            </div>
-            Installed Packages
-          </h3>
-          <p className="text-xs sm:text-sm text-gray-500 dark:text-text-tertiary mt-2 ml-11 transition-colors duration-200">
-            <span className={`font-semibold text-primary-600 dark:text-primary-400 transition-all duration-300 ${selectedPackages.size > 0 ? 'scale-110 inline-block' : ''}`}>{selectedPackages.size}</span> selected • 
-            <span className="ml-1"><span className="font-semibold">{filtered.length}</span> of {packages.length} packages</span>
-          </p>
-        </div>
+    <div className="w-full glass-card-float text-gray-800 dark:text-text-primary p-5 md:p-6 animate-scale-in">
+      {/* Minimal Header */}
+      <div className="mb-5">
+        <h3 className="text-base font-semibold text-gray-900 dark:text-text-primary flex items-center gap-2.5 transition-colors duration-250">
+          <FiPackage className="w-4 h-4 text-accent" />
+          Packages
+        </h3>
+        <p className="text-xs text-gray-500 dark:text-text-tertiary mt-1.5 transition-colors duration-250">
+          {filtered.length} of {packages.length} shown
+        </p>
       </div>
 
-      {/* Search Bar */}
-      <div className="relative mb-6 group">
-        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <FiSearch className="w-5 h-5 text-gray-400 group-focus-within:text-primary-500 group-focus-within:scale-110 transition-all duration-200" />
+      {/* Minimal Search Bar */}
+      <div className="relative mb-5 group">
+        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+          <FiSearch className="w-4 h-4 text-gray-400 group-focus-within:text-accent transition-all duration-250" />
         </div>
         <input
           type="text"
-          placeholder="Search by package or app name..."
+          placeholder="Search packages..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="input-modern pl-12 pr-12 text-sm shadow-sm"  
+          style={{
+            backgroundColor: isLightMode ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.03)',
+            border: isLightMode ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.08)',
+            borderRadius: '10px',
+            padding: '10px 40px 10px 38px',
+            width: '100%',
+            fontSize: '14px',
+            outline: 'none',
+            transition: 'all 250ms ease',
+          }}
+          onFocus={(e) => {
+            e.target.style.backgroundColor = isLightMode ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)';
+            e.target.style.borderColor = isLightMode ? 'rgba(46,196,182,0.25)' : 'rgba(88,166,175,0.25)';
+            e.target.style.boxShadow = isLightMode ? '0 0 12px rgba(46,196,182,0.12)' : '0 0 12px rgba(88,166,175,0.12)';
+          }}
+          onBlur={(e) => {
+            e.target.style.backgroundColor = isLightMode ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.03)';
+            e.target.style.borderColor = isLightMode ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)';
+            e.target.style.boxShadow = 'none';
+          }}
         />
         {search && (
           <button
             onClick={() => setSearch('')}
-            className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-danger-500 dark:hover:text-danger-400 hover:scale-110 active:scale-95 transition-all duration-200"
+            className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-accent transition-all duration-250"
+            style={{ transform: 'scale(1)' }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
             aria-label="Clear search"
           >
-            <FiX className="w-5 h-5" />
+            <FiX className="w-4 h-4" />
           </button>
         )}
       </div>      {loading ? (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" style={{animationDelay: `${i * 100}ms`}} />
+            <div 
+              key={i} 
+              className="h-14 rounded-xl animate-pulse" 
+              style={{
+                background: 'rgba(255,255,255,0.02)',
+                animationDelay: `${i * 80}ms`
+              }} 
+            />
           ))}
         </div>
       ) : (
-        <div className="card overflow-hidden border-2 animate-scale-in">
-          <div className="max-h-[calc(100vh-400px)] md:max-h-[500px] overflow-auto scrollbar-custom">
-            {/* Header - Hidden on small mobile, visible on larger screens */}
-            <div className="hidden sm:grid grid-cols-[56px_2fr_2fr_160px] bg-gray-100 dark:bg-dark-bg border-b-2 border-gray-300 dark:border-dark-border sticky top-0 z-10 shadow-sm">
-              <div className="px-5 py-4 flex items-center">
-                <div className="w-5 h-5"></div>
-              </div>
-              <div className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-text-secondary flex items-center gap-2 transition-colors duration-200">
-                <FiPackage className="w-4 h-4" />
-                Package Name
-              </div>
-              <div className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-text-secondary flex items-center gap-2 transition-colors duration-200">
-                <FiPackage className="w-4 h-4" />
-                App Name
-              </div>
-              <div className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-text-secondary transition-colors duration-200">
-                Safety Level
-              </div>
-            </div>
-
-          {/* Rows */}
+        <div className="space-y-2 animate-scale-in">
           {filtered.length === 0 ? (
-            <div className="px-4 py-16 text-center animate-fade-in">
-              <FiPackage className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600 animate-float" />
-              <p className="text-base font-medium text-gray-600 dark:text-gray-400 transition-colors duration-200">No packages found</p>
-              <p className="text-sm text-gray-500 dark:text-gray-500 mt-2 transition-colors duration-200">Try adjusting your search or filters</p>
+            <div className="px-4 py-12 text-center animate-fade-in">
+              <FiPackage className="w-12 h-12 mx-auto mb-3 text-gray-400 dark:text-gray-600 opacity-50" />
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors duration-250">No packages found</p>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1 transition-colors duration-250">Try adjusting your search</p>
             </div>
           ) : (
-            filtered.map((pkg, index) => (
-              <div key={pkg.packageName} className="animate-fade-in" style={{ animationDelay: `${Math.min(index * 0.02, 0.5)}s` }}>
-                {/* Mobile Card View (below sm breakpoint) */}
-                <div className="sm:hidden border-b border-gray-200 dark:border-dark-border p-4 transition-all duration-200">
-                  <div className="flex items-start gap-3">
-                    <div className="flex items-center pt-1">
+            <motion.div
+              variants={packageListContainer}
+              initial="hidden"
+              animate="show"
+              className="space-y-2"
+            >
+              {filtered.map((pkg, index) => {
+                const isSelected = selectedPackages.has(pkg.packageName);
+                
+                return (
+                  <motion.div
+                    key={pkg.packageName}
+                    variants={packageListItem}
+                    layout
+                  >
+                    {/* Glassmorphic Chip Card */}
+                    <motion.div
+                      style={{
+                        background: isSelected 
+                          ? (isLightMode 
+                              ? 'linear-gradient(135deg, rgba(46,196,182,0.12) 0%, rgba(46,196,182,0.08) 100%)'
+                              : 'linear-gradient(135deg, rgba(88,166,175,0.12) 0%, rgba(88,166,175,0.08) 100%)')
+                          : (isLightMode ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)'),
+                        border: isLightMode ? '1px solid rgba(0,0,0,0.05)' : 'none',
+                        borderRadius: '12px',
+                        padding: '14px 16px',
+                        cursor: 'pointer',
+                        boxShadow: isSelected
+                          ? (isLightMode 
+                              ? '0 0 16px rgba(46,196,182,0.15), 0 4px 12px rgba(0,0,0,0.06)'
+                              : '0 0 16px rgba(88,166,175,0.12), 0 4px 12px rgba(0,0,0,0.04)')
+                          : (isLightMode ? '0 2px 6px rgba(0,0,0,0.04)' : '0 2px 6px rgba(0,0,0,0.02)'),
+                      }}
+                      onClick={() => toggleSelect(pkg.packageName)}
+                      whileHover={{
+                        y: -2,
+                        boxShadow: isSelected
+                          ? (isLightMode 
+                              ? '0 0 20px rgba(46,196,182,0.20), 0 6px 16px rgba(0,0,0,0.08)'
+                              : '0 0 20px rgba(88,166,175,0.18), 0 6px 16px rgba(0,0,0,0.06)')
+                          : (isLightMode 
+                              ? '0 0 12px rgba(46,196,182,0.10), 0 4px 10px rgba(0,0,0,0.06)'
+                              : '0 0 12px rgba(88,166,175,0.08), 0 4px 10px rgba(0,0,0,0.04)'),
+                        background: isSelected
+                          ? (isLightMode
+                              ? 'linear-gradient(135deg, rgba(46,196,182,0.16) 0%, rgba(46,196,182,0.10) 100%)'
+                              : 'linear-gradient(135deg, rgba(88,166,175,0.16) 0%, rgba(88,166,175,0.10) 100%)')
+                          : (isLightMode ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.04)'),
+                        transition: { duration: 0.2 }
+                      }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                    <div className="flex items-center gap-3">
+                      {/* Checkbox */}
                       <input
                         type="checkbox"
-                        checked={selectedPackages.has(pkg.packageName)}
+                        checked={isSelected}
                         onChange={(e) => {
                           e.stopPropagation();
                           toggleSelect(pkg.packageName);
                         }}
-                        className="checkbox-modern"
+                        className="checkbox-modern flex-shrink-0"
+                        onClick={(e) => e.stopPropagation()}
                       />
-                    </div>
-                    <div className="flex-1 min-w-0 cursor-pointer hover:bg-primary-50/30 dark:hover:bg-primary-500/5 -m-2 p-2 rounded-lg transition-colors duration-200"
-                      onClick={() => setDetailPackage(pkg)}
-                    >
-                      <div className="font-semibold text-sm text-gray-900 dark:text-text-primary mb-1.5 flex items-center gap-2 transition-colors duration-200">
-                        <FiPackage className="w-4 h-4 text-primary-600 dark:text-primary-400 flex-shrink-0 transition-transform duration-200 group-hover:scale-110" />
-                        {pkg.appName}
+                      
+                      {/* Package Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <FiPackage className="w-3.5 h-3.5 text-accent flex-shrink-0" />
+                          <span className="text-sm font-semibold text-gray-900 dark:text-text-primary truncate">
+                            {pkg.appName}
+                          </span>
+                        </div>
+                        <div className="text-xs font-mono text-gray-500 dark:text-text-tertiary truncate">
+                          {pkg.packageName}
+                        </div>
                       </div>
-                      <div className="text-xs font-mono text-gray-500 dark:text-text-tertiary mb-2 bg-gray-100 dark:bg-dark-bg px-2.5 py-1.5 rounded-md border border-gray-200 dark:border-dark-border transition-all duration-200">
-                        {pkg.packageName}
+                      
+                      {/* AI Advisor Button */}
+                      <motion.button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setAiAdvisorPackage(pkg.packageName);
+                        }}
+                        className="flex-shrink-0 p-2 rounded-lg"
+                        style={{
+                          background: isLightMode ? 'rgba(46, 196, 182, 0.12)' : 'rgba(88, 166, 175, 0.12)',
+                          border: isLightMode ? '1px solid rgba(46, 196, 182, 0.15)' : 'none',
+                        }}
+                        whileHover={{
+                          scale: 1.1,
+                          boxShadow: isLightMode 
+                            ? '0 4px 12px rgba(46, 196, 182, 0.25)'
+                            : '0 4px 12px rgba(88, 166, 175, 0.25)',
+                        }}
+                        whileTap={{ scale: 0.95 }}
+                        title="AI Safety Analysis"
+                      >
+                        <FiZap className="w-4 h-4" style={{ color: 'var(--theme-accent)' }} />
+                      </motion.button>
+                      
+                      {/* Safety Badge */}
+                      <div className="flex-shrink-0">
+                        <span 
+                          className={getSafetyStyles(pkg.safetyLevel)}
+                          style={{
+                            fontSize: '11px',
+                            padding: '4px 8px',
+                            borderRadius: '6px',
+                          }}
+                        >
+                          {getSafetyIcon(pkg.safetyLevel)} {pkg.safetyLevel}
+                        </span>
                       </div>
-                      <span className={getSafetyStyles(pkg.safetyLevel)}>
-                        {getSafetyIcon(pkg.safetyLevel)} {pkg.safetyLevel}
-                      </span>
                     </div>
-                  </div>
-                </div>
-
-                {/* Desktop Table View (sm and above) */}
-                <div
-                  className="hidden sm:grid grid-cols-[56px_2fr_2fr_160px] border-b border-gray-200 dark:border-dark-border transition-all duration-200 group"
-                >
-                  <div className="px-5 py-4 flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedPackages.has(pkg.packageName)}
-                      onChange={(e) => {
-                        e.stopPropagation();
-                        toggleSelect(pkg.packageName);
-                      }}
-                      className="checkbox-modern"
-                    />
-                  </div>
-                  <div className="px-4 py-4 text-sm font-mono text-gray-700 dark:text-text-secondary truncate font-medium cursor-pointer hover:bg-primary-50/30 dark:hover:bg-primary-500/5 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-200"
-                    onClick={() => setDetailPackage(pkg)}
-                  >
-                    {pkg.packageName}
-                  </div>
-                  <div className="px-4 py-4 text-sm font-semibold text-gray-900 dark:text-text-primary truncate flex items-center gap-2.5 cursor-pointer hover:bg-primary-50/30 dark:hover:bg-primary-500/5 transition-all duration-200"
-                    onClick={() => setDetailPackage(pkg)}
-                  >
-                    <FiPackage className="w-4 h-4 text-primary-600 dark:text-primary-400 flex-shrink-0 group-hover:scale-110 transition-transform duration-200" />
-                    {pkg.appName}
-                  </div>
-                  <div className="px-4 py-4 text-sm">
-                    <span className={getSafetyStyles(pkg.safetyLevel)}>
-                      {getSafetyIcon(pkg.safetyLevel)} {pkg.safetyLevel}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))
+                  </motion.div>
+                </motion.div>
+              );
+            })}
+            </motion.div>
           )}
-          </div>
         </div>
       )}
 
-      {/* Modal for package details */}
-      {detailPackage && (
-        <div
-          className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in"
-          onClick={() => setDetailPackage(null)}
-        >
-          <div
-            className="bg-white dark:bg-dark-card rounded-2xl shadow-soft-xl border-2 border-gray-300 dark:border-dark-border p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto animate-scale-in"
-            onClick={(e) => e.stopPropagation()}
+      {/* Glassmorphic Modal */}
+      <AnimatePresence>
+        {detailPackage && (
+          <motion.div
+            className="fixed inset-0 flex items-center justify-center z-50 p-4"
+            style={{
+              background: isLightMode ? 'rgba(0,0,0,0.40)' : 'rgba(0,0,0,0.75)',
+              backdropFilter: 'blur(12px)',
+            }}
+            onClick={() => setDetailPackage(null)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
           >
+            <motion.div
+              className="w-full max-w-lg max-h-[90vh] overflow-y-auto"
+              style={{
+                background: isLightMode
+                  ? 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.90) 100%)'
+                  : 'linear-gradient(135deg, rgba(17,17,17,0.95) 0%, rgba(13,13,13,0.95) 100%)',
+                backdropFilter: 'blur(24px) saturate(180%)',
+                border: isLightMode ? '1px solid rgba(0,0,0,0.06)' : 'none',
+                borderRadius: '16px',
+                padding: '28px',
+                boxShadow: isLightMode
+                  ? '0 20px 60px rgba(0,0,0,0.15), 0 0 40px rgba(46,196,182,0.12)'
+                  : '0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(88,166,175,0.12)',
+              }}
+              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            >
             {/* Modal Header */}
-            <div className="flex items-center justify-between mb-6 pb-4 border-b-2 border-gray-200 dark:border-dark-border">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-primary-50 dark:bg-primary-500/10 rounded-lg">
-                  <FiInfo className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2.5">
+                <div 
+                  style={{
+                    background: isLightMode ? 'rgba(46,196,182,0.12)' : 'rgba(88,166,175,0.12)',
+                    borderRadius: '10px',
+                    padding: '8px',
+                  }}
+                >
+                  <FiInfo className="w-5 h-5 text-accent" />
                 </div>
-                <h4 className="text-xl font-bold text-gray-900 dark:text-text-primary">
+                <h4 className="text-lg font-semibold text-text-primary">
                   Package Details
                 </h4>
               </div>
-              <button
+              <motion.button
                 onClick={() => setDetailPackage(null)}
-                className="p-2.5 hover:bg-gray-100 dark:hover:bg-dark-hover rounded-lg transition-all duration-200 group"
+                style={{
+                  background: isLightMode ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)',
+                  border: isLightMode ? '1px solid rgba(0,0,0,0.05)' : 'none',
+                  borderRadius: '8px',
+                  padding: '8px',
+                  cursor: 'pointer',
+                }}
+                whileHover={{
+                  background: 'rgba(239,68,68,0.15)',
+                  scale: 1.05,
+                  rotate: 90,
+                  transition: { duration: 0.2 }
+                }}
+                whileTap={{ scale: 0.95 }}
                 aria-label="Close dialog"
               >
-                <FiX className="w-5 h-5 text-gray-500 dark:text-text-secondary group-hover:text-danger-500 dark:group-hover:text-danger-400 transition-colors" />
-              </button>
+                <FiX className="w-5 h-5 text-text-secondary" />
+              </motion.button>
             </div>
             
             {/* Modal Content */}
             <div className="space-y-4">
               {/* Package Name */}
-              <div className="p-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-dark-bg dark:to-dark-card rounded-xl border-2 border-gray-200 dark:border-dark-border hover:border-gray-300 dark:hover:border-gray-500 transition-all duration-200">
-                <div className="flex items-center gap-2 text-xs font-bold text-gray-600 dark:text-text-tertiary uppercase tracking-wider mb-3">
-                  <FiPackage className="w-4 h-4" />
+              <div 
+                style={{
+                  background: isLightMode ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.03)',
+                  border: isLightMode ? '1px solid rgba(0,0,0,0.05)' : 'none',
+                  borderRadius: '12px',
+                  padding: '16px',
+                }}
+              >
+                <div className="flex items-center gap-2 text-xs font-semibold text-text-tertiary uppercase tracking-wide mb-2.5">
+                  <FiPackage className="w-3.5 h-3.5" />
                   Package Name
                 </div>
-                <div className="font-mono text-sm font-semibold text-gray-900 dark:text-text-primary break-all bg-white dark:bg-dark-bg px-4 py-3 rounded-lg border border-gray-200 dark:border-dark-border shadow-inner-soft">
+                <div 
+                  className="font-mono text-sm text-text-primary break-all"
+                  style={{
+                    background: isLightMode ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)',
+                    borderRadius: '8px',
+                    padding: '10px 12px',
+                  }}
+                >
                   {detailPackage.packageName}
                 </div>
               </div>
               
               {/* App Name */}
-              <div className="p-4 bg-gradient-to-br from-primary-50 to-primary-100/50 dark:from-primary-500/10 dark:to-primary-500/5 rounded-xl border-2 border-primary-200 dark:border-primary-500/30 hover:border-primary-300 dark:hover:border-primary-500/50 transition-all duration-200">
-                <div className="flex items-center gap-2 text-xs font-bold text-primary-700 dark:text-primary-400 uppercase tracking-wider mb-3">
-                  <FiPackage className="w-4 h-4" />
+              <div 
+                style={{
+                  background: isLightMode ? 'rgba(46,196,182,0.10)' : 'rgba(88,166,175,0.08)',
+                  border: isLightMode ? '1px solid rgba(46,196,182,0.15)' : 'none',
+                  borderRadius: '12px',
+                  padding: '16px',
+                }}
+              >
+                <div className="flex items-center gap-2 text-xs font-semibold text-accent uppercase tracking-wide mb-2.5">
+                  <FiPackage className="w-3.5 h-3.5" />
                   Application Name
                 </div>
-                <div className="text-base font-bold text-gray-900 dark:text-text-primary">
+                <div className="text-base font-semibold text-text-primary">
                   {detailPackage.appName}
                 </div>
               </div>
               
               {/* Safety Level */}
-              <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100/50 dark:from-purple-500/10 dark:to-purple-500/5 rounded-xl border-2 border-purple-200 dark:border-purple-500/30 hover:border-purple-300 dark:hover:border-purple-500/50 transition-all duration-200">
-                <div className="flex items-center gap-2 text-xs font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider mb-3">
+              <div 
+                style={{
+                  background: isLightMode ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.03)',
+                  border: isLightMode ? '1px solid rgba(0,0,0,0.05)' : 'none',
+                  borderRadius: '12px',
+                  padding: '16px',
+                }}
+              >
+                <div className="flex items-center gap-2 text-xs font-semibold text-text-tertiary uppercase tracking-wide mb-2.5">
                   {getSafetyIcon(detailPackage.safetyLevel)}
                   Safety Level
                 </div>
@@ -366,16 +506,29 @@ const PackageList: React.FC<PackageListProps> = ({
             </div>
             
             {/* Modal Footer */}
-            <button
+            <motion.button
               type="button"
               onClick={() => setDetailPackage(null)}
-              className="mt-6 w-full btn-secondary text-sm font-semibold"        
+              className="mt-6 w-full btn-ghost text-sm font-semibold"
+              style={{
+                padding: '12px',
+                borderRadius: '10px',
+              }}
+              whileHover={{ scale: 1.02, y: -1 }}
+              whileTap={{ scale: 0.98 }}
             >
               Close
-            </button>
-          </div>
-        </div>
-      )}
+            </motion.button>
+          </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* AI Package Advisor Sidebar */}
+      <AIPackageAdvisor 
+        packageName={aiAdvisorPackage} 
+        onClose={() => setAiAdvisorPackage(null)} 
+      />
     </div>
   );
 };

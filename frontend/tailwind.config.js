@@ -7,6 +7,10 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Segoe UI', 'system-ui', 'sans-serif'],
+        mono: ['SF Mono', 'Consolas', 'Monaco', 'monospace'],
+      },
       colors: {
         // Theme-aware colors using CSS variables
         theme: {
