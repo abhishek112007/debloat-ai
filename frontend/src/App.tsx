@@ -6,6 +6,7 @@ import PackageList from './PackageList';
 import BackupManager from './BackupManager';
 import UninstallDialog from './UninstallDialog';
 import ThemeSelector from './ThemeSelector';
+import FloatingChat from './FloatingChat';
 import { THEMES, ThemeName, applyTheme } from './themes';
 import {
   FiDownload,
@@ -100,6 +101,7 @@ const App: React.FC = () => {
   const { theme } = useTheme();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [selectedPackages, setSelectedPackages] = useState<Set<string>>(new Set());
+  const [deviceName, setDeviceName] = useState<string | undefined>(undefined);
   const [stats, setStats] = useState<PackageStats>({
     total: 0,
     safe: 0,
@@ -114,6 +116,25 @@ const App: React.FC = () => {
   const [packageData, setPackageData] = useState<Array<{packageName: string; safetyLevel: string}>>([]);
   
   const isLightMode = theme === 'light';
+
+  // Fetch device info to get device name for chatbot
+  useEffect(() => {
+    const fetchDeviceInfo = async () => {
+      try {
+        const result = await invoke<{ success: boolean; device?: { name: string; model?: string } }>('get_device_info');
+        if (result.success && result.device) {
+          setDeviceName(result.device.name || result.device.model);
+        }
+      } catch (error) {
+        // Device not connected, chatbot will work without device context
+      }
+    };
+
+    fetchDeviceInfo();
+    // Poll for device changes every 5 seconds
+    const interval = setInterval(fetchDeviceInfo, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Add notification
   const addNotification = (message: string, type: 'success' | 'error' | 'info') => {
@@ -782,6 +803,9 @@ const App: React.FC = () => {
         hasDangerous={packageData.some(p => selectedPackages.has(p.packageName) && p.safetyLevel === 'Dangerous')}
         hasExpert={packageData.some(p => selectedPackages.has(p.packageName) && p.safetyLevel === 'Expert')}
       />
+
+      {/* Floating AI Chat Assistant */}
+      <FloatingChat deviceName={deviceName} />
     </div>
   );
 };

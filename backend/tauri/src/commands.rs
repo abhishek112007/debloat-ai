@@ -216,3 +216,16 @@ pub fn uninstall_package(package_name: String) -> UninstallResult {
 pub async fn analyze_package(package_name: String) -> Result<PackageAnalysis, String> {
     ai_advisor::analyze_package(&package_name).await
 }
+
+/// Sends a chat message to the AI assistant with conversation history
+#[tauri::command]
+pub async fn chat_message(
+    messages: Vec<crate::chatbot::ChatMessage>,
+    device_name: Option<String>,
+) -> Result<String, String> {
+    // Validate conversation length before processing
+    crate::chatbot::validate_conversation_length(&messages)?;
+    
+    // Send to AI
+    crate::chatbot::send_chat_message(messages, device_name).await
+}

@@ -33,3 +33,4 @@ custom-protocol = ["tauri/custom-protocol"]
 
 [workspace]
 members = []
+exclude = ["backend/tauri"]
