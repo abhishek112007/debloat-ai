@@ -1,4 +1,4 @@
-/* ChatBot Component Styles */
+/* ChatBot Component Styles - Modern Glassmorphism */
 
 .chat-container {
   display: flex;
@@ -100,6 +100,10 @@
 }
 
 .close-btn:hover {
+  background: rgba(255, 77, 77, 0.4);
+}
+
+.close-btn:hover {
   background: rgba(255, 255, 255, 0.3);
 }
 
@@ -139,19 +143,20 @@
   justify-content: center;
   text-align: center;
   padding: 40px 20px;
-  color: #555;
+  color: var(--welcome-subtext);
 }
 
 .welcome-message h3 {
   margin: 0 0 8px 0;
   font-size: 20px;
-  font-weight: 600;
-  color: #333;
+  font-weight: 700;
+  color: var(--welcome-text);
+  letter-spacing: -0.02em;
 }
 
 .welcome-message p {
   margin: 0 0 24px 0;
-  color: #666;
+  color: var(--welcome-subtext);
   max-width: 400px;
 }
 
@@ -181,7 +186,7 @@
   color: #667eea;
 }
 
-/* Quick Actions */
+/* Quick Actions - Neobrutalism */
 .quick-actions {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -197,64 +202,42 @@
   align-items: center;
   gap: 8px;
   padding: 16px 12px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
-  border: 2px solid rgba(102, 126, 234, 0.2);
-  border-radius: 12px;
+  background: var(--btn-secondary-bg);
+  border: 3px solid var(--chat-border);
+  border-radius: 0;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  position: relative;
-  overflow: hidden;
+  transition: all 0.2s;
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.3);
+}
+
+.quick-action-btn:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0 rgba(0, 0, 0, 0.3);
+}
+
+.quick-action-btn:active {
+  transform: translate(0, 0);
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
 }
 
 .quick-action-btn::before {
   content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  opacity: 0;
-  transition: opacity 0.3s;
-  z-index: 0;
-}
-
-.quick-action-btn:hover::before {
-  opacity: 1;
-}
-
-.quick-action-btn:hover {
-  border-color: #667eea;
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-}
-
-.quick-action-btn:active {
-  transform: translateY(-2px) scale(0.98);
+  display: none;
 }
 
 .action-emoji {
   font-size: 28px;
   position: relative;
   z-index: 1;
-  transition: transform 0.3s;
-}
-
-.quick-action-btn:hover .action-emoji {
-  transform: scale(1.2) rotate(5deg);
 }
 
 .action-label {
   font-size: 13px;
-  font-weight: 600;
-  color: #555;
+  font-weight: 700;
+  color: var(--message-text);
   position: relative;
   z-index: 1;
-  transition: color 0.3s;
-}
-
-.quick-action-btn:hover .action-label {
-  color: white;
+  letter-spacing: -0.01em;
 }
 
 /* Message */
@@ -315,6 +298,12 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   white-space: pre-wrap;
   word-wrap: break-word;
+}
+
+.message.user .message-text {
+  background: rgba(102, 126, 234, 0.15);
+  color: #667eea;
+  font-weight: 500;
 }
 
 .message-text p {
@@ -470,15 +459,17 @@
 /* Error Banner */
 .error-banner {
   padding: 12px 16px;
-  background: #fee;
-  border: 1px solid #fcc;
-  border-radius: 8px;
-  color: #c33;
+  background: var(--btn-danger-bg);
+  border: 3px solid var(--chat-border);
+  border-radius: 0;
+  color: var(--btn-danger-text);
   font-size: 14px;
+  font-weight: 700;
   text-align: center;
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.2);
 }
 
-/* Input Area */
+/* Input Area - Glassmorphism */
 .input-area {
   display: flex;
   gap: 12px;
@@ -504,9 +495,12 @@
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
+.chat-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
 .chat-input:disabled {
-  background: #f5f5f5;
-  color: #999;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
@@ -537,7 +531,6 @@
 .send-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  box-shadow: none;
 }
 
 /* Dark Mode Support */
@@ -647,5 +640,123 @@
 
   .action-label {
     font-size: 14px;
+  }
+}
+
+/* Export/Import Buttons - Neobrutalism */
+.export-btn,
+.import-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.export-btn:hover {
+  background: rgba(46, 196, 182, 0.3);
+  transform: translateY(-2px);
+}
+
+.import-btn:hover {
+  background: rgba(255, 107, 74, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Voice Input Button - Neobrutalism */
+.voice-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-right: 8px;
+}
+
+.voice-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.voice-btn.recording {
+  background: #ef4444;
+  animation: pulse 1.5s infinite;
+  box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+}
+
+.voice-btn.recording:hover {
+  background: #dc2626;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+/* Suggested Replies */
+.input-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.suggested-replies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 20px 0;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.reply-chip {
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.reply-chip:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Streaming Message Effect */
+.message.assistant .message-text.streaming::after {
+  content: '▋';
+  animation: blink 1s infinite;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
   }
 }

@@ -1,14 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { invoke } from '@tauri-apps/api/core';
-import { FiSend, FiMessageCircle, FiX, FiCopy, FiCheck, FiTrash2, FiRefreshCw } from 'react-icons/fi';
+import { FiSend, FiMessageCircle, FiX, FiCopy, FiCheck, FiTrash2, FiRefreshCw, FiDownload, FiUpload, FiMic } from 'react-icons/fi';
+import { Message } from '../types';
+import { storage, storageKeys } from '../utils/storage';
+import { messageUtils } from '../utils/messageUtils';
 import '../styles/ChatBot.css';
-
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: number;
-  id: string;
-}
 
 interface ChatBotProps {
   deviceName?: string;
@@ -19,28 +15,22 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [suggestedReplies, setSuggestedReplies] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const recognitionRef = useRef<any>(null);
 
-  // Load messages from localStorage on mount
+  // Load messages from storage on mount
   useEffect(() => {
-    const savedMessages = localStorage.getItem('chatbot_messages');
-    if (savedMessages) {
-      try {
-        setMessages(JSON.parse(savedMessages));
-      } catch (e) {
-        console.error('Failed to load chat history:', e);
-      }
-    }
+    const saved = storage.get<Message[]>(storageKeys.CHAT_MESSAGES, []);
+    if (saved) setMessages(saved);
   }, []);
 
-  // Save messages to localStorage whenever they change
+  // Save messages to storage whenever they change
   useEffect(() => {
-    if (messages.length > 0) {
-      localStorage.setItem('chatbot_messages', JSON.stringify(messages));
-    }
+    if (messages.length > 0) storage.set(storageKeys.CHAT_MESSAGES, messages);
   }, [messages]);
 
   // Auto-scroll to bottom when messages change
@@ -53,6 +43,93 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
     inputRef.current?.focus();
   }, []);
 
+  // Initialize speech recognition
+  useEffect(() => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      
+      recognitionRef.current.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setInput(transcript);
+        setIsRecording(false);
+      };
+
+      recognitionRef.current.onerror = () => {
+        setIsRecording(false);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsRecording(false);
+      };
+    }
+  }, []);
+
+  // Generate suggested replies based on last message
+  const generateSuggestions = useCallback((lastMessage: string) => {
+    setSuggestedReplies(messageUtils.generateSuggestions(lastMessage));
+  }, []);
+
+  // Export chat history
+  const exportChat = () => {
+    const chatData = {
+      messages,
+      deviceName,
+      exportedAt: new Date().toISOString(),
+    };
+    
+    const blob = new Blob([JSON.stringify(chatData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `debloat-ai-chat-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Import chat history
+  const importChat = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.onchange = (e: any) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const data = JSON.parse(event.target?.result as string);
+            if (data.messages) {
+              setMessages(data.messages);
+            }
+          } catch (err) {
+            console.error('Failed to import chat:', err);
+          }
+        };
+        reader.readAsText(file);
+      }
+    };
+    input.click();
+  };
+
+  // Voice input toggle
+  const toggleVoiceInput = () => {
+    if (!recognitionRef.current) {
+      alert('Speech recognition is not supported in your browser');
+      return;
+    }
+
+    if (isRecording) {
+      recognitionRef.current.stop();
+      setIsRecording(false);
+    } else {
+      recognitionRef.current.start();
+      setIsRecording(true);
+    }
+  };
+
   const sendMessage = async () => {
     if (!input.trim() || loading) return;
 
@@ -60,49 +137,44 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
       role: 'user',
       content: input.trim(),
       timestamp: Date.now(),
-      id: Date.now().toString() + Math.random(),
+      id: messageUtils.generateId(),
     };
 
-    // Add user message to state
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages(prev => [...prev, userMessage]);
     setInput('');
     setLoading(true);
-    setError(null);
 
     try {
-      // Prepare message history for API (only role and content)
-      const messageHistory = [...messages, userMessage].map((msg) => ({
+      const messageHistory = [...messages, userMessage].map(msg => ({
         role: msg.role,
         content: msg.content,
       }));
 
-      // Call Tauri backend
       const response = await invoke<string>('chat_message', {
         messages: messageHistory,
         deviceName: deviceName || null,
       });
 
-      // Add assistant response
+      const messageId = messageUtils.generateId();
       const assistantMessage: Message = {
         role: 'assistant',
-        content: response,
+        content: '',
         timestamp: Date.now(),
-        id: Date.now().toString() + Math.random(),
+        id: messageId,
+        streaming: true,
       };
 
-      setMessages((prev) => [...prev, assistantMessage]);
+      setMessages(prev => [...prev, assistantMessage]);
+      await messageUtils.streamText(response, messageId, setMessages);
+      generateSuggestions(response);
     } catch (err) {
       console.error('Chat error:', err);
-      setError(err as string);
-      
-      // Add error message as assistant response
-      const errorMessage: Message = {
+      setMessages(prev => [...prev, {
         role: 'assistant',
         content: `❌ Error: ${err}\n\nPlease try again or rephrase your question.`,
         timestamp: Date.now(),
-        id: Date.now().toString() + Math.random(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+        id: messageUtils.generateId(),
+      }]);
     } finally {
       setLoading(false);
       inputRef.current?.focus();
@@ -118,17 +190,14 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
 
   const clearChat = () => {
     setMessages([]);
-    setError(null);
-    localStorage.removeItem('chatbot_messages');
+    storage.remove(storageKeys.CHAT_MESSAGES);
   };
 
   const copyToClipboard = async (text: string, id: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
+    const success = await messageUtils.copyToClipboard(text);
+    if (success) {
       setCopiedId(id);
       setTimeout(() => setCopiedId(null), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
     }
   };
 
@@ -181,6 +250,12 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
         <div className="chat-header-actions">
           {messages.length > 0 && (
             <>
+              <button onClick={exportChat} className="export-btn" title="Export chat history">
+                <FiDownload className="w-4 h-4" />
+              </button>
+              <button onClick={importChat} className="import-btn" title="Import chat history">
+                <FiUpload className="w-4 h-4" />
+              </button>
               <button onClick={clearChat} className="clear-btn" title="Clear chat history">
                 <FiTrash2 className="w-4 h-4" />
               </button>
@@ -229,7 +304,9 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
               {msg.role === 'user' ? '👤' : '🤖'}
             </div>
             <div className="message-content">
-              <div className="message-text">{formatMessage(msg.content)}</div>
+              <div className={`message-text ${msg.streaming ? 'streaming' : ''}`}>
+                {formatMessage(msg.content)}
+              </div>
               <div className="message-actions">
                 <div className="message-timestamp">
                   {new Date(msg.timestamp).toLocaleTimeString()}
@@ -261,36 +338,61 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
           </div>
         )}
 
-        {/* Error Message */}
-        {error && !loading && (
-          <div className="error-banner">
-            ⚠️ {error}
-          </div>
-        )}
-
         <div ref={messagesEndRef} />
       </div>
 
       {/* Input Area */}
-      <div className="input-area">
-        <input
-          ref={inputRef}
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="Ask about Android packages..."
-          disabled={loading}
-          className="chat-input"
-        />
-        <button
-          onClick={sendMessage}
-          disabled={!input.trim() || loading}
-          className="send-btn"
-          title="Send message"
-        >
-          <FiSend className="w-5 h-5" />
-        </button>
+      <div className="input-container">
+        {/* Suggested Replies */}
+        {suggestedReplies.length > 0 && (
+          <div className="suggested-replies">
+            {suggestedReplies.map((reply, idx) => (
+              <button
+                key={idx}
+                className="reply-chip"
+                onClick={() => {
+                  setInput(reply);
+                  setSuggestedReplies([]);
+                  setTimeout(() => sendMessage(), 100);
+                }}
+              >
+                {reply}
+              </button>
+            ))}
+          </div>
+        )}
+        
+        <div className="input-area">
+          <input
+            ref={inputRef}
+            type="text"
+            value={input}
+            onChange={(e) => {
+              setInput(e.target.value);
+              if (e.target.value) setSuggestedReplies([]);
+            }}
+            onKeyPress={handleKeyPress}
+            placeholder="Ask about Android packages..."
+            disabled={loading}
+            className="chat-input"
+          />
+          <button
+            onClick={toggleVoiceInput}
+            className={`voice-btn ${isRecording ? 'recording' : ''}`}
+            title={isRecording ? 'Stop recording' : 'Voice input'}
+            disabled={loading}
+          >
+            <FiMic className="w-5 h-5" />
+          </button>
+          <button
+            onClick={sendMessage}
+            disabled={!input.trim() || loading}
+            className="send-btn"
+            title="Send message"
+          >
+            <FiSend className="w-5 h-5" />
+          </button>
+        </div>
       </div>
     </div>
   );

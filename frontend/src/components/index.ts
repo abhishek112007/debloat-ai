@@ -2,6 +2,8 @@
 export { default as AIPackageAdvisor } from './AIPackageAdvisor';
 export { default as BackupManager } from './BackupManager';
 export { default as ChatBot } from './ChatBot';
+export { default as ChatBotPage } from './ChatBotPage';
+export { default as ChatBotNew } from './ChatBotNew';
 export { default as ConfirmDialog } from './ConfirmDialog';
 export { default as DevicePanel } from './DevicePanel';
 export { default as FloatingChat } from './FloatingChat';

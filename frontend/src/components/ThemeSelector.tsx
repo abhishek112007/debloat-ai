@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useTheme } from '../App';
+import { useTheme } from '../hooks/useDarkMode';
 import { FiSun, FiMoon } from 'react-icons/fi';
 
 const ThemeSelector: React.FC = () => {

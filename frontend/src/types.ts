@@ -15,3 +15,11 @@ export type Package = {
   appName: string;
   safetyLevel: SafetyLevel;
 };
+
+export interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: number;
+  id: string;
+  streaming?: boolean;
+}

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { motion, AnimatePresence } from 'framer-motion';
 import DevicePanel from './components/DevicePanel';
@@ -7,7 +7,7 @@ import BackupManager from './components/BackupManager';
 import UninstallDialog from './components/UninstallDialog';
 import ThemeSelector from './components/ThemeSelector';
 import FloatingChat from './components/FloatingChat';
-import { THEMES, ThemeName, applyTheme } from './utils/themes';
+import { useTheme } from './hooks/useDarkMode';
 import {
   FiDownload,
   FiTrash2,
@@ -24,58 +24,6 @@ import {
   glowButton, 
   filterChipTap
 } from './utils/animations';
-
-// Theme Context
-interface ThemeContextType {
-  theme: ThemeName;
-  setTheme: (theme: ThemeName) => void;
-  availableThemes: ThemeName[];
-}
-
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
-
-export const useTheme = () => {
-  const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error('useTheme must be used within ThemeProvider');
-  }
-  return context;
-};
-
-// Theme Provider Component
-interface ThemeProviderProps {
-  children: ReactNode;
-}
-
-const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const [theme, setThemeState] = useState<ThemeName>(() => {
-    const stored = localStorage.getItem('theme-preference') as ThemeName;
-    return stored && THEMES[stored] ? stored : 'light';
-  });
-
-  useEffect(() => {
-    // Use requestAnimationFrame for smoother transitions
-    requestAnimationFrame(() => {
-      applyTheme(theme);
-    });
-    
-    localStorage.setItem('theme-preference', theme);
-  }, [theme]);
-
-  const setTheme = (newTheme: ThemeName) => {
-    setThemeState(newTheme);
-  };
-
-  return (
-    <ThemeContext.Provider value={{ 
-      theme, 
-      setTheme,
-      availableThemes: Object.keys(THEMES) as ThemeName[]
-    }}>
-      {children}
-    </ThemeContext.Provider>
-  );
-};
 
 // Notification System
 interface Notification {
@@ -779,14 +727,9 @@ const App: React.FC = () => {
   );
 };
 
-// Main App Wrapper with Theme Provider
+// Main App Wrapper
 const AppWrapper: React.FC = () => {
-  return (
-    <ThemeProvider>
-      <App />
-    </ThemeProvider>
-  );
-  
+  return <App />;
 };
 
 export default AppWrapper;
