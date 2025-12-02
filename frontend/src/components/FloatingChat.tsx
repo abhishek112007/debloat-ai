@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FiMessageCircle, FiX } from 'react-icons/fi';
 import ChatBot from './ChatBot';
-import './FloatingChat.css';
+import '../styles/FloatingChat.css';
 
 interface FloatingChatProps {
   deviceName?: string;

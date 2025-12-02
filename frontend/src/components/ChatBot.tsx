@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
-import { FiSend, FiMessageCircle, FiX } from 'react-icons/fi';
-import './ChatBot.css';
+import { FiSend, FiMessageCircle, FiX, FiCopy, FiCheck, FiTrash2, FiRefreshCw } from 'react-icons/fi';
+import '../styles/ChatBot.css';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: number;
+  id: string;
 }
 
 interface ChatBotProps {
@@ -19,8 +20,28 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Load messages from localStorage on mount
+  useEffect(() => {
+    const savedMessages = localStorage.getItem('chatbot_messages');
+    if (savedMessages) {
+      try {
+        setMessages(JSON.parse(savedMessages));
+      } catch (e) {
+        console.error('Failed to load chat history:', e);
+      }
+    }
+  }, []);
+
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem('chatbot_messages', JSON.stringify(messages));
+    }
+  }, [messages]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -39,6 +60,7 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
       role: 'user',
       content: input.trim(),
       timestamp: Date.now(),
+      id: Date.now().toString() + Math.random(),
     };
 
     // Add user message to state
@@ -65,6 +87,7 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
         role: 'assistant',
         content: response,
         timestamp: Date.now(),
+        id: Date.now().toString() + Math.random(),
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
@@ -77,6 +100,7 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
         role: 'assistant',
         content: `❌ Error: ${err}\n\nPlease try again or rephrase your question.`,
         timestamp: Date.now(),
+        id: Date.now().toString() + Math.random(),
       };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
@@ -95,6 +119,40 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
   const clearChat = () => {
     setMessages([]);
     setError(null);
+    localStorage.removeItem('chatbot_messages');
+  };
+
+  const copyToClipboard = async (text: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
+  const formatMessage = (content: string) => {
+    // Simple formatting: detect code blocks and ADB commands
+    const lines = content.split('\n');
+    return lines.map((line, i) => {
+      // Detect ADB commands or code blocks
+      if (line.trim().startsWith('adb ') || line.trim().startsWith('pm ')) {
+        return (
+          <div key={i} className="code-block">
+            <code>{line}</code>
+            <button
+              className="copy-code-btn"
+              onClick={() => copyToClipboard(line.trim(), `line-${i}`)}
+              title="Copy command"
+            >
+              {copiedId === `line-${i}` ? <FiCheck /> : <FiCopy />}
+            </button>
+          </div>
+        );
+      }
+      return <p key={i}>{line}</p>;
+    });
   };
 
   // Quick action buttons
@@ -122,9 +180,18 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
         </div>
         <div className="chat-header-actions">
           {messages.length > 0 && (
-            <button onClick={clearChat} className="clear-btn" title="Clear chat">
-              Clear
-            </button>
+            <>
+              <button onClick={clearChat} className="clear-btn" title="Clear chat history">
+                <FiTrash2 className="w-4 h-4" />
+              </button>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="refresh-btn" 
+                title="Refresh chat"
+              >
+                <FiRefreshCw className="w-4 h-4" />
+              </button>
+            </>
           )}
           {onClose && (
             <button onClick={onClose} className="close-btn" title="Close chat">
@@ -156,15 +223,24 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
           </div>
         )}
 
-        {messages.map((msg, index) => (
-          <div key={index} className={`message ${msg.role}`}>
+        {messages.map((msg) => (
+          <div key={msg.id} className={`message ${msg.role}`}>
             <div className="message-avatar">
               {msg.role === 'user' ? '👤' : '🤖'}
             </div>
             <div className="message-content">
-              <div className="message-text">{msg.content}</div>
-              <div className="message-timestamp">
-                {new Date(msg.timestamp).toLocaleTimeString()}
+              <div className="message-text">{formatMessage(msg.content)}</div>
+              <div className="message-actions">
+                <div className="message-timestamp">
+                  {new Date(msg.timestamp).toLocaleTimeString()}
+                </div>
+                <button
+                  className="copy-msg-btn"
+                  onClick={() => copyToClipboard(msg.content, msg.id)}
+                  title="Copy message"
+                >
+                  {copiedId === msg.id ? <FiCheck className="w-3 h-3" /> : <FiCopy className="w-3 h-3" />}
+                </button>
               </div>
             </div>
           </div>

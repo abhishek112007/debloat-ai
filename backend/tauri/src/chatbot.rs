@@ -107,7 +107,7 @@ Remember: Users trust you with their devices. Be thorough, be cautious, be helpf
 
     // Build request payload with optimized parameters
     let request_body = PerplexityRequest {
-        model: "llama-3.1-sonar-small-128k-online".to_string(), // Valid Perplexity model
+        model: "sonar".to_string(), // Valid Perplexity model (sonar, sonar-pro, or sonar-reasoning)
         messages: full_messages,
         max_tokens: Some(2000), // Longer responses for detailed explanations
         temperature: 0.7, // Balanced between factual and conversational
@@ -150,6 +150,13 @@ Remember: Users trust you with their devices. Be thorough, be cautious, be helpf
             .unwrap_or_else(|_| "Unknown error".to_string());
         
         return Err(match status.as_u16() {
+            400 => {
+                if error_text.contains("model") || error_text.contains("Model") {
+                    format!("Invalid model specified. Use 'sonar', 'sonar-pro', or 'sonar-reasoning'. Error: {}", error_text)
+                } else {
+                    format!("Bad request (400): {}", error_text)
+                }
+            },
             401 => "Invalid API key. Please check your PERPLEXITY_API_KEY in .env file.".to_string(),
             429 => "Rate limit exceeded. Please wait a moment and try again.".to_string(),
             500..=599 => "Perplexity AI server error. Please try again later.".to_string(),

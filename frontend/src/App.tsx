@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { motion, AnimatePresence } from 'framer-motion';
-import DevicePanel from './DevicePanel';
-import PackageList from './PackageList';
-import BackupManager from './BackupManager';
-import UninstallDialog from './UninstallDialog';
-import ThemeSelector from './ThemeSelector';
-import FloatingChat from './FloatingChat';
-import { THEMES, ThemeName, applyTheme } from './themes';
+import DevicePanel from './components/DevicePanel';
+import PackageList from './components/PackageList';
+import BackupManager from './components/BackupManager';
+import UninstallDialog from './components/UninstallDialog';
+import ThemeSelector from './components/ThemeSelector';
+import FloatingChat from './components/FloatingChat';
+import { THEMES, ThemeName, applyTheme } from './utils/themes';
 import {
   FiDownload,
   FiTrash2,
@@ -23,7 +23,7 @@ import {
   buttonHover, 
   glowButton, 
   filterChipTap
-} from './animations';
+} from './utils/animations';
 
 // Theme Context
 interface ThemeContextType {
@@ -306,37 +306,6 @@ const App: React.FC = () => {
           border: isLightMode ? '1px solid rgba(0, 0, 0, 0.05)' : 'none',
           borderRadius: '12px'
         }}>
-          {/* Selection Summary - Only show when active */}
-          {selectedPackages.size > 0 && (
-            <div className="mb-5 p-4 rounded-xl transition-all duration-300 device-connected-pulse" style={{
-              background: isLightMode ? 'rgba(46, 196, 182, 0.10)' : 'rgba(88, 166, 175, 0.08)',
-              boxShadow: isLightMode
-                ? '0 0 24px rgba(46, 196, 182, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5)'
-                : '0 0 24px rgba(88, 166, 175, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
-              border: isLightMode ? '1px solid rgba(46, 196, 182, 0.15)' : 'none'
-            }}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="status-dot status-connected" />
-                  <span className="text-sm font-semibold" style={{color: 'var(--theme-accent)'}}>Active Selection</span>
-                </div>
-                <button
-                  onClick={() => setSelectedPackages(new Set())}
-                  className="p-1.5 rounded-lg transition-all duration-200 hover:bg-white/5"
-                  title="Clear selection"
-                >
-                  <FiX className="w-4 h-4 transition-transform duration-200 hover:rotate-90" style={{color: 'var(--theme-accent)'}} />
-                </button>
-              </div>
-              <div className="text-3xl font-bold mb-1" style={{color: 'var(--theme-accent)'}}>
-                {selectedPackages.size}
-              </div>
-              <div className="text-xs opacity-70" style={{color: 'var(--theme-accent)'}}>
-                package{selectedPackages.size !== 1 ? 's' : ''} selected
-              </div>
-            </div>
-          )}
-          
           <DevicePanel />
         </aside>
 

@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import Toast, { ToastType } from './Toast';
+import Toast, { ToastType } from '../components/Toast';
 
 interface ToastConfig {
   message: string;

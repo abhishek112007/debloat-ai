@@ -100,7 +100,7 @@ Search Reddit, XDA, and Android forums for real user experiences with this packa
 
     // Build request
     let request_body = PerplexityRequest {
-        model: "llama-3.1-sonar-large-128k-online".to_string(),
+        model: "sonar".to_string(), // Valid Perplexity model
         messages: vec![PerplexityMessage {
             role: "user".to_string(),
             content: prompt,
