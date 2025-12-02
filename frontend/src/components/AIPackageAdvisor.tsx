@@ -14,6 +14,14 @@ const AIPackageAdvisor: React.FC<AIPackageAdvisorProps> = ({ packageName, onClos
   const { loading, error, data, refetch } = usePackageAdvisor(packageName);
   const { theme } = useTheme();
   const isLightMode = theme === 'light';
+  const contentRef = React.useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to top when package changes or data loads
+  React.useEffect(() => {
+    if (contentRef.current) {
+      contentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [packageName, data]);
 
   const getRiskIcon = (category: string) => {
     switch (category) {
@@ -133,7 +141,7 @@ const AIPackageAdvisor: React.FC<AIPackageAdvisorProps> = ({ packageName, onClos
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto px-6 py-6">
+          <div ref={contentRef} className="flex-1 overflow-y-auto px-6 py-6">
             {/* Package Name */}
             <motion.div
               className="mb-6"

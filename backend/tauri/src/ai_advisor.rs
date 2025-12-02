@@ -64,37 +64,30 @@ pub async fn analyze_package(package_name: &str) -> Result<PackageAnalysis, Stri
 
     // Build the prompt
     let prompt = format!(
-        r#"Analyze the Android package "{}" and provide a comprehensive safety assessment.
+        r#"You are an Android package analysis expert. Analyze package: {}
 
-OUTPUT MUST BE VALID JSON with this exact structure:
+Return ONLY valid JSON (no markdown, no explanation):
 {{
   "packageName": "{}",
-  "summary": "One-sentence plain English explanation",
-  "purpose": "Technical function and role in Android system",
-  "dependencies": ["list", "of", "dependent", "packages"],
-  "safeToRemove": true_or_false,
-  "riskCategory": "Safe|Caution|Expert|Dangerous",
-  "consequences": ["what", "breaks", "if", "removed"],
-  "userReports": ["known issues from Reddit/XDA/forums"],
-  "technicalDetails": "Deep technical explanation",
-  "bestCase": "Best outcome if uninstalled",
-  "worstCase": "Worst outcome if uninstalled"
+  "summary": "Brief description in plain English",
+  "purpose": "What this package does in Android",
+  "dependencies": [],
+  "safeToRemove": false,
+  "riskCategory": "Caution",
+  "consequences": ["Potential issues if removed"],
+  "userReports": ["Based on available information or 'No reports found'"],
+  "technicalDetails": "Technical explanation of the package",
+  "bestCase": "If safe to remove: improved performance/privacy",
+  "worstCase": "Potential system instability or feature loss"
 }}
 
-Assessment criteria:
-1. **Safe**: Third-party bloatware, telemetry, ads - no system impact
-2. **Caution**: Vendor features (themes, gestures) - removable but affects UX
-3. **Expert**: System services with alternatives available - requires knowledge
-4. **Dangerous**: Core Android components - removal causes bootloop/crash
+Risk categories:
+- Safe: Bloatware, ads, telemetry
+- Caution: Vendor features, affects user experience
+- Expert: System services with alternatives
+- Dangerous: Core Android components
 
-CRITICAL RULES:
-- Output ONLY valid JSON, no markdown, no code blocks, no explanations
-- All string values must be actual content, not placeholders
-- Dependencies must be real package names or empty array
-- User reports must be specific findings or "No major issues reported"
-- Risk category must be one of: Safe, Caution, Expert, Dangerous
-
-Search Reddit, XDA, and Android forums for real user experiences with this package."#,
+If uncertain about the package, use "Caution" and provide general analysis. Output JSON only."#,
         package_name, package_name
     );
 
@@ -146,8 +139,9 @@ Search Reddit, XDA, and Android forums for real user experiences with this packa
         .content
         .clone();
 
-    // Clean JSON from potential markdown code blocks
+    // Clean JSON from potential markdown code blocks or extra text
     let json_content = if content.contains("```json") {
+        // Extract from ```json...``` blocks
         content
             .split("```json")
             .nth(1)
@@ -155,6 +149,7 @@ Search Reddit, XDA, and Android forums for real user experiences with this packa
             .unwrap_or(&content)
             .trim()
     } else if content.contains("```") {
+        // Extract from ```...``` blocks
         content
             .split("```")
             .nth(1)
@@ -162,12 +157,45 @@ Search Reddit, XDA, and Android forums for real user experiences with this packa
             .unwrap_or(&content)
             .trim()
     } else {
-        content.trim()
+        // Try to find JSON by looking for { and }
+        let start = content.find('{');
+        let end = content.rfind('}');
+        
+        match (start, end) {
+            (Some(s), Some(e)) if s < e => &content[s..=e],
+            _ => content.trim()
+        }
     };
 
+    println!("Extracted JSON content: {}", json_content);
+
     // Parse the AI response as JSON
-    let analysis: PackageAnalysis = serde_json::from_str(json_content)
-        .map_err(|e| format!("Failed to parse AI response as JSON: {}. Response was: {}", e, json_content))?;
+    let analysis: PackageAnalysis = match serde_json::from_str(json_content) {
+        Ok(parsed) => parsed,
+        Err(e) => {
+            // If JSON parsing fails, provide a fallback analysis
+            eprintln!("JSON parse error: {}. Content: {}", e, json_content);
+            
+            PackageAnalysis {
+                package_name: package_name.to_string(),
+                summary: format!("Unable to analyze {}. Consider researching online or proceeding with caution.", package_name),
+                purpose: "Analysis unavailable - API returned unexpected format".to_string(),
+                dependencies: vec![],
+                safe_to_remove: false,
+                risk_category: "Caution".to_string(),
+                consequences: vec!["Unknown - research before removing".to_string()],
+                user_reports: vec!["No analysis available - check XDA forums or Android community".to_string()],
+                technical_details: format!("AI response could not be parsed. Raw response: {}", 
+                    if json_content.len() > 150 { 
+                        format!("{}...", &json_content[..150]) 
+                    } else { 
+                        json_content.to_string() 
+                    }),
+                best_case: "System remains stable".to_string(),
+                worst_case: "Potential feature loss or system instability".to_string(),
+            }
+        }
+    };
 
     // Validate risk category
     match analysis.risk_category.as_str() {

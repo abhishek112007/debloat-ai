@@ -42,6 +42,58 @@ struct PerplexityResponseMessage {
     content: String,
 }
 
+/// Cleans and validates message history to ensure proper alternation
+/// Perplexity API requires messages to alternate between user and assistant
+fn clean_message_history(messages: Vec<ChatMessage>) -> Result<Vec<ChatMessage>, String> {
+    if messages.is_empty() {
+        return Err("No messages provided".to_string());
+    }
+
+    let mut cleaned: Vec<ChatMessage> = Vec::new();
+    let mut last_role: Option<String> = None;
+
+    for msg in messages {
+        // Skip empty messages
+        if msg.content.trim().is_empty() {
+            continue;
+        }
+
+        // Ensure role is valid
+        let role = match msg.role.as_str() {
+            "user" | "assistant" => msg.role.clone(),
+            _ => {
+                eprintln!("Invalid role '{}', treating as user", msg.role);
+                "user".to_string()
+            }
+        };
+
+        // Skip if same role as previous (no alternation)
+        if let Some(ref last) = last_role {
+            if last == &role {
+                eprintln!("Skipping duplicate role: {}", role);
+                continue;
+            }
+        }
+
+        cleaned.push(ChatMessage {
+            role: role.clone(),
+            content: msg.content.trim().to_string(),
+        });
+        last_role = Some(role);
+    }
+
+    // Ensure first message is from user
+    if let Some(first) = cleaned.first() {
+        if first.role != "user" {
+            return Err("First message must be from user".to_string());
+        }
+    } else {
+        return Err("No valid messages after cleaning".to_string());
+    }
+
+    Ok(cleaned)
+}
+
 /// Sends a chat message to Perplexity AI with Android debloating context
 pub async fn send_chat_message(
     messages: Vec<ChatMessage>,
@@ -98,12 +150,15 @@ Remember: Users trust you with their devices. Be thorough, be cautious, be helpf
         device_context
     );
 
+    // Validate and clean messages to ensure proper alternation
+    let cleaned_messages = clean_message_history(messages)?;
+    
     // Prepare full message list with system prompt
     let mut full_messages = vec![ChatMessage {
         role: "system".to_string(),
         content: system_prompt,
     }];
-    full_messages.extend(messages);
+    full_messages.extend(cleaned_messages);
 
     // Build request payload with optimized parameters
     let request_body = PerplexityRequest {
@@ -153,8 +208,10 @@ Remember: Users trust you with their devices. Be thorough, be cautious, be helpf
             400 => {
                 if error_text.contains("model") || error_text.contains("Model") {
                     format!("Invalid model specified. Use 'sonar', 'sonar-pro', or 'sonar-reasoning'. Error: {}", error_text)
+                } else if error_text.contains("invalid_message") || error_text.contains("message") {
+                    "Message format error. Your conversation may be too complex. Try starting a new chat or simplifying your question.".to_string()
                 } else {
-                    format!("Bad request (400): {}", error_text)
+                    format!("Bad request (400): {}. Try rephrasing your question or starting a new chat.", error_text)
                 }
             },
             401 => "Invalid API key. Please check your PERPLEXITY_API_KEY in .env file.".to_string(),
