@@ -6,6 +6,8 @@
 @tailwind components;
 @tailwind utilities;
 
+/* rotation animation for shimmer ring */
+
 @layer base {
   /* Premium Ultra-Minimal Design Tokens */
   :root {
@@ -332,6 +334,42 @@
 
   .animate-slide-in {
     animation: slide-in 0.3s ease-out;
+  }
+  
+  @keyframes shimmer-slide {
+    to {
+      translate: calc(-100cqw - var(--cut));
+    }
+  }
+
+  @keyframes spin-around {
+    0% {
+      rotate: 0deg;
+    }
+    100% {
+      rotate: 360deg;
+    }
+  }
+
+  .animate-shimmer-slide {
+    animation: shimmer-slide var(--speed) ease-in-out infinite alternate;
+  }
+
+  .animate-spin-around {
+    animation: spin-around 3s linear infinite;
+  }
+
+  @keyframes shimmer-rotate {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .animate-shimmer-rotate {
+    animation: shimmer-rotate var(--shimmer-speed, 2.5s) linear infinite;
   }
   
   /* Smooth scroll */
