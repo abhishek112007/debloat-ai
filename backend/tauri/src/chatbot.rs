@@ -102,7 +102,12 @@ pub async fn send_chat_message(
     // Load API key from environment
     dotenv::dotenv().ok();
     let api_key = env::var("PERPLEXITY_API_KEY")
-        .map_err(|_| "PERPLEXITY_API_KEY not set in .env file".to_string())?;
+        .map_err(|_| "PERPLEXITY_API_KEY not set. Please create a .env file in the app directory with your API key.".to_string())?;
+
+    // Validate API key is not the example placeholder
+    if api_key.is_empty() || api_key == "your_api_key_here" {
+        return Err("Please set a valid PERPLEXITY_API_KEY in your .env file. Get your API key from: https://www.perplexity.ai/settings/api".to_string());
+    }
 
     // Build system prompt with device context
     let device_context = device_name

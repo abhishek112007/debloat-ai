@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { modalBackdrop, modalContent } from '../utils/animations';
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -46,22 +48,28 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     }
   }, [isOpen]);
 
-  if (!isOpen) {
-    return null;
-  }
-
   return (
-    <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-      onClick={onCancel}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="dialog-title"
-    >
-      <div
-        className="bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 w-full max-w-md p-6"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+          onClick={onCancel}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="dialog-title"
+          variants={modalBackdrop}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+        >
+          <motion.div
+            className="bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 w-full max-w-md p-6 rounded-xl shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+            variants={modalContent}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
         {/* Title */}
         <h2
           id="dialog-title"
@@ -91,7 +99,13 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             </button>
 
             {showLearnMore && (
-              <div className="mt-3 p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500">
+              <motion.div 
+                className="mt-3 p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 rounded-r-lg"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              >
                 <p className="text-sm text-red-800 dark:text-red-200 leading-relaxed">
                   <strong>⚠️ Warning:</strong> This action may affect system
                   functionality. Removing critical packages can cause:
@@ -105,7 +119,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                 <p className="mt-3 text-sm text-red-800 dark:text-red-200">
                   Only proceed if you understand the risks and have a backup.
                 </p>
-              </div>
+              </motion.div>
             )}
           </div>
         )}
@@ -113,33 +127,52 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         {/* Action Buttons */}
         <div className="flex gap-3 justify-end">
           {/* Cancel Button */}
-          <button
+          <motion.button
             onClick={onCancel}
-            className="px-5 py-2.5 border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 font-medium text-base focus:outline-none focus:ring-2 focus:ring-gray-400"
+            className="px-5 py-2.5 border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 font-medium text-base focus:outline-none focus:ring-2 focus:ring-gray-400 rounded-lg"
+            whileHover={{ scale: 1.02, y: -1 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: 'spring' as const, stiffness: 400, damping: 17 }}
           >
             Cancel
-          </button>
+          </motion.button>
 
           {/* Confirm Button */}
-          <button
+          <motion.button
             onClick={onConfirm}
             className={
-              'px-5 py-2.5 border font-medium text-base focus:outline-none focus:ring-2 ' +
+              'px-5 py-2.5 border font-medium text-base focus:outline-none focus:ring-2 rounded-lg ' +
               (isDangerous
                 ? 'bg-red-600 hover:bg-red-700 text-white border-red-600 focus:ring-red-500'
                 : 'bg-green-600 hover:bg-green-700 text-white border-green-600 focus:ring-green-500')
             }
+            whileHover={{ 
+              scale: 1.02, 
+              y: -1,
+              boxShadow: isDangerous 
+                ? '0 8px 20px rgba(239, 68, 68, 0.3)'
+                : '0 8px 20px rgba(34, 197, 94, 0.3)'
+            }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: 'spring' as const, stiffness: 400, damping: 17 }}
           >
             Confirm
-          </button>
+          </motion.button>
         </div>
 
         {/* ESC hint */}
-        <p className="mt-4 text-xs text-gray-500 dark:text-gray-400 text-center">
+        <motion.p 
+          className="mt-4 text-xs text-gray-500 dark:text-gray-400 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
           Press ESC to cancel
-        </p>
-      </div>
-    </div>
+        </motion.p>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 

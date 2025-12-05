@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useTheme } from '../hooks/useDarkMode';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme } from '../App';
 import { FiSun, FiMoon } from 'react-icons/fi';
 
 const ThemeSelector: React.FC = () => {
@@ -66,36 +67,133 @@ const ThemeSelector: React.FC = () => {
     }).onfinish = () => ripple.remove();
   };
 
+  // Icon animation variants
+  const iconVariants = {
+    initial: { scale: 0, rotate: -180, opacity: 0 },
+    animate: { 
+      scale: 1, 
+      rotate: 0, 
+      opacity: 1,
+      transition: {
+        type: 'spring' as const,
+        stiffness: 400,
+        damping: 15
+      }
+    },
+    exit: { 
+      scale: 0, 
+      rotate: 180, 
+      opacity: 0,
+      transition: {
+        duration: 0.2
+      }
+    },
+    hover: {
+      scale: 1.2,
+      rotate: 15,
+      transition: {
+        type: 'spring' as const,
+        stiffness: 400,
+        damping: 10
+      }
+    }
+  };
+
   return (
-    <button 
+    <motion.button 
       id="theme-toggle-btn"
       onClick={toggleTheme}
       disabled={isAnimating}
-      className="relative px-4 py-2 text-sm font-medium border-2 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2 overflow-hidden group hover:-translate-y-0.5 active:scale-95"
+      className="relative px-4 py-2 text-sm font-medium border-2 rounded-lg shadow-sm flex items-center gap-2 overflow-hidden group"
       style={{
         borderColor: 'var(--theme-border)', 
         backgroundColor: 'var(--theme-card)', 
         color: 'var(--theme-text-primary)',
       }}
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      whileHover={{ 
+        scale: 1.03, 
+        y: -2,
+        boxShadow: isDark 
+          ? '0 8px 20px rgba(0,0,0,0.3), 0 0 20px rgba(88,166,175,0.15)'
+          : '0 8px 20px rgba(0,0,0,0.1), 0 0 20px rgba(46,196,182,0.15)'
+      }}
+      whileTap={{ scale: 0.97 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
     >
-      {/* Subtle hover glow */}
-      <div className="absolute inset-0 bg-primary-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      {/* Animated background gradient */}
+      <motion.div 
+        className="absolute inset-0 opacity-0 group-hover:opacity-100"
+        style={{
+          background: isDark 
+            ? 'linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(251, 146, 60, 0.05) 100%)'
+            : 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%)'
+        }}
+        initial={{ opacity: 0 }}
+        whileHover={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      />
       
-      {/* Icon with smooth rotation */}
-      <div className={`relative z-10 transition-all duration-300 ${isAnimating ? 'rotate-180 scale-110' : ''}`}>
-        {isDark ? (
-          <FiSun className="w-4 h-4" />
-        ) : (
-          <FiMoon className="w-4 h-4" />
-        )}
+      {/* Icon with AnimatePresence for smooth transitions */}
+      <div className="relative z-10 w-4 h-4">
+        <AnimatePresence mode="wait">
+          {isDark ? (
+            <motion.div
+              key="sun"
+              variants={iconVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              whileHover="hover"
+              className="absolute inset-0"
+            >
+              <FiSun className="w-4 h-4 text-amber-400" />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="moon"
+              variants={iconVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              whileHover="hover"
+              className="absolute inset-0"
+            >
+              <FiMoon className="w-4 h-4 text-indigo-500" />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
       
-      {/* Text */}
-      <span className="hidden sm:inline relative z-10 transition-opacity duration-200">
-        {isDark ? 'Light' : 'Dark'}
+      {/* Text with slide animation */}
+      <span className="hidden sm:inline relative z-10">
+        <AnimatePresence mode="wait">
+          <motion.span
+            key={isDark ? 'light' : 'dark'}
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -10, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            {isDark ? 'Light' : 'Dark'}
+          </motion.span>
+        </AnimatePresence>
       </span>
-    </button>
+
+      {/* Shine effect on hover */}
+      <motion.div
+        className="absolute inset-0 z-0"
+        style={{
+          background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.2) 45%, rgba(255,255,255,0.2) 55%, transparent 60%)',
+          backgroundSize: '200% 100%',
+        }}
+        initial={{ backgroundPosition: '200% 0' }}
+        whileHover={{ 
+          backgroundPosition: '-200% 0',
+          transition: { duration: 0.8, ease: 'easeInOut' }
+        }}
+      />
+    </motion.button>
   );
 };
 

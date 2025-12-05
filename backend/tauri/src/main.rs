@@ -15,7 +15,26 @@ use backup::{create_backup, list_backups, restore_backup, delete_backup, get_bac
 
 fn main() {
     // Load .env file if it exists
-    dotenv::dotenv().ok();
+    // Check multiple possible locations for .env file
+    let env_loaded = dotenv::dotenv().is_ok();
+    
+    // Also try loading from current exe directory
+    if !env_loaded {
+        if let Ok(exe_path) = std::env::current_exe() {
+            if let Some(exe_dir) = exe_path.parent() {
+                let env_path = exe_dir.join(".env");
+                if env_path.exists() {
+                    dotenv::from_path(&env_path).ok();
+                }
+            }
+        }
+    }
+    
+    // Log warning if API key not set (but don't crash)
+    if std::env::var("PERPLEXITY_API_KEY").is_err() {
+        eprintln!("⚠️ PERPLEXITY_API_KEY not set. AI features will not work.");
+        eprintln!("   Create a .env file with your API key to enable AI analysis.");
+    }
     
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())

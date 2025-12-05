@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
@@ -10,28 +11,22 @@ export interface ToastProps {
 }
 
 const Toast: React.FC<ToastProps> = ({ message, type, duration = 5000, onClose }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [isExiting, setIsExiting] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    // Trigger fade-in animation
-    const showTimer = setTimeout(() => setIsVisible(true), 10);
-
     // Auto-close after duration
     const closeTimer = setTimeout(() => {
       handleClose();
     }, duration);
 
     return () => {
-      clearTimeout(showTimer);
       clearTimeout(closeTimer);
     };
   }, [duration]);
 
   const handleClose = () => {
-    setIsExiting(true);
     setIsVisible(false);
-    // Wait for fade-out animation to complete
+    // Wait for animation to complete
     setTimeout(() => {
       onClose();
     }, 300);
@@ -52,6 +47,21 @@ const Toast: React.FC<ToastProps> = ({ message, type, duration = 5000, onClose }
     }
   };
 
+  const getIconColor = (): string => {
+    switch (type) {
+      case 'success':
+        return 'text-green-600 dark:text-green-400';
+      case 'error':
+        return 'text-red-600 dark:text-red-400';
+      case 'warning':
+        return 'text-orange-600 dark:text-orange-400';
+      case 'info':
+        return 'text-blue-600 dark:text-blue-400';
+      default:
+        return '';
+    }
+  };
+
   const getIcon = (): string => {
     switch (type) {
       case 'success':
@@ -68,37 +78,62 @@ const Toast: React.FC<ToastProps> = ({ message, type, duration = 5000, onClose }
   };
 
   return (
-    <div
-      className={`
-        fixed bottom-4 right-4 min-w-[300px] max-w-[400px] px-4 py-3 border-2
-        shadow-lg transition-all duration-300 ease-in-out z-50
-        ${getTypeStyles()}
-        ${isVisible && !isExiting ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'}
-      `}
-      role="alert"
-      aria-live="polite"
-    >
+    <AnimatePresence>
+      {isVisible && (
+        <motion.div
+          className={`
+            fixed bottom-4 right-4 min-w-[300px] max-w-[400px] px-4 py-3 border-2 rounded-xl
+            shadow-lg backdrop-blur-sm z-50
+            ${getTypeStyles()}
+          `}
+          role="alert"
+          aria-live="polite"
+          initial={{ opacity: 0, x: 100, scale: 0.9 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          exit={{ opacity: 0, x: 100, scale: 0.9 }}
+          transition={{ 
+            type: 'spring' as const, 
+            stiffness: 400, 
+            damping: 25 
+          }}
+          whileHover={{ scale: 1.02, y: -2 }}
+        >
       <div className="flex items-start justify-between gap-3">
-        {/* Icon */}
-        <div className="flex-shrink-0 text-lg font-bold mt-0.5">
+        {/* Icon with animation */}
+        <motion.div 
+          className={`flex-shrink-0 text-lg font-bold mt-0.5 ${getIconColor()}`}
+          initial={{ scale: 0, rotate: -180 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: 'spring' as const, stiffness: 500, damping: 15, delay: 0.1 }}
+        >
           {getIcon()}
-        </div>
+        </motion.div>
 
         {/* Message */}
-        <div className="flex-1 text-sm font-medium leading-relaxed">
+        <motion.div 
+          className="flex-1 text-sm font-medium leading-relaxed"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3, delay: 0.15 }}
+        >
           {message}
-        </div>
+        </motion.div>
 
         {/* Close Button */}
-        <button
+        <motion.button
           onClick={handleClose}
           className="flex-shrink-0 text-lg font-bold opacity-70 hover:opacity-100 transition-opacity"
           aria-label="Close notification"
+          whileHover={{ scale: 1.2, rotate: 90 }}
+          whileTap={{ scale: 0.9 }}
+          transition={{ type: 'spring' as const, stiffness: 400, damping: 15 }}
         >
           ✕
-        </button>
+        </motion.button>
       </div>
-    </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 

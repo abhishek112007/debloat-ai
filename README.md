@@ -1,52 +1,108 @@
+<div align="center">
+
 # Debloat AI 🤖
 
-> AI-powered Android debloater - Safely remove bloatware from your Android devices using ADB
+### AI-Powered Android Debloater
 
-A modern cross-platform desktop application built with **Tauri 2.0** and **React** that helps you identify and remove unwanted bloatware from Android devices without requiring root access.
+**Safely remove bloatware from your Android devices using ADB + AI intelligence**
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Tauri](https://img.shields.io/badge/Tauri-2.0-24C8D8.svg)
-![React](https://img.shields.io/badge/React-18.2-61DAFB.svg)
+[![Tauri](https://img.shields.io/badge/Tauri-2.0-24C8D8.svg)](https://tauri.app)
+[![React](https://img.shields.io/badge/React-18.2-61DAFB.svg)](https://react.dev)
+[![Rust](https://img.shields.io/badge/Rust-2021-orange.svg)](https://www.rust-lang.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org)
+
+[Features](#-features) • [Installation](#-installation) • [Usage](#-how-to-use) • [AI Features](#-ai-features) • [Contributing](#-contributing)
+
+</div>
+
+---
+
+## 📖 What is Debloat AI?
+
+**Debloat AI** is a modern cross-platform desktop application that helps you remove unwanted pre-installed apps (bloatware) from your Android device. What makes it special is the **AI-powered safety analysis** - it uses Perplexity AI to give you intelligent recommendations about which packages are safe to remove.
+
+### Key Highlights
+
+- 🚫 **No Root Required** - Uses ADB (Android Debug Bridge), accessible to everyone
+- 🤖 **AI-Powered Advice** - Get detailed safety analysis for any package
+- 💬 **AI Chatbot** - Ask questions about debloating in natural language
+- 🛡️ **Safety First** - Color-coded risk levels to prevent accidents
+- 💾 **Backup & Restore** - Never lose your data
+
+---
 
 ## ✨ Features
 
-- 🔌 **Device Management** - Auto-detect and connect to Android devices via ADB
-- 📦 **Smart Package Analysis** - Categorize 50+ bloatware packages with safety ratings
-- 🛡️ **Safety First** - Color-coded safety levels (Safe/Caution/Expert/Dangerous)
-- 💾 **Backup System** - Create and restore backups before removing packages
-- 🎨 **Modern UI** - Beautiful interface with dark mode and multiple themes
-- 🚀 **No Root Required** - Works with ADB, no device rooting needed
-- 🔄 **Real-time Monitoring** - Live device connection status
-- 📊 **Filtering & Search** - Easy package discovery and filtering
+### Core Features
 
-## 🚀 Quick Start
+| Feature | Description |
+|---------|-------------|
+| 🔌 **Device Detection** | Auto-detect Android devices connected via USB |
+| 📦 **Package Manager** | View all installed packages with search & filter |
+| 🛡️ **Safety Ratings** | 50+ pre-classified bloatware with risk levels |
+| 💾 **Backup System** | Create JSON backups before removing packages |
+| 🔄 **Restore Function** | Reinstall previously removed packages |
+| 🎨 **Theme Support** | Light/Dark mode with multiple color themes |
+
+### AI-Powered Features
+
+| Feature | Description |
+|---------|-------------|
+| ⚡ **AI Package Advisor** | Deep analysis of any package's safety |
+| 💬 **AI Chatbot** | Conversational assistant for debloating advice |
+| 🗣️ **Voice Input** | Speak your questions to the chatbot |
+| 📝 **Chat History** | Export/import your conversation history |
+
+### Safety Classification System
+
+| Level | Color | Meaning |
+|-------|-------|---------|
+| 🟢 Safe | Green | Third-party apps, easily reinstallable |
+| 🟡 Caution | Yellow | OEM apps, may affect minor features |
+| 🟠 Expert | Orange | May break functionality, technical knowledge required |
+| 🔴 Dangerous | Red | Critical system components - **DO NOT REMOVE** |
+
+---
+
+## 🚀 Installation
 
 ### Prerequisites
-- **Node.js** 16+ 
-- **Rust** (stable toolchain)
-- **ADB** (Android Debug Bridge) - [Download here](https://developer.android.com/tools/releases/platform-tools)
 
-### Installation
+Before you start, make sure you have:
 
-1. **Clone the repository**
+1. **Node.js** (version 16 or higher)
+   - Download: https://nodejs.org/
+
+2. **Rust** (stable toolchain)
+   - Download: https://rustup.rs/
+
+3. **ADB** (Android Debug Bridge)
+   - Download: https://developer.android.com/tools/releases/platform-tools
+   - Add to your system PATH
+
+4. **Perplexity API Key** (optional, for AI features)
+   - Get from: https://www.perplexity.ai/settings/api
+
+### Step-by-Step Setup
+
 ```bash
+# 1. Clone the repository
 git clone https://github.com/abhishek112007/debloat-ai.git
 cd debloat-ai
-```
 
-2. **Install dependencies**
-```bash
+# 2. Install dependencies
 npm install
-```
 
-3. **Run the application**
-```bash
+# 3. (Optional) Set up AI features - create .env file
+echo "PERPLEXITY_API_KEY=your_api_key_here" > backend/tauri/.env
+
+# 4. Run the application
 npm run dev
 ```
 
 The app will start with:
-- Frontend at `http://localhost:1420`
-- Tauri backend running concurrently
+- 🌐 Frontend at `http://localhost:1420`
+- ⚙️ Tauri backend running concurrently
 
 ### Building for Production
 
@@ -54,126 +110,277 @@ The app will start with:
 npm run tauri:build
 ```
 
-Executables will be in `backend/tauri/target/release/`
+Find your executable in: `backend/tauri/target/release/`
 
-## 🏗️ Architecture
+---
+
+## 📱 How to Use
+
+### Step 1: Prepare Your Android Device
+
+1. **Enable Developer Options**
+   - Go to `Settings` → `About Phone`
+   - Tap **Build Number** 7 times
+   - You'll see "You are now a developer!"
+
+2. **Enable USB Debugging**
+   - Go to `Settings` → `Developer Options`
+   - Turn on **USB Debugging**
+
+3. **Connect via USB**
+   - Use a good quality USB cable
+   - When prompted on your phone, tap **Allow** to authorize debugging
+
+### Step 2: Use the App
+
+1. **Launch Debloat AI** - The app will auto-detect your device
+
+2. **Browse Packages** - Use filters to find bloatware:
+   - Filter by safety level (Safe/Caution/Expert)
+   - Search by package name
+   - View system vs user apps
+
+3. **Analyze with AI** - Click the ⚡ icon on any package to get:
+   - Detailed safety analysis
+   - Purpose and dependencies
+   - Removal consequences
+   - Community reports
+
+4. **Create a Backup** - Always backup before removing!
+
+5. **Remove Packages** - Select and uninstall with confidence
+
+---
+
+## 🤖 AI Features
+
+### AI Package Advisor
+
+Click the ⚡ lightning bolt icon next to any package to get an AI-powered analysis:
+
+```
+📊 What you get:
+├── Risk Category (Safe/Caution/Expert/Dangerous)
+├── Package Purpose & Function
+├── System Dependencies
+├── Removal Consequences
+├── Community Reports
+└── Best/Worst Case Scenarios
+```
+
+### AI Chatbot
+
+Open the chatbot to ask questions in natural language:
+
+**Example questions:**
+- "Is it safe to remove Samsung Bixby?"
+- "What Google apps can I safely uninstall?"
+- "Will removing Facebook break anything?"
+- "What bloatware should I remove on Xiaomi devices?"
+
+**Features:**
+- Context-aware (knows your connected device)
+- Conversation history
+- Voice input support
+- Export/import chat logs
+
+### Setting Up AI (Optional)
+
+1. Get an API key from [Perplexity AI](https://www.perplexity.ai/settings/api)
+2. Create a `.env` file in `backend/tauri/`:
+   ```
+   PERPLEXITY_API_KEY=your_key_here
+   ```
+3. Restart the application
+
+---
+
+## 🏗️ Project Structure
 
 ```
 debloat-ai/
-├── frontend/                # React + TypeScript UI
-│   ├── src/
-│   │   ├── App.tsx         # Main application
-│   │   ├── DevicePanel.tsx # Device connection UI
-│   │   ├── PackageList.tsx # Package management
-│   │   ├── BackupManager.tsx # Backup operations
-│   │   └── themes.ts       # Theme system
-│   └── public/             # Static assets & icons
 │
-├── backend/tauri/          # Rust backend
+├── 📁 frontend/                    # React + TypeScript UI
 │   ├── src/
-│   │   ├── main.rs        # Entry point
-│   │   ├── adb.rs         # ADB communication layer
-│   │   ├── commands.rs    # Tauri commands
-│   │   ├── package_database.rs # Bloatware definitions
-│   │   └── backup.rs      # Backup system
-│   └── icons/             # App icons (all platforms)
+│   │   ├── App.tsx                # Main application component
+│   │   ├── types.ts               # TypeScript interfaces
+│   │   │
+│   │   ├── 📁 components/
+│   │   │   ├── DevicePanel.tsx    # Device connection status
+│   │   │   ├── PackageList.tsx    # Package list with filtering
+│   │   │   ├── AIPackageAdvisor.tsx # AI analysis sidebar
+│   │   │   ├── ChatBot.tsx        # AI chatbot interface
+│   │   │   ├── BackupManager.tsx  # Backup/restore UI
+│   │   │   └── ThemeSelector.tsx  # Theme picker
+│   │   │
+│   │   ├── 📁 hooks/              # Custom React hooks
+│   │   │   ├── useDeviceMonitor.ts
+│   │   │   ├── usePackageAdvisor.ts
+│   │   │   └── useDarkMode.ts
+│   │   │
+│   │   ├── 📁 utils/              # Utility functions
+│   │   └── 📁 styles/             # Component styles
+│   │
+│   └── vite.config.ts
 │
-└── package.json           # Project configuration
+├── 📁 backend/tauri/               # Rust backend
+│   ├── src/
+│   │   ├── main.rs                # App entry point
+│   │   ├── lib.rs                 # Module exports
+│   │   ├── adb.rs                 # ADB communication
+│   │   ├── commands.rs            # Tauri IPC commands
+│   │   ├── package_database.rs    # Bloatware definitions
+│   │   ├── ai_advisor.rs          # Perplexity AI integration
+│   │   ├── chatbot.rs             # AI chatbot logic
+│   │   └── backup.rs              # Backup system
+│   │
+│   └── icons/                     # App icons (all platforms)
+│
+├── 📁 docs/                        # Additional documentation
+├── package.json                   # NPM scripts & dependencies
+└── Cargo.toml                     # Rust workspace config
 ```
+
+---
 
 ## 🎨 Tech Stack
 
 ### Frontend
-- **React 18.2** - UI framework
-- **TypeScript 5.3** - Type safety
-- **Tailwind CSS 3.4** - Styling
-- **Vite 5.0** - Build tool
-- **React Icons** - Icon library
+
+| Technology | Purpose |
+|------------|---------|
+| React 18.2 | UI Framework |
+| TypeScript 5.3 | Type Safety |
+| Tailwind CSS 3.4 | Styling |
+| Vite 5.0 | Build Tool |
+| Framer Motion | Animations |
+| Lucide React | Icons |
 
 ### Backend
-- **Tauri 2.0** - Desktop framework
-- **Rust** - Backend language
-- **ADB** - Android communication
-- **Serde** - Serialization
 
-## 📱 Usage
+| Technology | Purpose |
+|------------|---------|
+| Tauri 2.0 | Desktop Framework |
+| Rust (2021 Edition) | Backend Language |
+| reqwest | HTTP Client |
+| tokio | Async Runtime |
+| serde | JSON Serialization |
 
-1. **Enable USB Debugging** on your Android device:
-   - Go to Settings → About Phone
-   - Tap "Build Number" 7 times to enable Developer Options
-   - Go to Settings → Developer Options → Enable USB Debugging
+### External Services
 
-2. **Connect Device** via USB
+| Service | Purpose |
+|---------|---------|
+| ADB | Android Device Communication |
+| Perplexity AI | Package Analysis & Chatbot |
 
-3. **Launch Debloat AI** and authorize the connection on your device
+---
 
-4. **Select Packages** to remove based on safety ratings:
-   - 🟢 **Safe** - No system impact
-   - 🟡 **Caution** - Minor feature loss
-   - 🟠 **Expert** - Advanced users only
-   - 🔴 **Dangerous** - Critical system components
-
-5. **Create Backup** before removing (recommended)
-
-6. **Uninstall** selected packages
-
-## 🔧 Available Scripts
+## 🔧 Available Commands
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start development server (frontend + backend) |
+| `npm run dev` | Start both frontend & backend in development |
 | `npm run frontend` | Start Vite dev server only |
 | `npm run build` | Build frontend for production |
 | `npm run tauri` | Run Tauri in dev mode |
 | `npm run tauri:build` | Build production executable |
 
+---
+
 ## 🐛 Troubleshooting
 
-**Device not detected?**
-- Ensure ADB is installed and in PATH
-- Enable USB Debugging on device
-- Try different USB cable/port
-- Check device drivers (Windows)
+### Device Not Detected?
 
-**Build errors?**
-- Clear target directory: `Remove-Item target -Recurse -Force`
-- Clean npm cache: `npm cache clean --force`
-- Reinstall dependencies: `npm install`
+| Problem | Solution |
+|---------|----------|
+| ADB not found | Ensure ADB is installed and added to PATH |
+| No USB debugging | Enable USB Debugging in Developer Options |
+| Connection denied | Tap "Allow" on the authorization prompt on your phone |
+| Still not working | Try a different USB cable or port |
+| Windows drivers | Install device-specific USB drivers |
 
-## 📦 Package Database
+### Build Errors?
 
-The app includes 50+ pre-classified bloatware packages with safety ratings. Common categories:
-- Google apps (Gmail, Drive, Photos)
-- OEM bloatware (Samsung, Xiaomi, OPPO)
-- Social media apps
-- Pre-installed games
-- Carrier apps
+```powershell
+# Clear build artifacts
+Remove-Item target -Recurse -Force
+
+# Clean npm cache
+npm cache clean --force
+
+# Reinstall dependencies
+npm install
+```
+
+### AI Features Not Working?
+
+1. Check if `.env` file exists in `backend/tauri/`
+2. Verify your API key is valid
+3. Check your internet connection
+4. Restart the application
+
+---
+
+## 📦 Supported Bloatware
+
+The app includes 50+ pre-classified packages from:
+
+| Category | Examples |
+|----------|----------|
+| Google Apps | Gmail, Drive, Photos, Maps, YouTube |
+| Samsung | Bixby, Galaxy Store, Samsung Pay |
+| Xiaomi | Mi Browser, Mi Cloud, MIUI Apps |
+| OPPO/Vivo | Theme Store, Game Center |
+| Facebook | Facebook, Instagram Services |
+| Carrier Apps | Carrier-specific bloatware |
+
+---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Areas for improvement:
-- Add more bloatware packages
-- Support for wireless ADB
-- Package restore functionality
-- Multi-language support
+Contributions are welcome! Here's how you can help:
 
-## 📄 License
+### Areas for Improvement
 
-This project is licensed under the MIT License.
+- 📦 Add more bloatware packages to the database
+- 📶 Support for wireless ADB
+- 🌍 Multi-language support
+- 🎨 New themes
+- 📱 Device-specific profiles
+
+### How to Contribute
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m 'Add amazing feature'`
+4. Push to the branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
+
+---
 
 ## 👤 Author
 
 **Abhishek**
+
 - GitHub: [@abhishek112007](https://github.com/abhishek112007)
 - Repository: [debloat-ai](https://github.com/abhishek112007/debloat-ai)
+
+---
 
 ## 🙏 Acknowledgments
 
 - [Tauri](https://tauri.app/) - Amazing desktop framework
 - [React](https://react.dev/) - UI library
+- [Perplexity AI](https://www.perplexity.ai/) - AI analysis
 - [Android ADB](https://developer.android.com/tools/adb) - Device communication
-- Community bloatware lists
+- Community bloatware lists and contributors
 
 ---
 
-⭐ **Star this repo if you find it helpful!**
+<div align="center">
+
+⭐ **Star this repo if you find it helpful!** ⭐
+
+Made with ❤️ by [Abhishek](https://github.com/abhishek112007)
+
+</div>

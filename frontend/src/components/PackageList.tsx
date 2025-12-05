@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDeviceMonitor } from '../hooks/useDeviceMonitor';
-import { useTheme } from '../hooks/useDarkMode';
+import { useTheme } from '../App';
 import AIPackageAdvisor from './AIPackageAdvisor';
 import {
   FiPackage,
@@ -17,8 +17,6 @@ import {
 import {
   packageListContainer,
   packageListItem,
-  buttonHover,
-  fadeSlideUp
 } from '../utils/animations';
 
 type SafetyLevel = 'Safe' | 'Caution' | 'Expert' | 'Dangerous';
@@ -250,7 +248,7 @@ const PackageList: React.FC<PackageListProps> = ({
               animate="show"
               className="space-y-2"
             >
-              {filtered.map((pkg, index) => {
+              {filtered.map((pkg) => {
                 const isSelected = selectedPackages.has(pkg.packageName);
                 
                 return (

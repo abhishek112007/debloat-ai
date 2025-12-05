@@ -10,6 +10,6 @@ export { default as FloatingChat } from './FloatingChat';
 export { default as PackageList } from './PackageList';
 export { default as Settings } from './Settings';
 export { default as ThemeSelector } from './ThemeSelector';
-export { default as ThemeToggle } from './ThemeToggle';
+export { ThemeToggle } from './ThemeToggle';
 export { default as Toast } from './Toast';
 export { default as UninstallDialog } from './UninstallDialog';

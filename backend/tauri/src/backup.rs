@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
-use std::process::Command;
 use chrono::{DateTime, Utc};
+use crate::adb;
 
 // Data structure for backup file
 #[derive(Debug, Serialize, Deserialize)]
@@ -57,39 +57,27 @@ fn get_backup_directory() -> Result<PathBuf, String> {
 
 /// Get device name from ADB
 fn get_device_name() -> String {
-    let output = Command::new("adb")
-        .args(&["shell", "getprop", "ro.product.model"])
-        .output();
-    
-    match output {
-        Ok(out) if out.status.success() => {
-            String::from_utf8_lossy(&out.stdout).trim().to_string()
-        }
-        _ => "Unknown Device".to_string(),
+    match adb::execute_shell_command("getprop ro.product.model") {
+        Ok(output) => output.trim().to_string(),
+        Err(_) => "Unknown Device".to_string(),
     }
 }
 
 /// Execute ADB command to reinstall a package
 fn reinstall_package(package: &str) -> Result<(), String> {
-    let output = Command::new("adb")
-        .args(&["shell", "cmd", "package", "install-existing", package])
-        .output()
+    let command = format!("cmd package install-existing {}", package);
+    let output = adb::execute_shell_command(&command)
         .map_err(|e| format!("Failed to execute ADB: {}", e))?;
     
-    if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(format!("ADB command failed: {}", stderr));
-    }
-    
-    let stdout = String::from_utf8_lossy(&output.stdout);
+    let output_lower = output.to_lowercase();
     
     // Check if installation was successful
-    if stdout.to_lowercase().contains("success") || stdout.contains("installed") {
+    if output_lower.contains("success") || output_lower.contains("installed") {
         Ok(())
-    } else if stdout.to_lowercase().contains("failure") {
-        Err(format!("Installation failed: {}", stdout.trim()))
+    } else if output_lower.contains("failure") || output_lower.contains("error") {
+        Err(format!("Installation failed: {}", output.trim()))
     } else {
-        // Some devices return different messages
+        // Some devices return different messages - assume success if no explicit failure
         Ok(())
     }
 }

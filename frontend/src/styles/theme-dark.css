@@ -1,0 +1,46 @@
+/* ============================================
+   DARK THEME - Premium Charcoal Design
+   ============================================ */
+
+.dark {
+  /* Core Colors */
+  --theme-bg: #0A0A0A;
+  --theme-card: rgba(17, 17, 17, 0.6);
+  --theme-border: rgba(255, 255, 255, 0.08);
+  --theme-hover: rgba(88, 166, 175, 0.08);
+  
+  /* Text Colors */
+  --theme-text-primary: #F5F5F5;
+  --theme-text-secondary: #A0A0A0;
+  
+  /* Accent Colors */
+  --theme-accent: #58A6AF;
+  --theme-accent-hover: #4A8D95;
+  
+  /* Glass & Effects */
+  --theme-glass: rgba(17, 17, 17, 0.6);
+  --theme-shadow: rgba(0, 0, 0, 0.3);
+  --theme-glow: rgba(88, 166, 175, 0.25);
+  
+  /* Scrollbar */
+  --scrollbar-track: #1e293b;
+  --scrollbar-thumb: #475569;
+  --scrollbar-thumb-hover: #64748b;
+  
+  /* Safety Badge Colors for Dark Mode */
+  --badge-safe-bg: rgba(16, 185, 129, 0.15);
+  --badge-safe-color: #34D399;
+  --badge-safe-border: rgba(16, 185, 129, 0.35);
+  
+  --badge-caution-bg: rgba(245, 158, 11, 0.2);
+  --badge-caution-color: #fcd34d;
+  --badge-caution-border: rgba(245, 158, 11, 0.5);
+  
+  --badge-expert-bg: rgba(249, 115, 22, 0.2);
+  --badge-expert-color: #fb923c;
+  --badge-expert-border: rgba(249, 115, 22, 0.5);
+  
+  --badge-dangerous-bg: rgba(239, 68, 68, 0.2);
+  --badge-dangerous-color: #fca5a5;
+  --badge-dangerous-border: rgba(239, 68, 68, 0.5);
+}

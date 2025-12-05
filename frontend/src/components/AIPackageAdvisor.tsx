@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiX, FiAlertTriangle, FiCheckCircle, FiZap, FiXOctagon, FiRefreshCw, FiPackage, FiAlertCircle } from 'react-icons/fi';
 import { usePackageAdvisor } from '../hooks/usePackageAdvisor';
-import { useTheme } from '../hooks/useDarkMode';
+import { useTheme } from '../App';
 import { fadeSlideUp } from '../utils/animations';
 
 interface AIPackageAdvisorProps {

@@ -58,9 +58,17 @@ struct PerplexityResponseMessage {
 
 /// Analyzes an Android package using Perplexity AI
 pub async fn analyze_package(package_name: &str) -> Result<PackageAnalysis, String> {
+    // Load .env file if present
+    dotenv::dotenv().ok();
+    
     // Get API key from environment variable
     let api_key = env::var("PERPLEXITY_API_KEY")
-        .map_err(|_| "PERPLEXITY_API_KEY environment variable not set. Please add it to your .env file.".to_string())?;
+        .map_err(|_| "PERPLEXITY_API_KEY environment variable not set. Please create a .env file in the app directory with your API key.".to_string())?;
+
+    // Validate API key is not the example placeholder
+    if api_key.is_empty() || api_key == "your_api_key_here" {
+        return Err("Please set a valid PERPLEXITY_API_KEY in your .env file. Get your API key from: https://www.perplexity.ai/settings/api".to_string());
+    }
 
     // Build the prompt
     let prompt = format!(

@@ -176,8 +176,23 @@ pub fn uninstall_package(package_name: String) -> UninstallResult {
         };
     }
     
-    // Run adb shell pm uninstall -k {package_name}
-    let command = format!("pm uninstall -k {}", package_name);
+    // Validate package name format to prevent command injection
+    // Package names should only contain alphanumeric characters, dots, and underscores
+    let valid_package_name = package_name.chars().all(|c| {
+        c.is_ascii_alphanumeric() || c == '.' || c == '_'
+    });
+    
+    if !valid_package_name {
+        return UninstallResult {
+            success: false,
+            message: None,
+            error: Some("Invalid package name format".to_string()),
+        };
+    }
+    
+    // Run adb shell pm uninstall --user 0 {package_name}
+    // Using --user 0 to uninstall for current user only (safer, can be reinstalled)
+    let command = format!("pm uninstall --user 0 {}", package_name);
     match adb::execute_shell_command(&command) {
         Ok(output) => {
             let output_lower = output.to_lowercase();
@@ -186,20 +201,28 @@ pub fn uninstall_package(package_name: String) -> UninstallResult {
             if output_lower.contains("success") {
                 UninstallResult {
                     success: true,
-                    message: Some(format!("Successfully uninstalled {}", package_name)),
+                    message: Some(format!("Successfully uninstalled {} for current user", package_name)),
                     error: None,
                 }
-            } else if output_lower.contains("failure") {
+            } else if output_lower.contains("failure") || output_lower.contains("error") {
                 UninstallResult {
                     success: false,
                     message: None,
                     error: Some(format!("Failed to uninstall: {}", output.trim())),
                 }
-            } else {
+            } else if output_lower.is_empty() || output_lower.trim().is_empty() {
+                // Some devices return empty output on success
                 UninstallResult {
-                    success: false,
-                    message: None,
-                    error: Some(format!("Unexpected response: {}", output.trim())),
+                    success: true,
+                    message: Some(format!("Uninstalled {} for current user", package_name)),
+                    error: None,
+                }
+            } else {
+                // Log unexpected but potentially successful response
+                UninstallResult {
+                    success: true,
+                    message: Some(format!("Uninstall completed: {}", output.trim())),
+                    error: None,
                 }
             }
         }

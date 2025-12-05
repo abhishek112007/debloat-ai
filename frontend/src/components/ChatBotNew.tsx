@@ -2,7 +2,7 @@ import React from 'react';
 import ChatBot from 'react-chatbotify';
 import { invoke } from '@tauri-apps/api/core';
 import { FiX } from 'react-icons/fi';
-import { useTheme } from '../hooks/useDarkMode';
+import { useTheme } from '../App';
 import '../styles/neobrutalism-glassmorphism.css';
 import '../styles/ChatBotNew.css';
 

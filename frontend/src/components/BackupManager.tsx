@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   FiRefreshCw,
   FiDownload,
@@ -11,6 +12,7 @@ import {
   FiRotateCcw,
   FiAlertCircle,
 } from 'react-icons/fi';
+import { staggerContainer, staggerItem } from '../utils/animations';
 
 interface BackupInfo {
   filename: string;
@@ -141,227 +143,290 @@ const BackupManager: React.FC = () => {
   };
 
   return (
-    <div className="h-full flex flex-col glass-card text-gray-900 dark:text-text-primary">
+    <motion.div 
+      className="h-full flex flex-col glass-card text-gray-900 dark:text-text-primary"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+    >
       {/* Minimal Header */}
       <div className="flex-shrink-0 p-5 border-b border-gray-200 dark:border-dark-border/30">
         <div className="flex items-center justify-between mb-3">
           <div>
             <h2 className="text-lg font-semibold text-gray-900 dark:text-text-primary flex items-center gap-2.5">
-              <FiFolder className="w-5 h-5 text-accent" />
+              <motion.div
+                whileHover={{ scale: 1.1, rotate: 10 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <FiFolder className="w-5 h-5 text-accent" />
+              </motion.div>
               Backups
             </h2>
-            <p className="text-xs text-gray-600 dark:text-text-tertiary mt-1">
+            <motion.p 
+              className="text-xs text-gray-600 dark:text-text-tertiary mt-1"
+              key={backups.length}
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
               {backups.length} vault{backups.length !== 1 ? 's' : ''}
-            </p>
+            </motion.p>
           </div>
-          <button
+          <motion.button
             onClick={loadBackups}
             className="btn-ghost px-3 py-2 text-sm font-medium group"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95, rotate: 180 }}
           >
-            <FiRefreshCw className="w-4 h-4 transition-all duration-300 group-hover:rotate-180 group-active:rotate-90" />
-          </button>
+            <FiRefreshCw className="w-4 h-4" />
+          </motion.button>
         </div>
 
         {/* Backup Path - Minimal */}
-        {backupPath && (
-          <div 
-            style={{
-              background: 'rgba(88,166,175,0.08)',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '10px 12px',
-            }}
-          >
-            <div className="flex items-center gap-2 text-xs font-semibold text-accent mb-1">
-              <FiFolder className="w-3 h-3" />
-              Directory
-            </div>
-            <div className="text-xs font-mono text-gray-700 dark:text-gray-300 break-all opacity-75">
-              {backupPath}
-            </div>
-          </div>
-        )}
+        <AnimatePresence>
+          {backupPath && (
+            <motion.div 
+              style={{
+                background: 'rgba(88,166,175,0.08)',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '10px 12px',
+              }}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+            >
+              <div className="flex items-center gap-2 text-xs font-semibold text-accent mb-1">
+                <FiFolder className="w-3 h-3" />
+                Directory
+              </div>
+              <div className="text-xs font-mono text-gray-700 dark:text-gray-300 break-all opacity-75">
+                {backupPath}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto p-5 space-y-5">
         {/* Create Section - Minimal */}
-        <div 
+        <motion.div 
           style={{
             background: 'rgba(255,255,255,0.02)',
             border: 'none',
             borderRadius: '12px',
             padding: '16px',
           }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1 }}
         >
           <h3 className="text-sm font-semibold mb-3 flex items-center gap-2 text-gray-900 dark:text-text-primary">
-            <FiDownload className="w-4 h-4 text-accent" />
+            <motion.div whileHover={{ scale: 1.2, y: -2 }}>
+              <FiDownload className="w-4 h-4 text-accent" />
+            </motion.div>
             New Backup
           </h3>
           <p className="text-xs text-gray-600 dark:text-text-secondary mb-3">
-            Selected: <span className="font-semibold text-accent">{selectedPackages.length}</span>
+            Selected: <motion.span 
+              className="font-semibold text-accent"
+              key={selectedPackages.length}
+              initial={{ scale: 1.3 }}
+              animate={{ scale: 1 }}
+            >
+              {selectedPackages.length}
+            </motion.span>
           </p>
           <div className="flex gap-2">
-            <button
+            <motion.button
               onClick={handleCreateBackup}
               disabled={loading || selectedPackages.length === 0}
               className="btn-magnetic flex-1 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
               style={{
                 background: 'rgba(16,185,129,0.12)',
               }}
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <FiDownload className="w-3.5 h-3.5" />
+              <motion.div
+                animate={loading ? { rotate: 360 } : {}}
+                transition={loading ? { duration: 1, repeat: Infinity, ease: 'linear' } : {}}
+              >
+                <FiDownload className="w-3.5 h-3.5" />
+              </motion.div>
               {loading ? 'Creating...' : 'Create'}
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               onClick={() => setSelectedPackages([])}
               disabled={selectedPackages.length === 0}
               className="btn-ghost px-3 py-2 text-sm disabled:opacity-50"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               Clear
-            </button>
+            </motion.button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Vault List */}
         <div>
           <h3 className="text-sm font-semibold mb-3 flex items-center gap-2 text-gray-900 dark:text-text-primary">
-            <FiPackage className="w-4 h-4 text-accent" />
+            <motion.div whileHover={{ scale: 1.2, rotate: 10 }}>
+              <FiPackage className="w-4 h-4 text-accent" />
+            </motion.div>
             Vault
           </h3>
 
-          {backups.length === 0 ? (
-            <div 
-              style={{
-                background: 'rgba(255,255,255,0.02)',
-                border: '1px dashed rgba(255,255,255,0.1)',
-                borderRadius: '12px',
-                padding: '32px',
-                textAlign: 'center',
-              }}
-            >
-              <FiAlertCircle className="w-10 h-10 text-gray-400 dark:text-gray-600 mx-auto mb-2 opacity-50" />
-              <p className="text-gray-500 dark:text-text-tertiary text-xs">
-                No backups found
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-2.5">
-              {backups.map((backup) => (
-                <div
-                  key={backup.filename}
-                  style={{
-                    background: 'rgba(255,255,255,0.02)',
-                    border: 'none',
-                    borderRadius: '12px',
-                    padding: '14px',
-                    transition: 'all 250ms ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-                    e.currentTarget.style.boxShadow = '0 0 12px rgba(88,166,175,0.08), 0 4px 10px rgba(0,0,0,0.04)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
+          <AnimatePresence mode="wait">
+            {backups.length === 0 ? (
+              <motion.div 
+                style={{
+                  background: 'rgba(255,255,255,0.02)',
+                  border: '1px dashed rgba(255,255,255,0.1)',
+                  borderRadius: '12px',
+                  padding: '32px',
+                  textAlign: 'center',
+                }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+              >
+                <motion.div
+                  animate={{ y: [0, -5, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
                 >
-                  <div className="flex flex-col gap-3">
-                    <div className="flex-1">
-                      <div className="font-semibold text-sm text-gray-900 dark:text-text-primary mb-2 break-all flex items-center gap-2">
-                        <FiPackage className="w-3.5 h-3.5 text-accent flex-shrink-0" />
-                        {backup.filename}
-                      </div>
-                      <div className="flex flex-wrap gap-3 text-xs">
-                        <div className="flex items-center gap-1.5 text-gray-600 dark:text-text-secondary">
-                          <FiCalendar className="w-3 h-3 opacity-60" />
-                          <span>{formatDate(backup.date)}</span>
+                  <FiAlertCircle className="w-10 h-10 text-gray-400 dark:text-gray-600 mx-auto mb-2 opacity-50" />
+                </motion.div>
+                <p className="text-gray-500 dark:text-text-tertiary text-xs">
+                  No backups found
+                </p>
+              </motion.div>
+            ) : (
+              <motion.div 
+                className="space-y-2.5"
+                variants={staggerContainer}
+                initial="hidden"
+                animate="show"
+              >
+                {backups.map((backup) => (
+                  <motion.div
+                    key={backup.filename}
+                    variants={staggerItem}
+                    style={{
+                      background: 'rgba(255,255,255,0.02)',
+                      border: 'none',
+                      borderRadius: '12px',
+                      padding: '14px',
+                    }}
+                    whileHover={{ 
+                      y: -2, 
+                      background: 'rgba(255,255,255,0.04)',
+                      boxShadow: '0 0 12px rgba(88,166,175,0.08), 0 4px 10px rgba(0,0,0,0.04)'
+                    }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div className="flex flex-col gap-3">
+                      <div className="flex-1">
+                        <div className="font-semibold text-sm text-gray-900 dark:text-text-primary mb-2 break-all flex items-center gap-2">
+                          <motion.div whileHover={{ scale: 1.2, rotate: 10 }}>
+                            <FiPackage className="w-3.5 h-3.5 text-accent flex-shrink-0" />
+                          </motion.div>
+                          {backup.filename}
                         </div>
-                        <div className="flex items-center gap-1.5 text-gray-600 dark:text-text-secondary">
-                          <FiPackage className="w-3 h-3 opacity-60" />
-                          <span>{backup.count} pkg</span>
-                        </div>
-                        {backup.device_name && (
+                        <div className="flex flex-wrap gap-3 text-xs">
                           <div className="flex items-center gap-1.5 text-gray-600 dark:text-text-secondary">
-                            <FiSmartphone className="w-3 h-3 opacity-60" />
-                            <span>{backup.device_name}</span>
+                            <FiCalendar className="w-3 h-3 opacity-60" />
+                            <span>{formatDate(backup.date)}</span>
                           </div>
-                        )}
+                          <div className="flex items-center gap-1.5 text-gray-600 dark:text-text-secondary">
+                            <FiPackage className="w-3 h-3 opacity-60" />
+                            <span>{backup.count} pkg</span>
+                          </div>
+                          {backup.device_name && (
+                            <div className="flex items-center gap-1.5 text-gray-600 dark:text-text-secondary">
+                              <FiSmartphone className="w-3 h-3 opacity-60" />
+                              <span>{backup.device_name}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2 pt-2 border-t border-gray-200 dark:border-dark-border/30">
+                        <motion.button
+                          onClick={() => handleRestore(backup.filename)}
+                          disabled={restoring}
+                          className="flex-1 px-3 py-2 text-xs font-medium rounded-lg disabled:opacity-50 flex items-center justify-center gap-1.5"
+                          style={{
+                            background: 'rgba(16,185,129,0.12)',
+                            border: 'none',
+                          }}
+                          whileHover={{ 
+                            y: -2, 
+                            background: 'rgba(16,185,129,0.18)',
+                            boxShadow: '0 0 8px rgba(16,185,129,0.12)'
+                          }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <motion.div
+                            animate={restoring ? { rotate: -360 } : {}}
+                            transition={restoring ? { duration: 1, repeat: Infinity, ease: 'linear' } : {}}
+                          >
+                            <FiRotateCcw className="w-3 h-3" />
+                          </motion.div>
+                          {restoring ? 'Restoring...' : 'Restore'}
+                        </motion.button>
+                        <motion.button
+                          onClick={() => handleDelete(backup.filename)}
+                          className="px-3 py-2 text-xs font-medium rounded-lg flex items-center justify-center gap-1.5"
+                          style={{
+                            background: 'rgba(239,68,68,0.12)',
+                            border: 'none',
+                          }}
+                          whileHover={{ 
+                            y: -2, 
+                            background: 'rgba(239,68,68,0.18)',
+                            boxShadow: '0 0 8px rgba(239,68,68,0.12)'
+                          }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <FiTrash2 className="w-3 h-3" />
+                          Delete
+                        </motion.button>
                       </div>
                     </div>
-
-                    <div className="flex gap-2 pt-2 border-t border-gray-200 dark:border-dark-border/30">
-                      <button
-                        onClick={() => handleRestore(backup.filename)}
-                        disabled={restoring}
-                        className="flex-1 px-3 py-2 text-xs font-medium rounded-lg transition-all duration-250 disabled:opacity-50 flex items-center justify-center gap-1.5"
-                        style={{
-                          background: 'rgba(16,185,129,0.12)',
-                          border: 'none',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'rgba(16,185,129,0.18)';
-                          e.currentTarget.style.transform = 'translateY(-1px)';
-                          e.currentTarget.style.boxShadow = '0 0 8px rgba(16,185,129,0.12)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'rgba(16,185,129,0.12)';
-                          e.currentTarget.style.transform = 'translateY(0)';
-                          e.currentTarget.style.boxShadow = 'none';
-                        }}
-                      >
-                        <FiRotateCcw className="w-3 h-3" />
-                        {restoring ? 'Restoring...' : 'Restore'}
-                      </button>
-                      <button
-                        onClick={() => handleDelete(backup.filename)}
-                        className="px-3 py-2 text-xs font-medium rounded-lg transition-all duration-250 flex items-center justify-center gap-1.5"
-                        style={{
-                          background: 'rgba(239,68,68,0.12)',
-                          border: 'none',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'rgba(239,68,68,0.18)';
-                          e.currentTarget.style.transform = 'translateY(-1px)';
-                          e.currentTarget.style.boxShadow = '0 0 8px rgba(239,68,68,0.12)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'rgba(239,68,68,0.12)';
-                          e.currentTarget.style.transform = 'translateY(0)';
-                          e.currentTarget.style.boxShadow = 'none';
-                        }}
-                      >
-                        <FiTrash2 className="w-3 h-3" />
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Info Note - Minimal */}
-        <div 
+        <motion.div 
           style={{
             background: 'rgba(88,166,175,0.06)',
             border: 'none',
             borderRadius: '10px',
             padding: '12px',
           }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
         >
           <div className="flex items-start gap-2.5">
-            <FiAlertCircle className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
+            <motion.div
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+            >
+              <FiAlertCircle className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
+            </motion.div>
             <div className="text-xs text-gray-700 dark:text-gray-300">
               <strong>Note:</strong> Backups store package names only. Data is not included.
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

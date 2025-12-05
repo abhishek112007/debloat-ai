@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
+import { staggerContainer, staggerItem } from '../utils/animations';
 
 // Settings interface
 interface AppSettings {
@@ -143,22 +145,40 @@ const Settings: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto bg-white dark:bg-[#1a1a1a] text-gray-800 dark:text-gray-100 p-4 md:p-6 border-0 lg:border border-gray-200 dark:border-gray-700">
-      <div className="mb-6">
+    <motion.div 
+      className="w-full max-w-4xl mx-auto bg-white dark:bg-[#1a1a1a] text-gray-800 dark:text-gray-100 p-4 md:p-6 border-0 lg:border border-gray-200 dark:border-gray-700 rounded-xl"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] as const }}
+    >
+      <motion.div 
+        className="mb-6"
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+      >
         <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2">Settings</h2>
         <p className="text-sm text-gray-600 dark:text-gray-400">
           Configure application preferences
         </p>
-      </div>
+      </motion.div>
 
       {/* Display Settings */}
-      <section className="mb-6 md:mb-8">
+      <motion.section 
+        className="mb-6 md:mb-8"
+        variants={staggerContainer}
+        initial="hidden"
+        animate="show"
+      >
         <h3 className="text-base md:text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
           Display
         </h3>
 
         {/* Dark Mode */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 py-3 border-b border-gray-100 dark:border-gray-800">
+        <motion.div 
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 py-3 border-b border-gray-100 dark:border-gray-800"
+          variants={staggerItem}
+        >
           <div>
             <label className="text-sm font-medium text-gray-900 dark:text-white">
               Dark Mode
@@ -170,7 +190,7 @@ const Settings: React.FC = () => {
           <button
             onClick={() => updateSetting('darkMode', !settings.darkMode)}
             className={`
-              relative inline-flex h-6 w-11 items-center border-2 transition-colors self-start sm:self-auto
+              relative inline-flex h-6 w-11 items-center border-2 transition-colors self-start sm:self-auto rounded-full
               ${
                 settings.darkMode
                   ? 'bg-green-600 border-green-600'
@@ -180,17 +200,19 @@ const Settings: React.FC = () => {
             role="switch"
             aria-checked={settings.darkMode}
           >
-            <span
-              className={`
-                inline-block h-4 w-4 transform bg-white transition-transform
-                ${settings.darkMode ? 'translate-x-6' : 'translate-x-1'}
-              `}
+            <motion.span
+              className="inline-block h-4 w-4 bg-white rounded-full shadow-md"
+              animate={{ x: settings.darkMode ? 20 : 2 }}
+              transition={{ type: 'spring' as const, stiffness: 500, damping: 30 }}
             />
           </button>
-        </div>
+        </motion.div>
 
         {/* Language */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 py-3 border-b border-gray-100 dark:border-gray-800">
+        <motion.div 
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 py-3 border-b border-gray-100 dark:border-gray-800"
+          variants={staggerItem}
+        >
           <div>
             <label className="text-sm font-medium text-gray-900 dark:text-white">
               Language
@@ -212,10 +234,13 @@ const Settings: React.FC = () => {
               </option>
             ))}
           </select>
-        </div>
+        </motion.div>
 
         {/* Show Advanced Options */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 py-3">
+        <motion.div 
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 py-3"
+          variants={staggerItem}
+        >
           <div>
             <label className="text-sm font-medium text-gray-900 dark:text-white">
               Show Advanced Options
@@ -231,7 +256,7 @@ const Settings: React.FC = () => {
               setShowAdvanced(newValue);
             }}
             className={`
-              relative inline-flex h-6 w-11 items-center border-2 transition-colors self-start sm:self-auto
+              relative inline-flex h-6 w-11 items-center border-2 transition-colors self-start sm:self-auto rounded-full
               ${
                 settings.showAdvancedOptions
                   ? 'bg-green-600 border-green-600'
@@ -241,18 +266,22 @@ const Settings: React.FC = () => {
             role="switch"
             aria-checked={settings.showAdvancedOptions}
           >
-            <span
-              className={`
-                inline-block h-4 w-4 transform bg-white transition-transform
-                ${settings.showAdvancedOptions ? 'translate-x-6' : 'translate-x-1'}
-              `}
+            <motion.span
+              className="inline-block h-4 w-4 bg-white rounded-full shadow-md"
+              animate={{ x: settings.showAdvancedOptions ? 20 : 2 }}
+              transition={{ type: 'spring' as const, stiffness: 500, damping: 30 }}
             />
           </button>
-        </div>
-      </section>
+        </motion.div>
+      </motion.section>
 
       {/* Device Settings */}
-      <section className="mb-6 md:mb-8">
+      <motion.section 
+        className="mb-6 md:mb-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+      >
         <h3 className="text-base md:text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
           Device
         </h3>
@@ -300,10 +329,15 @@ const Settings: React.FC = () => {
             </div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Storage Settings */}
-      <section className="mb-6 md:mb-8">
+      <motion.section 
+        className="mb-6 md:mb-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.3 }}
+      >
         <h3 className="text-base md:text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
           Storage
         </h3>
@@ -324,19 +358,28 @@ const Settings: React.FC = () => {
               placeholder="No location selected"
               className="flex-1 px-3 py-2.5 md:py-2 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:outline-none min-h-[44px] md:min-h-0"
             />
-            <button
+            <motion.button
               onClick={selectBackupFolder}
-              className="px-4 py-2.5 md:py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] hover:bg-gray-50 dark:hover:bg-gray-800 text-sm font-medium min-h-[44px] md:min-h-0 whitespace-nowrap"
+              className="px-4 py-2.5 md:py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] hover:bg-gray-50 dark:hover:bg-gray-800 text-sm font-medium min-h-[44px] md:min-h-0 whitespace-nowrap rounded-lg"
+              whileHover={{ scale: 1.02, y: -1 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ type: 'spring' as const, stiffness: 400, damping: 17 }}
             >
               Browse...
-            </button>
+            </motion.button>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Advanced Settings (Collapsible) */}
       {showAdvanced && (
-        <section className="mb-6 md:mb-8 border-t border-gray-200 dark:border-gray-700 pt-6">
+        <motion.section 
+          className="mb-6 md:mb-8 border-t border-gray-200 dark:border-gray-700 pt-6"
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.3 }}
+        >
           <h3 className="text-base md:text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
             Advanced
           </h3>
@@ -353,12 +396,15 @@ const Settings: React.FC = () => {
                   : 'Never checked'}
               </p>
             </div>
-            <button
+            <motion.button
               onClick={checkForUpdates}
-              className="px-4 py-2.5 md:py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium min-h-[44px] md:min-h-0 whitespace-nowrap"
+              className="px-4 py-2.5 md:py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium min-h-[44px] md:min-h-0 whitespace-nowrap rounded-lg"
+              whileHover={{ scale: 1.02, y: -1, boxShadow: '0 8px 20px rgba(59, 130, 246, 0.3)' }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ type: 'spring' as const, stiffness: 400, damping: 17 }}
             >
               Check Now
-            </button>
+            </motion.button>
           </div>
 
           {/* ADB Path (example advanced setting) */}
@@ -375,52 +421,73 @@ const Settings: React.FC = () => {
               className="w-full px-3 py-2.5 md:py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px] md:min-h-0"
             />
           </div>
-        </section>
+        </motion.section>
       )}
 
       {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-        <button
+      <motion.div 
+        className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-6 border-t border-gray-200 dark:border-gray-700"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.4 }}
+      >
+        <motion.button
           onClick={resetToDefaults}
-          className="px-4 py-2.5 md:py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] hover:bg-gray-50 dark:hover:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 min-h-[44px] md:min-h-0"
+          className="px-4 py-2.5 md:py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] hover:bg-gray-50 dark:hover:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 min-h-[44px] md:min-h-0 rounded-lg"
+          whileHover={{ scale: 1.02, y: -1 }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ type: 'spring' as const, stiffness: 400, damping: 17 }}
         >
           Reset to Defaults
-        </button>
+        </motion.button>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           {saveStatus === 'saved' && (
-            <span className="text-sm text-green-600 dark:text-green-400 text-center sm:text-left">
+            <motion.span 
+              className="text-sm text-green-600 dark:text-green-400 text-center sm:text-left"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+            >
               ✓ Settings saved
-            </span>
+            </motion.span>
           )}
           {saveStatus === 'saving' && (
             <span className="text-sm text-gray-600 dark:text-gray-400 text-center sm:text-left">Saving...</span>
           )}
-          <button
+          <motion.button
             onClick={saveSettings}
             disabled={!hasChanges}
             className={`
-              px-6 py-2.5 md:py-2 font-medium text-sm min-h-[44px] md:min-h-0
+              px-6 py-2.5 md:py-2 font-medium text-sm min-h-[44px] md:min-h-0 rounded-lg
               ${
                 hasChanges
                   ? 'bg-green-600 hover:bg-green-700 text-white'
                   : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
               }
             `}
+            whileHover={hasChanges ? { scale: 1.02, y: -1, boxShadow: '0 8px 20px rgba(34, 197, 94, 0.3)' } : {}}
+            whileTap={hasChanges ? { scale: 0.98 } : {}}
+            transition={{ type: 'spring' as const, stiffness: 400, damping: 17 }}
           >
             Save Settings
-          </button>
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Info Box */}
-      <div className="mt-6 p-3 md:p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+      <motion.div 
+        className="mt-6 p-3 md:p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.5 }}
+      >
         <p className="text-xs text-blue-800 dark:text-blue-200 leading-relaxed">
           <strong>💡 Tip:</strong> Settings are saved automatically when you change them.
           Changes take effect immediately without requiring an app restart.
         </p>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

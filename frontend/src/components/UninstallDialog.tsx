@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { modalBackdrop, modalContent } from '../utils/animations';
 
 interface UninstallDialogProps {
   isOpen: boolean;
@@ -19,8 +21,6 @@ const UninstallDialog: React.FC<UninstallDialogProps> = ({
 }) => {
   const [confirmed, setConfirmed] = useState(false);
 
-  if (!isOpen) return null;
-
   const handleConfirm = () => {
     if (!confirmed && (hasDangerous || hasExpert)) {
       return; // Require checkbox for dangerous/expert packages
@@ -35,14 +35,24 @@ const UninstallDialog: React.FC<UninstallDialogProps> = ({
   };
 
   return (
-    <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-      onClick={handleClose}
-    >
-      <div
-        className="bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={handleClose}
+          variants={modalBackdrop}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+        >
+          <motion.div
+            className="bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 p-6 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+            variants={modalContent}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
           <div className="text-3xl">⚠️</div>
@@ -129,26 +139,38 @@ const UninstallDialog: React.FC<UninstallDialogProps> = ({
 
         {/* Action Buttons */}
         <div className="flex gap-3">
-          <button
+          <motion.button
             onClick={handleClose}
-            className="flex-1 px-4 py-2.5 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 bg-white dark:bg-[#1a1a1a] hover:bg-gray-50 dark:hover:bg-gray-800 min-h-[44px]"
+            className="flex-1 px-4 py-2.5 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 bg-white dark:bg-[#1a1a1a] hover:bg-gray-50 dark:hover:bg-gray-800 min-h-[44px] rounded-lg"
+            whileHover={{ scale: 1.02, y: -1 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: 'spring' as const, stiffness: 400, damping: 17 }}
           >
             Cancel
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             onClick={handleConfirm}
             disabled={(hasDangerous || hasExpert) && !confirmed}
-            className={`flex-1 px-4 py-2.5 text-white min-h-[44px] ${
+            className={`flex-1 px-4 py-2.5 text-white min-h-[44px] rounded-lg ${
               (hasDangerous || hasExpert) && !confirmed
                 ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
                 : 'bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800'
             }`}
+            whileHover={(hasDangerous || hasExpert) && !confirmed ? {} : { 
+              scale: 1.02, 
+              y: -1,
+              boxShadow: '0 8px 20px rgba(239, 68, 68, 0.3)'
+            }}
+            whileTap={(hasDangerous || hasExpert) && !confirmed ? {} : { scale: 0.98 }}
+            transition={{ type: 'spring' as const, stiffness: 400, damping: 17 }}
           >
             {hasDangerous ? '🚨 Uninstall Anyway' : hasExpert ? '⚡ Uninstall' : 'Uninstall'}
-          </button>
+          </motion.button>
         </div>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 

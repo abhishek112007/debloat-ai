@@ -1,0 +1,46 @@
+/* ============================================
+   LIGHT THEME - Premium macOS Inspired Design
+   ============================================ */
+
+:root {
+  /* Core Colors */
+  --theme-bg: #F4F4F5;
+  --theme-card: rgba(255, 255, 255, 0.65);
+  --theme-border: rgba(0, 0, 0, 0.05);
+  --theme-hover: rgba(46, 196, 182, 0.08);
+  
+  /* Text Colors */
+  --theme-text-primary: #1A1A1A;
+  --theme-text-secondary: #666666;
+  
+  /* Accent Colors */
+  --theme-accent: #2EC4B6;
+  --theme-accent-hover: #28A89C;
+  
+  /* Glass & Effects */
+  --theme-glass: rgba(255, 255, 255, 0.65);
+  --theme-shadow: rgba(0, 0, 0, 0.06);
+  --theme-glow: rgba(46, 196, 182, 0.2);
+  
+  /* Scrollbar */
+  --scrollbar-track: #f1f5f9;
+  --scrollbar-thumb: #cbd5e1;
+  --scrollbar-thumb-hover: #94a3b8;
+  
+  /* Safety Badge Colors for Light Mode */
+  --badge-safe-bg: rgba(16, 185, 129, 0.08);
+  --badge-safe-color: #059669;
+  --badge-safe-border: rgba(16, 185, 129, 0.15);
+  
+  --badge-caution-bg: #fef3c7;
+  --badge-caution-color: #92400e;
+  --badge-caution-border: #fde68a;
+  
+  --badge-expert-bg: #fed7aa;
+  --badge-expert-color: #9a3412;
+  --badge-expert-border: #fdba74;
+  
+  --badge-dangerous-bg: #fee2e2;
+  --badge-dangerous-color: #991b1b;
+  --badge-dangerous-border: #fecaca;
+}
