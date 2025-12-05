@@ -12,3 +12,4 @@ export { default as ThemeSelector } from './ThemeSelector';
 export { ThemeToggle } from './ThemeToggle';
 export { default as Toast } from './Toast';
 export { default as UninstallDialog } from './UninstallDialog';
+export { VirtualizedPackageList } from './VirtualizedPackageList';

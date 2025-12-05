@@ -245,7 +245,12 @@ const AIPackageAdvisor: React.FC<AIPackageAdvisorProps> = ({ packageName, onClos
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <FiRefreshCw className="w-3.5 h-3.5" />
+                      <motion.span
+                        whileHover={{ rotate: 180 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 12 }}
+                      >
+                        <FiRefreshCw className="w-3.5 h-3.5" />
+                      </motion.span>
                       Retry
                     </motion.button>
                   </div>

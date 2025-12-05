@@ -8,10 +8,12 @@ mod package_database;
 mod backup;
 mod ai_advisor;
 mod chatbot;
+mod package_stream;
 
 // Import the commands we need
 use commands::{get_device_info, list_packages, uninstall_package, analyze_package, chat_message};
 use backup::{create_backup, list_backups, restore_backup, delete_backup, get_backup_path};
+use package_stream::{start_package_stream, get_cached_packages, clear_package_cache, get_cache_status};
 
 fn main() {
     // Load .env file if it exists
@@ -49,7 +51,12 @@ fn main() {
             delete_backup,
             get_backup_path,
             analyze_package,
-            chat_message
+            chat_message,
+            // New streaming commands for performance
+            start_package_stream,
+            get_cached_packages,
+            clear_package_cache,
+            get_cache_status
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

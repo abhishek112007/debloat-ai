@@ -310,7 +310,7 @@ const App: React.FC = () => {
       {/* Main Layout - Floating Panels */}
       <div className="flex flex-col lg:flex-row flex-1 overflow-hidden px-4 py-4 gap-4 max-w-[1800px] mx-auto w-full">
         {/* Left Sidebar - Floating Panel with Device Info */}
-        <aside className="w-64 flex-shrink-0 overflow-y-auto glass-card p-5" style={{
+        <aside className="w-64 flex-shrink-0 overflow-y-auto overflow-x-hidden glass-card p-5" style={{
           background: isLightMode
             ? 'rgba(255, 255, 255, 0.65)'
             : 'rgba(17, 17, 17, 0.6)',
@@ -320,7 +320,8 @@ const App: React.FC = () => {
             ? '0 4px 10px rgba(0, 0, 0, 0.06)'
             : '0 4px 12px rgba(0, 0, 0, 0.3)',
           border: isLightMode ? '1px solid rgba(0, 0, 0, 0.05)' : '1px solid rgba(255, 255, 255, 0.08)',
-          borderRadius: '12px'
+          borderRadius: '12px',
+          minWidth: 0,
         }}>
           {/* Selection Summary - Only show when active */}
           {selectedPackages.size > 0 && (

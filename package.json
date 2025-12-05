@@ -13,12 +13,13 @@
     "tauri:build": "tauri build"
   },
   "dependencies": {
+    "@tanstack/react-virtual": "^3.13.12",
     "@tauri-apps/api": "^2.0.0",
     "@tauri-apps/plugin-dialog": "^2.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "lucide-react": "^0.555.0",
     "framer-motion": "^12.23.25",
+    "lucide-react": "^0.555.0",
     "react": "^18.2.0",
     "react-chatbotify": "^2.5.0",
     "react-dom": "^18.2.0",

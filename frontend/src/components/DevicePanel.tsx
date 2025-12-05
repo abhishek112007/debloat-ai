@@ -48,22 +48,22 @@ const DevicePanel: React.FC = () => {
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
     >
       {/* Header - Minimal */}
-      <div className="flex items-center justify-between mb-5">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between mb-5 gap-2">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
           <motion.div 
-            className="p-2 rounded-lg transition-all duration-200" 
+            className="p-2 rounded-lg transition-all duration-200 flex-shrink-0" 
             style={{background: 'rgba(88, 166, 175, 0.10)'}}
             whileHover={{ scale: 1.1, rotate: 5 }}
             whileTap={{ scale: 0.95 }}
           >
             <FiSmartphone className="w-5 h-5" style={{color: 'var(--theme-accent)'}} />
           </motion.div>
-          <div>
-            <h3 className="text-base font-semibold" style={{color: 'var(--theme-text-primary)'}}>
+          <div className="min-w-0">
+            <h3 className="text-base font-semibold truncate" style={{color: 'var(--theme-text-primary)'}}>
               Device
             </h3>
             <motion.p 
-              className="text-xs" 
+              className="text-xs truncate" 
               style={{color: 'var(--theme-text-secondary)'}}
               key={isConnected ? 'connected' : 'waiting'}
               initial={{ opacity: 0, y: -5 }}
@@ -78,7 +78,7 @@ const DevicePanel: React.FC = () => {
         {/* Connection Status Indicator */}
         <AnimatePresence mode="wait">
           <motion.div 
-            className="relative"
+            className="relative flex-shrink-0"
             key={isConnected ? 'active' : 'offline'}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -155,7 +155,7 @@ const DevicePanel: React.FC = () => {
           >
             {/* Device Name */}
             <motion.div 
-              className="group p-4 rounded-lg cursor-pointer" 
+              className="group p-4 rounded-lg cursor-pointer overflow-hidden" 
               style={cardStyle}
               variants={staggerItem}
               initial="rest"
@@ -165,7 +165,7 @@ const DevicePanel: React.FC = () => {
               <motion.div variants={cardHover}>
                 <div className="flex items-center gap-3 mb-2">
                   <motion.div 
-                    className="p-1.5 rounded-md" 
+                    className="p-1.5 rounded-md flex-shrink-0" 
                     style={{
                       background: isLightMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.15)'
                     }}
@@ -178,10 +178,14 @@ const DevicePanel: React.FC = () => {
                     Device Name
                   </span>
                 </div>
-                <div className="text-sm font-semibold ml-9 transition-colors duration-200" style={{color: 'var(--theme-text-primary)'}}>
+                <div 
+                  className="text-sm font-semibold ml-9 transition-colors duration-200 truncate" 
+                  style={{color: 'var(--theme-text-primary)'}}
+                  title={device.name + (device.model ? ` • ${device.model}` : '')}
+                >
                   {device.name}
                   {device.model && (
-                    <span className="ml-2 font-normal" style={{color: 'var(--theme-text-secondary)'}}>
+                    <span className="ml-1 font-normal" style={{color: 'var(--theme-text-secondary)'}}>
                       • {device.model}
                     </span>
                   )}

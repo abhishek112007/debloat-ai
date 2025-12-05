@@ -38,6 +38,7 @@ const BackupManager: React.FC = () => {
   const [backups, setBackups] = useState<BackupInfo[]>([]);
   const [backupPath, setBackupPath] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
   const [selectedPackages, setSelectedPackages] = useState<string[]>([]);
   const [restoring, setRestoring] = useState<boolean>(false);
 
@@ -48,11 +49,14 @@ const BackupManager: React.FC = () => {
   }, []);
 
   const loadBackups = async () => {
+    setRefreshing(true);
     try {
       const result = await invoke<BackupInfo[]>('list_backups');
       setBackups(result);
     } catch (error) {
       console.error('Failed to load backups:', error);
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -173,6 +177,7 @@ const BackupManager: React.FC = () => {
           </div>
           <motion.button
             onClick={loadBackups}
+            disabled={refreshing}
             className="btn-ghost px-3 py-2 text-sm font-medium group overflow-hidden relative"
             style={{
               borderRadius: '10px',
@@ -196,9 +201,12 @@ const BackupManager: React.FC = () => {
             />
             <motion.div
               className="relative z-10"
-              whileHover={{ rotate: 180, scale: 1.15 }}
-              whileTap={{ rotate: 360 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 12 }}
+              animate={refreshing ? { rotate: 360 } : { rotate: 0 }}
+              transition={refreshing 
+                ? { duration: 1, repeat: Infinity, ease: 'linear' }
+                : { duration: 0.3 }
+              }
+              whileHover={!refreshing ? { rotate: 180, scale: 1.15 } : {}}
             >
               <FiRefreshCw className="w-4 h-4" />
             </motion.div>
