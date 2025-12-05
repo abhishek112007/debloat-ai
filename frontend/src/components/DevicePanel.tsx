@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDeviceMonitor } from './useDeviceMonitor';
+import { useDeviceMonitor } from '../hooks/useDeviceMonitor';
 import {
   FiSmartphone,
   FiRefreshCw,

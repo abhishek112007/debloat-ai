@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useDeviceMonitor } from './useDeviceMonitor';
-import { useTheme } from './App';
+import { useDeviceMonitor } from '../hooks/useDeviceMonitor';
+import { useTheme } from '../hooks/useDarkMode';
 import AIPackageAdvisor from './AIPackageAdvisor';
 import {
   FiPackage,
@@ -19,7 +19,7 @@ import {
   packageListItem,
   buttonHover,
   fadeSlideUp
-} from './animations';
+} from '../utils/animations';
 
 type SafetyLevel = 'Safe' | 'Caution' | 'Expert' | 'Dangerous';
 

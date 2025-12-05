@@ -6,3 +6,4 @@ pub mod commands;
 pub mod package_database;  // Make package_database available as a module
 pub mod backup;  // Backup and restore functionality
 pub mod ai_advisor;  // AI-powered package safety analysis
+pub mod chatbot;  // AI chatbot integration

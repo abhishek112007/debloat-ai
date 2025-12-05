@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { motion, AnimatePresence } from 'framer-motion';
-import DevicePanel from './DevicePanel';
-import PackageList from './PackageList';
-import BackupManager from './BackupManager';
-import UninstallDialog from './UninstallDialog';
-import ThemeSelector from './ThemeSelector';
-import { THEMES, ThemeName, applyTheme } from './themes';
+import DevicePanel from './components/DevicePanel';
+import PackageList from './components/PackageList';
+import BackupManager from './components/BackupManager';
+import UninstallDialog from './components/UninstallDialog';
+import ThemeSelector from './components/ThemeSelector';
+import { THEMES, ThemeName, applyTheme } from './utils/themes';
 import {
   FiDownload,
   FiTrash2,
@@ -22,7 +22,7 @@ import {
   buttonHover, 
   glowButton, 
   filterChipTap
-} from './animations';
+} from './utils/animations';
 
 // Theme Context
 interface ThemeContextType {

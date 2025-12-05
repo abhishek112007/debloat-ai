@@ -35,9 +35,11 @@ lerna-debug.log*
 *.sw?
 flycheck*
 
-# Environment
+# Environment files
 .env
 .env.local
+*.env
+.env.*.local
 .env.production
 backend/tauri/.env
 

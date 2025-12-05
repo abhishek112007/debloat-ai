@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDarkMode } from './useDarkMode';
+import { useDarkMode } from '../hooks/useDarkMode';
 
 /**
  * Example component showing how to use the useDarkMode hook
