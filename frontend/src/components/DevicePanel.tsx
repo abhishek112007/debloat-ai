@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDeviceMonitor } from '../hooks/useDeviceMonitor';
 import { useTheme } from '../App';
@@ -19,6 +19,7 @@ const DevicePanel: React.FC = () => {
   const { device, isConnected, loading, refresh } = useDeviceMonitor();
   const { theme } = useTheme();
   const isLightMode = theme === 'light';
+  const [isRefreshHovered, setIsRefreshHovered] = useState(false);
 
   // Card style based on theme
   const cardStyle = {
@@ -336,37 +337,38 @@ const DevicePanel: React.FC = () => {
         type="button"
         onClick={refresh}
         disabled={loading}
+        onMouseEnter={() => setIsRefreshHovered(true)}
+        onMouseLeave={() => setIsRefreshHovered(false)}
         className="mt-6 w-full btn-primary text-sm flex items-center justify-center gap-2 group disabled:hover:translate-y-0 overflow-hidden relative"
-        whileHover={{ 
-          scale: 1.02, 
-          y: -2,
-          boxShadow: '0 8px 25px rgba(46, 196, 182, 0.3)'
+        animate={{ 
+          scale: isRefreshHovered && !loading ? 1.02 : 1, 
+          y: isRefreshHovered && !loading ? -2 : 0,
+          boxShadow: isRefreshHovered && !loading ? '0 8px 25px rgba(46, 196, 182, 0.3)' : '0 4px 12px rgba(46, 196, 182, 0.15)'
         }}
         whileTap={{ scale: 0.98 }}
         transition={{ type: 'spring', stiffness: 400, damping: 17 }}
       >
         {/* Shine effect on hover */}
         <motion.div
-          className="absolute inset-0 z-0"
+          className="absolute inset-0 z-0 pointer-events-none"
           style={{
             background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.3) 45%, rgba(255,255,255,0.3) 55%, transparent 60%)',
             backgroundSize: '200% 100%',
           }}
           initial={{ backgroundPosition: '200% 0' }}
-          whileHover={{ 
-            backgroundPosition: '-200% 0',
-            transition: { duration: 0.6, ease: 'easeInOut' }
+          animate={{ 
+            backgroundPosition: isRefreshHovered ? '-200% 0' : '200% 0'
           }}
+          transition={{ duration: 0.6, ease: 'easeInOut' }}
         />
         <motion.div
-          className="relative z-10"
-          animate={loading ? { rotate: 360 } : { rotate: 0 }}
+          className="relative z-10 pointer-events-none"
+          animate={loading ? { rotate: 360 } : { rotate: isRefreshHovered ? 180 : 0, scale: isRefreshHovered ? 1.1 : 1 }}
           transition={loading ? { duration: 1, repeat: Infinity, ease: 'linear' } : { duration: 0.3 }}
-          whileHover={!loading ? { rotate: 180, scale: 1.1 } : {}}
         >
           <FiRefreshCw className="w-4 h-4" />
         </motion.div>
-        <span className="relative z-10 transition-all duration-200">{loading ? 'Refreshing...' : 'Refresh Device Info'}</span>
+        <span className="relative z-10 transition-all duration-200 pointer-events-none">{loading ? 'Refreshing...' : 'Refresh Device Info'}</span>
       </motion.button>
     </motion.div>
   );

@@ -7,6 +7,7 @@ const ThemeSelector: React.FC = () => {
   const { theme, setTheme } = useTheme();
   const isDark = theme === 'dark';
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const toggleTheme = () => {
     if (isAnimating) return;
@@ -95,40 +96,46 @@ const ThemeSelector: React.FC = () => {
       id="theme-toggle-btn"
       onClick={toggleTheme}
       disabled={isAnimating}
-      className="relative px-4 py-2 text-sm font-medium border-2 rounded-lg shadow-sm flex items-center gap-2 overflow-hidden group"
+      className="relative px-4 py-2 text-sm font-medium border-2 rounded-lg shadow-sm flex items-center gap-2 overflow-hidden"
       style={{
         borderColor: 'var(--theme-border)', 
         backgroundColor: 'var(--theme-card)', 
         color: 'var(--theme-text-primary)',
       }}
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      whileHover={{ 
-        scale: 1.03, 
-        y: -2,
-        boxShadow: isDark 
-          ? '0 8px 20px rgba(0,0,0,0.3), 0 0 20px rgba(88,166,175,0.15)'
-          : '0 8px 20px rgba(0,0,0,0.1), 0 0 20px rgba(46,196,182,0.15)'
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      animate={{
+        scale: isHovered ? 1.03 : 1,
+        y: isHovered ? -2 : 0,
+        boxShadow: isHovered 
+          ? (isDark 
+              ? '0 8px 20px rgba(0,0,0,0.3), 0 0 20px rgba(88,166,175,0.15)'
+              : '0 8px 20px rgba(0,0,0,0.1), 0 0 20px rgba(46,196,182,0.15)')
+          : '0 2px 8px rgba(0,0,0,0.1)'
       }}
       whileTap={{ scale: 0.97 }}
       transition={{ type: 'spring', stiffness: 400, damping: 17 }}
     >
       {/* Animated background gradient */}
       <motion.div 
-        className="absolute inset-0 opacity-0 group-hover:opacity-100"
+        className="absolute inset-0 pointer-events-none"
         style={{
           background: isDark 
             ? 'linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(251, 146, 60, 0.05) 100%)'
             : 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%)'
         }}
-        initial={{ opacity: 0 }}
-        whileHover={{ opacity: 1 }}
+        animate={{ opacity: isHovered ? 1 : 0 }}
         transition={{ duration: 0.3 }}
       />
       
       {/* Icon with AnimatePresence for smooth transitions */}
       <motion.div 
         className="relative z-10 w-4 h-4"
-        whileHover={{ scale: 1.2, rotate: 15 }}
+        animate={{ 
+          scale: isHovered ? 1.2 : 1, 
+          rotate: isHovered ? 15 : 0 
+        }}
         transition={{ type: 'spring', stiffness: 400, damping: 10 }}
       >
         <AnimatePresence mode="wait">
@@ -173,18 +180,17 @@ const ThemeSelector: React.FC = () => {
         </AnimatePresence>
       </span>
 
-      {/* Shine effect on hover */}
+      {/* Shine effect on hover - controlled by state */}
       <motion.div
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-0 pointer-events-none"
         style={{
           background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.2) 45%, rgba(255,255,255,0.2) 55%, transparent 60%)',
           backgroundSize: '200% 100%',
         }}
-        initial={{ backgroundPosition: '200% 0' }}
-        whileHover={{ 
-          backgroundPosition: '-200% 0',
-          transition: { duration: 0.8, ease: 'easeInOut' }
+        animate={{ 
+          backgroundPosition: isHovered ? '-200% 0' : '200% 0'
         }}
+        transition={{ duration: 0.8, ease: 'easeInOut' }}
       />
     </motion.button>
   );

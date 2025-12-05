@@ -5,3 +5,4 @@ export { useDeviceMonitor } from './useDeviceMonitor';
 export { usePackageAdvisor } from './usePackageAdvisor';
 export { usePackageStream } from './usePackageStream';
 export type { StreamedPackage } from './usePackageStream';
+export { useSystemHealth } from './useSystemHealth';
