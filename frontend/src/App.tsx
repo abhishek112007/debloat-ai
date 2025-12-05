@@ -6,6 +6,8 @@ import PackageList from './components/PackageList';
 import BackupManager from './components/BackupManager';
 import UninstallDialog from './components/UninstallDialog';
 import ThemeSelector from './components/ThemeSelector';
+import FloatingChat from './components/FloatingChat';
+import AIPackageAdvisor from './components/AIPackageAdvisor';
 import { THEMES, ThemeName, applyTheme } from './utils/themes';
 import {
   FiDownload,
@@ -120,6 +122,7 @@ const App: React.FC = () => {
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [filterBySafety, setFilterBySafety] = useState<string | null>(null);
   const [packageData, setPackageData] = useState<Array<{packageName: string; safetyLevel: string}>>([]);
+  const [aiAdvisorPackage, setAiAdvisorPackage] = useState<string | null>(null);
   
   const isLightMode = theme === 'light';
 
@@ -506,6 +509,7 @@ const App: React.FC = () => {
               onStatsChange={setStats}
               filterBySafety={filterBySafety}
               onPackageDataChange={setPackageData}
+              onAiAdvisorOpen={setAiAdvisorPackage}
             />
           )}
         </main>
@@ -846,6 +850,15 @@ const App: React.FC = () => {
         hasDangerous={packageData.some(p => selectedPackages.has(p.packageName) && p.safetyLevel === 'Dangerous')}
         hasExpert={packageData.some(p => selectedPackages.has(p.packageName) && p.safetyLevel === 'Expert')}
       />
+
+      {/* AI Package Advisor Sidebar - Rendered at root level to avoid stacking context issues */}
+      <AIPackageAdvisor
+        packageName={aiAdvisorPackage}
+        onClose={() => setAiAdvisorPackage(null)}
+      />
+
+      {/* Floating AI Chat */}
+      <FloatingChat />
     </motion.div>
   );
 };

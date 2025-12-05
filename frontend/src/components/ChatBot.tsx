@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { invoke } from '@tauri-apps/api/core';
-import { FiSend, FiMessageCircle, FiX, FiCopy, FiCheck, FiTrash2, FiRefreshCw, FiDownload, FiUpload, FiMic } from 'react-icons/fi';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FiSend, FiMessageCircle, FiX, FiCopy, FiCheck, FiTrash2, FiRefreshCw, FiDownload, FiUpload, FiMic, FiZap } from 'react-icons/fi';
 import { Message } from '../types';
 import { storage, storageKeys } from '../utils/storage';
 import { messageUtils } from '../utils/messageUtils';
@@ -188,9 +189,24 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
     }
   };
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   const clearChat = () => {
     setMessages([]);
     storage.remove(storageKeys.CHAT_MESSAGES);
+    setSuggestedReplies([]);
+  };
+
+  const refreshChat = async () => {
+    setIsRefreshing(true);
+    // Clear messages and reload fresh state
+    setMessages([]);
+    setSuggestedReplies([]);
+    storage.remove(storageKeys.CHAT_MESSAGES);
+    // Small delay for visual feedback
+    await new Promise(resolve => setTimeout(resolve, 500));
+    setIsRefreshing(false);
+    inputRef.current?.focus();
   };
 
   const copyToClipboard = async (text: string, id: string) => {
@@ -239,104 +255,313 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
   };
 
   return (
-    <div className="chat-container">
+    <motion.div 
+      className="chat-container"
+      initial={{ opacity: 0, scale: 0.95, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+    >
       {/* Header */}
-      <div className="chat-header">
+      <motion.div 
+        className="chat-header"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
         <div className="chat-header-title">
-          <FiMessageCircle className="w-5 h-5" />
+          <motion.div
+            animate={{ rotate: [0, 10, -10, 0] }}
+            transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+          >
+            <FiMessageCircle className="w-5 h-5" />
+          </motion.div>
           <span>AI Assistant</span>
-          {deviceName && <span className="device-badge">{deviceName}</span>}
+          {deviceName && (
+            <motion.span 
+              className="device-badge"
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+            >
+              {deviceName}
+            </motion.span>
+          )}
         </div>
         <div className="chat-header-actions">
-          {messages.length > 0 && (
-            <>
-              <button onClick={exportChat} className="export-btn" title="Export chat history">
-                <FiDownload className="w-4 h-4" />
-              </button>
-              <button onClick={importChat} className="import-btn" title="Import chat history">
-                <FiUpload className="w-4 h-4" />
-              </button>
-              <button onClick={clearChat} className="clear-btn" title="Clear chat history">
-                <FiTrash2 className="w-4 h-4" />
-              </button>
-              <button 
-                onClick={() => window.location.reload()} 
-                className="refresh-btn" 
-                title="Refresh chat"
+          <AnimatePresence>
+            {messages.length > 0 && (
+              <motion.div
+                className="flex gap-1.5"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
               >
-                <FiRefreshCw className="w-4 h-4" />
-              </button>
-            </>
-          )}
+                {/* Export Button */}
+                <motion.button 
+                  onClick={exportChat} 
+                  className="export-btn" 
+                  title="Export chat history"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <motion.div
+                    whileHover={{ y: -3 }}
+                    transition={{ type: 'spring', stiffness: 400 }}
+                  >
+                    <FiDownload className="w-4 h-4" />
+                  </motion.div>
+                </motion.button>
+                
+                {/* Import Button */}
+                <motion.button 
+                  onClick={importChat} 
+                  className="import-btn" 
+                  title="Import chat history"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <motion.div
+                    whileHover={{ y: 3 }}
+                    transition={{ type: 'spring', stiffness: 400 }}
+                  >
+                    <FiUpload className="w-4 h-4" />
+                  </motion.div>
+                </motion.button>
+                
+                {/* Clear/Trash Button */}
+                <motion.button 
+                  onClick={clearChat} 
+                  className="clear-btn" 
+                  title="Clear chat history"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <motion.div
+                    whileHover={{ rotate: -15, scale: 1.1 }}
+                    transition={{ type: 'spring', stiffness: 400 }}
+                  >
+                    <FiTrash2 className="w-4 h-4" />
+                  </motion.div>
+                </motion.button>
+                
+                {/* Refresh Button - rotates icon only */}
+                <motion.button 
+                  onClick={refreshChat} 
+                  className="refresh-btn" 
+                  title="Refresh chat"
+                  disabled={isRefreshing}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <motion.div
+                    animate={isRefreshing ? { rotate: 360 } : {}}
+                    whileHover={!isRefreshing ? { rotate: 180 } : {}}
+                    transition={isRefreshing 
+                      ? { duration: 0.6, repeat: Infinity, ease: 'linear' }
+                      : { type: 'spring', stiffness: 200, damping: 10 }
+                    }
+                  >
+                    <FiRefreshCw className="w-4 h-4" />
+                  </motion.div>
+                </motion.button>
+              </motion.div>
+            )}
+          </AnimatePresence>
           {onClose && (
-            <button onClick={onClose} className="close-btn" title="Close chat">
+            <motion.button 
+              onClick={onClose} 
+              className="close-btn" 
+              title="Close chat"
+              whileHover={{ scale: 1.1, backgroundColor: 'rgba(239, 68, 68, 0.4)' }}
+              whileTap={{ scale: 0.95 }}
+            >
               <FiX className="w-5 h-5" />
-            </button>
+            </motion.button>
           )}
         </div>
-      </div>
+      </motion.div>
 
       {/* Messages Container */}
       <div className="messages">
-        {messages.length === 0 && (
-          <div className="welcome-message">
-            <FiMessageCircle className="w-12 h-12 mb-4 opacity-30" />
-            <h3>Android Debloating Assistant</h3>
-            <p>Ask me anything about Android packages, debloating strategies, or device safety.</p>
-            <div className="quick-actions">
-              {quickActions.map((action, index) => (
-                <button
-                  key={index}
-                  className="quick-action-btn"
-                  onClick={() => handleQuickAction(action.query)}
-                >
-                  <span className="action-emoji">{action.emoji}</span>
-                  <span className="action-label">{action.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        <AnimatePresence mode="wait">
+          {messages.length === 0 && (
+            <motion.div 
+              className="welcome-message"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4 }}
+            >
+              <motion.div
+                animate={{ 
+                  y: [0, -5, 0],
+                  rotate: [0, -5, 5, 0]
+                }}
+                transition={{ duration: 3, repeat: Infinity }}
+              >
+                <FiZap className="w-12 h-12 mb-4 opacity-50" />
+              </motion.div>
+              <h3>Android Debloating Assistant</h3>
+              <p>Ask me anything about Android packages, debloating strategies, or device safety.</p>
+              <div className="quick-actions">
+                {quickActions.map((action, index) => (
+                  <motion.button
+                    key={index}
+                    className="quick-action-btn"
+                    onClick={() => handleQuickAction(action.query)}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 * index, type: 'spring', stiffness: 300 }}
+                    whileHover={{ 
+                      scale: 1.05, 
+                      y: -4,
+                      transition: { duration: 0.2 }
+                    }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <motion.span 
+                      className="action-emoji"
+                      whileHover={{ scale: 1.2, rotate: [-5, 5, -5, 0] }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {action.emoji}
+                    </motion.span>
+                    <span className="action-label">{action.label}</span>
+                  </motion.button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {messages.map((msg) => (
-          <div key={msg.id} className={`message ${msg.role}`}>
-            <div className="message-avatar">
-              {msg.role === 'user' ? '👤' : '🤖'}
-            </div>
-            <div className="message-content">
-              <div className={`message-text ${msg.streaming ? 'streaming' : ''}`}>
-                {formatMessage(msg.content)}
-              </div>
-              <div className="message-actions">
-                <div className="message-timestamp">
-                  {new Date(msg.timestamp).toLocaleTimeString()}
-                </div>
-                <button
-                  className="copy-msg-btn"
-                  onClick={() => copyToClipboard(msg.content, msg.id)}
-                  title="Copy message"
+        <AnimatePresence>
+          {messages.map((msg, index) => (
+            <motion.div 
+              key={msg.id} 
+              className={`message ${msg.role}`}
+              initial={{ 
+                opacity: 0, 
+                x: msg.role === 'user' ? 30 : -30,
+                y: 10,
+                scale: 0.95
+              }}
+              animate={{ 
+                opacity: 1, 
+                x: 0,
+                y: 0,
+                scale: 1
+              }}
+              transition={{ 
+                duration: 0.3,
+                delay: index === messages.length - 1 ? 0 : 0,
+                type: 'spring',
+                stiffness: 300,
+                damping: 25
+              }}
+            >
+              <motion.div 
+                className="message-avatar"
+                whileHover={{ scale: 1.15, rotate: 10 }}
+                transition={{ type: 'spring', stiffness: 400 }}
+              >
+                {msg.role === 'user' ? '👤' : '🤖'}
+              </motion.div>
+              <div className="message-content">
+                <motion.div 
+                  className={`message-text ${msg.streaming ? 'streaming' : ''}`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.1 }}
                 >
-                  {copiedId === msg.id ? <FiCheck className="w-3 h-3" /> : <FiCopy className="w-3 h-3" />}
-                </button>
+                  {formatMessage(msg.content)}
+                </motion.div>
+                <div className="message-actions">
+                  <motion.div 
+                    className="message-timestamp"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    {new Date(msg.timestamp).toLocaleTimeString()}
+                  </motion.div>
+                  <motion.button
+                    className="copy-msg-btn"
+                    onClick={() => copyToClipboard(msg.content, msg.id)}
+                    title="Copy message"
+                    whileHover={{ scale: 1.2 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <AnimatePresence mode="wait">
+                      {copiedId === msg.id ? (
+                        <motion.div
+                          key="check"
+                          initial={{ scale: 0, rotate: -180 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          exit={{ scale: 0, rotate: 180 }}
+                        >
+                          <FiCheck className="w-3 h-3" />
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          key="copy"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          exit={{ scale: 0 }}
+                        >
+                          <FiCopy className="w-3 h-3" />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.button>
+                </div>
               </div>
-            </div>
-          </div>
-        ))}
+            </motion.div>
+          ))}
+        </AnimatePresence>
 
         {/* Typing Indicator */}
-        {loading && (
-          <div className="message assistant typing">
-            <div className="message-avatar">🤖</div>
-            <div className="message-content">
-              <div className="typing-indicator">
-                <span></span>
-                <span></span>
-                <span></span>
+        <AnimatePresence>
+          {loading && (
+            <motion.div 
+              className="message assistant typing"
+              initial={{ opacity: 0, y: 20, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.9 }}
+              transition={{ type: 'spring', stiffness: 300 }}
+            >
+              <motion.div 
+                className="message-avatar"
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 1, repeat: Infinity }}
+              >
+                🤖
+              </motion.div>
+              <div className="message-content">
+                <div className="typing-indicator">
+                  <motion.span
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
+                  />
+                  <motion.span
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{ duration: 0.6, repeat: Infinity, delay: 0.15 }}
+                  />
+                  <motion.span
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{ duration: 0.6, repeat: Infinity, delay: 0.3 }}
+                  />
+                </div>
+                <motion.div 
+                  className="typing-text"
+                  animate={{ opacity: [0.5, 1, 0.5] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                >
+                  AI is thinking...
+                </motion.div>
               </div>
-              <div className="typing-text">AI is thinking...</div>
-            </div>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div ref={messagesEndRef} />
       </div>
@@ -344,26 +569,43 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
       {/* Input Area */}
       <div className="input-container">
         {/* Suggested Replies */}
-        {suggestedReplies.length > 0 && (
-          <div className="suggested-replies">
-            {suggestedReplies.map((reply, idx) => (
-              <button
-                key={idx}
-                className="reply-chip"
-                onClick={() => {
-                  setInput(reply);
-                  setSuggestedReplies([]);
-                  setTimeout(() => sendMessage(), 100);
-                }}
-              >
-                {reply}
-              </button>
-            ))}
-          </div>
-        )}
+        <AnimatePresence>
+          {suggestedReplies.length > 0 && (
+            <motion.div 
+              className="suggested-replies"
+              initial={{ opacity: 0, y: 10, height: 0 }}
+              animate={{ opacity: 1, y: 0, height: 'auto' }}
+              exit={{ opacity: 0, y: 10, height: 0 }}
+            >
+              {suggestedReplies.map((reply, idx) => (
+                <motion.button
+                  key={idx}
+                  className="reply-chip"
+                  onClick={() => {
+                    setInput(reply);
+                    setSuggestedReplies([]);
+                    setTimeout(() => sendMessage(), 100);
+                  }}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: idx * 0.05 }}
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {reply}
+                </motion.button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
         
-        <div className="input-area">
-          <input
+        <motion.div 
+          className="input-area"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <motion.input
             ref={inputRef}
             type="text"
             value={input}
@@ -375,26 +617,40 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
             placeholder="Ask about Android packages..."
             disabled={loading}
             className="chat-input"
+            whileFocus={{ scale: 1.01 }}
           />
-          <button
+          <motion.button
             onClick={toggleVoiceInput}
             className={`voice-btn ${isRecording ? 'recording' : ''}`}
             title={isRecording ? 'Stop recording' : 'Voice input'}
             disabled={loading}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            animate={isRecording ? { 
+              boxShadow: ['0 0 0 0 rgba(239, 68, 68, 0.7)', '0 0 0 15px rgba(239, 68, 68, 0)', '0 0 0 0 rgba(239, 68, 68, 0.7)']
+            } : {}}
+            transition={isRecording ? { duration: 1.5, repeat: Infinity } : {}}
           >
             <FiMic className="w-5 h-5" />
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             onClick={sendMessage}
             disabled={!input.trim() || loading}
             className="send-btn"
             title="Send message"
+            whileHover={{ scale: 1.1, rotate: 15 }}
+            whileTap={{ scale: 0.9 }}
           >
-            <FiSend className="w-5 h-5" />
-          </button>
-        </div>
+            <motion.div
+              animate={loading ? { rotate: 360 } : {}}
+              transition={loading ? { duration: 1, repeat: Infinity, ease: 'linear' } : {}}
+            >
+              <FiSend className="w-5 h-5" />
+            </motion.div>
+          </motion.button>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

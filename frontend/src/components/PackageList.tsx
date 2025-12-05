@@ -3,7 +3,6 @@ import { invoke } from '@tauri-apps/api/core';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDeviceMonitor } from '../hooks/useDeviceMonitor';
 import { useTheme } from '../App';
-import AIPackageAdvisor from './AIPackageAdvisor';
 import {
   FiPackage,
   FiAlertTriangle,
@@ -42,6 +41,7 @@ interface PackageListProps {
   onStatsChange: (stats: PackageStats) => void;
   filterBySafety?: string | null;
   onPackageDataChange?: (packages: Array<{packageName: string; safetyLevel: string}>) => void;
+  onAiAdvisorOpen?: (packageName: string) => void;
 }
 
 const PackageList: React.FC<PackageListProps> = ({
@@ -50,6 +50,7 @@ const PackageList: React.FC<PackageListProps> = ({
   onStatsChange,
   filterBySafety,
   onPackageDataChange,
+  onAiAdvisorOpen,
 }) => {
   const { theme } = useTheme();
   const isLightMode = theme === 'light';
@@ -57,7 +58,6 @@ const PackageList: React.FC<PackageListProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [search, setSearch] = useState<string>('');
   const [detailPackage, setDetailPackage] = useState<Package | null>(null);
-  const [aiAdvisorPackage, setAiAdvisorPackage] = useState<string | null>(null);
   const { isConnected, deviceId } = useDeviceMonitor();
 
   const fetchPackages = async () => {
@@ -324,7 +324,7 @@ const PackageList: React.FC<PackageListProps> = ({
                       <motion.button
                         onClick={(e) => {
                           e.stopPropagation();
-                          setAiAdvisorPackage(pkg.packageName);
+                          onAiAdvisorOpen?.(pkg.packageName);
                         }}
                         className="flex-shrink-0 p-2 rounded-lg"
                         style={{
@@ -521,12 +521,6 @@ const PackageList: React.FC<PackageListProps> = ({
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* AI Package Advisor Sidebar */}
-      <AIPackageAdvisor 
-        packageName={aiAdvisorPackage} 
-        onClose={() => setAiAdvisorPackage(null)} 
-      />
     </div>
   );
 };

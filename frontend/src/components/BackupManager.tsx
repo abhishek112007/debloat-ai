@@ -173,11 +173,35 @@ const BackupManager: React.FC = () => {
           </div>
           <motion.button
             onClick={loadBackups}
-            className="btn-ghost px-3 py-2 text-sm font-medium group"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95, rotate: 180 }}
+            className="btn-ghost px-3 py-2 text-sm font-medium group overflow-hidden relative"
+            style={{
+              borderRadius: '10px',
+            }}
+            whileHover={{ 
+              scale: 1.08,
+              boxShadow: '0 4px 15px rgba(46, 196, 182, 0.2)'
+            }}
+            whileTap={{ scale: 0.92 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 15 }}
           >
-            <FiRefreshCw className="w-4 h-4" />
+            {/* Glow background on hover */}
+            <motion.div
+              className="absolute inset-0 rounded-lg"
+              style={{
+                background: 'radial-gradient(circle, rgba(46, 196, 182, 0.15) 0%, transparent 70%)',
+              }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileHover={{ opacity: 1, scale: 1.2 }}
+              transition={{ duration: 0.3 }}
+            />
+            <motion.div
+              className="relative z-10"
+              whileHover={{ rotate: 180, scale: 1.15 }}
+              whileTap={{ rotate: 360 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 12 }}
+            >
+              <FiRefreshCw className="w-4 h-4" />
+            </motion.div>
           </motion.button>
         </div>
 

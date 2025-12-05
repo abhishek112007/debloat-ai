@@ -87,15 +87,6 @@ const ThemeSelector: React.FC = () => {
       transition: {
         duration: 0.2
       }
-    },
-    hover: {
-      scale: 1.2,
-      rotate: 15,
-      transition: {
-        type: 'spring' as const,
-        stiffness: 400,
-        damping: 10
-      }
     }
   };
 
@@ -135,7 +126,11 @@ const ThemeSelector: React.FC = () => {
       />
       
       {/* Icon with AnimatePresence for smooth transitions */}
-      <div className="relative z-10 w-4 h-4">
+      <motion.div 
+        className="relative z-10 w-4 h-4"
+        whileHover={{ scale: 1.2, rotate: 15 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+      >
         <AnimatePresence mode="wait">
           {isDark ? (
             <motion.div
@@ -144,8 +139,7 @@ const ThemeSelector: React.FC = () => {
               initial="initial"
               animate="animate"
               exit="exit"
-              whileHover="hover"
-              className="absolute inset-0"
+              className="absolute inset-0 flex items-center justify-center"
             >
               <FiSun className="w-4 h-4 text-amber-400" />
             </motion.div>
@@ -156,14 +150,13 @@ const ThemeSelector: React.FC = () => {
               initial="initial"
               animate="animate"
               exit="exit"
-              whileHover="hover"
-              className="absolute inset-0"
+              className="absolute inset-0 flex items-center justify-center"
             >
               <FiMoon className="w-4 h-4 text-indigo-500" />
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
+      </motion.div>
       
       {/* Text with slide animation */}
       <span className="hidden sm:inline relative z-10">
