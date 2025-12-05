@@ -8,3 +8,4 @@ pub mod backup;  // Backup and restore functionality
 pub mod ai_advisor;  // AI-powered package safety analysis
 pub mod chatbot;  // AI chatbot integration
 pub mod package_stream;  // Async package streaming for performance
+pub mod system_health;  // System health monitoring

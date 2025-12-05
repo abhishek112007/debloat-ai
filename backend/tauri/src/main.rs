@@ -9,11 +9,13 @@ mod backup;
 mod ai_advisor;
 mod chatbot;
 mod package_stream;
+mod system_health;
 
 // Import the commands we need
 use commands::{get_device_info, list_packages, uninstall_package, analyze_package, chat_message};
 use backup::{create_backup, list_backups, restore_backup, delete_backup, get_backup_path};
 use package_stream::{start_package_stream, get_cached_packages, clear_package_cache, get_cache_status};
+use system_health::{get_system_health, start_health_monitor, clear_health_cache};
 
 fn main() {
     // Load .env file if it exists
@@ -56,7 +58,11 @@ fn main() {
             start_package_stream,
             get_cached_packages,
             clear_package_cache,
-            get_cache_status
+            get_cache_status,
+            // System health monitoring
+            get_system_health,
+            start_health_monitor,
+            clear_health_cache
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
