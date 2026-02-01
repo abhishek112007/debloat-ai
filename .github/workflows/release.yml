@@ -1,0 +1,87 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'macos-latest'
+            args: '--target aarch64-apple-darwin'
+          - platform: 'macos-latest'
+            args: '--target x86_64-apple-darwin'
+          - platform: 'ubuntu-22.04'
+            args: ''
+          - platform: 'windows-latest'
+            args: ''
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'npm'
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Install dependencies (Ubuntu only)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.0-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Install frontend dependencies
+        run: npm install
+
+      - name: Build the app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: 'Debloat AI v__VERSION__'
+          releaseBody: |
+            ## What's New
+            
+            See the full changelog at [CHANGELOG.md](https://github.com/abhishek112007/debloat-ai/blob/main/CHANGELOG.md)
+            
+            ## Installation
+            
+            ### Windows
+            - Download `Debloat-AI_x.x.x_x64_en-US.msi`
+            - Run the installer
+            - Launch Debloat AI from Start Menu
+            
+            ### Linux
+            - Download the `.AppImage` file
+            - Make it executable: `chmod +x Debloat-AI_x.x.x_amd64.AppImage`
+            - Run it: `./Debloat-AI_x.x.x_amd64.AppImage`
+            
+            ### macOS
+            - Download the `.dmg` file
+            - Open and drag to Applications folder
+            - Right-click and select "Open" on first launch
+            
+            ## Requirements
+            
+            - ADB (Android Debug Bridge) must be installed and in your system PATH
+            - USB Debugging enabled on your Android device
+            
+            **Note:** You do NOT need Node.js or Rust to run this application.
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}

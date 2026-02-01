@@ -10,7 +10,9 @@
     "preview": "cd frontend && vite preview",
     "tauri": "tauri dev",
     "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build"
+    "tauri:build": "tauri build",
+    "build:release": "node scripts/build-release.js",
+    "clean": "rimraf frontend/dist target/release backend/tauri/target"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.0.0",
@@ -35,6 +37,7 @@
     "autoprefixer": "^10.4.16",
     "concurrently": "^9.2.1",
     "postcss": "^8.4.32",
+    "rimraf": "^6.0.1",
     "tailwindcss": "^3.4.0",
     "typescript": "^5.3.3",
     "vite": "^5.0.8"

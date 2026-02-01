@@ -66,37 +66,74 @@
 
 ## 🚀 Installation
 
+### 📥 Quick Install (Recommended for Users)
+
+**No coding required! Just download and install.**
+
+#### Windows
+1. Download [`Debloat-AI.msi`](https://github.com/abhishek112007/debloat-ai/releases/latest) from the latest release
+2. Run the installer
+3. Launch from Start Menu
+
+#### Linux
+**AppImage (Universal)**
+```bash
+# Download, make executable, and run
+chmod +x Debloat-AI_*.AppImage
+./Debloat-AI_*.AppImage
+```
+
+**Debian/Ubuntu (.deb)**
+```bash
+sudo dpkg -i debloat-ai_*.deb
+```
+
+#### macOS
+1. Download the `.dmg` file for your architecture (Apple Silicon or Intel)
+2. Drag to Applications folder
+3. Right-click → Open (first launch only)
+
+📖 **Detailed installation instructions**: See [INSTALL.md](INSTALL.md)
+
+### ⚙️ Requirements
+
+**You MUST have ADB installed:**
+- **Windows**: Download [Platform Tools](https://developer.android.com/tools/releases/platform-tools), extract, and add to PATH
+- **Linux**: `sudo apt-get install android-tools-adb`
+- **macOS**: `brew install android-platform-tools`
+
+**Android device setup:**
+1. Enable Developer Options (tap Build Number 7 times)
+2. Enable USB Debugging
+3. Connect via USB and authorize your computer
+
+---
+
+## 👨‍💻 Development Setup
+
+> **Note**: Only needed if you want to build from source or contribute to development.
+
 ### Prerequisites
 
-Before you start, make sure you have:
+1. **Node.js** (version 16 or higher) - https://nodejs.org/
+2. **Rust** (stable toolchain) - https://rustup.rs/
+3. **ADB** (Android Debug Bridge) - See requirements above
+4. **Perplexity API Key** (optional, for AI features) - https://www.perplexity.ai/settings/api
 
-1. **Node.js** (version 16 or higher)
-   - Download: https://nodejs.org/
-
-2. **Rust** (stable toolchain)
-   - Download: https://rustup.rs/
-
-3. **ADB** (Android Debug Bridge)
-   - Download: https://developer.android.com/tools/releases/platform-tools
-   - Add to your system PATH
-
-4. **Perplexity API Key** (optional, for AI features)
-   - Get from: https://www.perplexity.ai/settings/api
-
-### Step-by-Step Setup
+### Build from Source
 
 ```bash
-# 1. Clone the repository
+# Clone the repository
 git clone https://github.com/abhishek112007/debloat-ai.git
 cd debloat-ai
 
-# 2. Install dependencies
+# Install dependencies
 npm install
 
-# 3. (Optional) Set up AI features - create .env file
+# (Optional) Set up AI features
 echo "PERPLEXITY_API_KEY=your_api_key_here" > backend/tauri/.env
 
-# 4. Run the application
+# Run in development mode
 npm run dev
 ```
 
@@ -104,13 +141,17 @@ The app will start with:
 - 🌐 Frontend at `http://localhost:1420`
 - ⚙️ Tauri backend running concurrently
 
-### Building for Production
+### Build Production Release
 
 ```bash
+# Build optimized production version
+npm run build:release
+
+# Or use Tauri directly
 npm run tauri:build
 ```
 
-Find your executable in: `backend/tauri/target/release/`
+Find installers in: `backend/tauri/target/release/bundle/`
 
 ---
 
@@ -284,6 +325,8 @@ debloat-ai/
 | `npm run build` | Build frontend for production |
 | `npm run tauri` | Run Tauri in dev mode |
 | `npm run tauri:build` | Build production executable |
+| `npm run build:release` | Full production build with optimizations |
+| `npm run clean` | Clean build artifacts |
 
 ---
 

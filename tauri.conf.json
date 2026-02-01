@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2.0.0",
-  "productName": "Android ADB Manager",
-  "version": "0.1.0",
-  "identifier": "com.adb.manager",
+  "productName": "Debloat AI",
+  "version": "1.0.0",
+  "identifier": "com.debloat.ai",
   "build": {
     "devUrl": "http://localhost:1420",
     "beforeBuildCommand": "npm run build",
@@ -21,9 +21,16 @@
     "windows": {
       "certificateThumbprint": null,
       "digestAlgorithm": "sha256",
-      "timestampUrl": ""
+      "timestampUrl": "",
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": [
+          "en-US"
+        ]
+      }
     },
-    "longDescription": "Android device manager using ADB",
+    "shortDescription": "AI-Powered Android Debloater",
+    "longDescription": "Safely remove bloatware from your Android devices using ADB and AI intelligence. Get intelligent recommendations about which packages are safe to remove.",
     "macOS": {
       "entitlements": null,
       "exceptionDomain": "",
@@ -41,7 +48,7 @@
   "app": {
     "windows": [
       {
-        "title": "Android ADB Manager",
+        "title": "Debloat AI",
         "width": 1200,
         "height": 800,
         "minWidth": 800,
@@ -56,7 +63,9 @@
       "csp": null,
       "assetProtocol": {
         "enable": true,
-        "scope": ["**"]
+        "scope": [
+          "**"
+        ]
       }
     }
   },

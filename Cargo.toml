@@ -34,3 +34,11 @@ custom-protocol = ["tauri/custom-protocol"]
 [workspace]
 members = []
 exclude = ["backend/tauri"]
+
+# Production optimizations for smaller binary size
+[profile.release]
+opt-level = "z"      # Optimize for size
+lto = true           # Enable Link Time Optimization
+codegen-units = 1    # Better optimization (slower compile)
+strip = true         # Strip debug symbols
+panic = "abort"      # Reduce binary size

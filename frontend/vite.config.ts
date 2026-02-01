@@ -25,5 +25,26 @@ export default defineConfig({
     minify: !process.env.TAURI_DEBUG ? 'esbuild' : false,
     // Produce sourcemaps for debug builds
     sourcemap: !!process.env.TAURI_DEBUG,
+    
+    // Production optimizations
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Separate vendor chunks for better caching
+          'react-vendor': ['react', 'react-dom'],
+          'ui-vendor': ['lucide-react', 'framer-motion'],
+          'tauri-vendor': ['@tauri-apps/api', '@tauri-apps/plugin-dialog'],
+        },
+      },
+    },
+    
+    // Warn about large chunks
+    chunkSizeWarningLimit: 1000,
+    
+    // Enable CSS code splitting
+    cssCodeSplit: true,
+    
+    // Optimize asset handling
+    assetsInlineLimit: 4096, // 4kb
   },
 });
