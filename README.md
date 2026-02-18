@@ -115,8 +115,8 @@ sudo dpkg -i debloat-ai_*.deb
 
 ### Prerequisites
 
-1. **Node.js** (version 16 or higher) - https://nodejs.org/
-2. **Rust** (stable toolchain) - https://rustup.rs/
+1. **Node.js** (version 18 or higher) - https://nodejs.org/
+2. **Python** (version 3.10 or higher) - https://www.python.org/
 3. **ADB** (Android Debug Bridge) - See requirements above
 4. **Perplexity API Key** (optional, for AI features) - https://www.perplexity.ai/settings/api
 
@@ -130,28 +130,52 @@ cd debloat-ai
 # Install dependencies
 npm install
 
+# Install frontend dependencies
+cd frontend
+npm install
+cd ..
+
+# Install Python backend dependencies
+cd backend-python
+python -m venv .venv
+# Windows
+.venv\Scripts\activate
+# Linux/macOS
+# source .venv/bin/activate
+pip install -r requirements.txt
+cd ..
+
 # (Optional) Set up AI features
-echo "PERPLEXITY_API_KEY=your_api_key_here" > backend/tauri/.env
+cp .env.example .env
+# Edit .env and add your API key
 
 # Run in development mode
+# Terminal 1: Backend
+cd backend-python
+python main.py
+
+# Terminal 2: Frontend + Electron
 npm run dev
 ```
 
 The app will start with:
-- 🌐 Frontend at `http://localhost:1420`
-- ⚙️ Tauri backend running concurrently
+- 🌐 Frontend dev server at `http://localhost:5173`
+- 🐍 Python backend API at `http://localhost:8000`
+- ⚡ Electron window (loads frontend)
 
 ### Build Production Release
 
 ```bash
-# Build optimized production version
-npm run build:release
+# Full production build (all platforms)
+npm run build
 
-# Or use Tauri directly
-npm run tauri:build
+# Or build individually
+npm run build:frontend    # Build React app
+npm run build:backend     # Compile Python backend
+npm run build:electron    # Create Windows installer
 ```
 
-Find installers in: `backend/tauri/target/release/bundle/`
+Find installers in: `dist/`
 
 ---
 
