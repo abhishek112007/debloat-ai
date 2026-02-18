@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { invoke } from '@tauri-apps/api/core';
+import { api } from '../utils/api';
 
 type DeviceInfo = {
   name: string;
@@ -22,7 +22,7 @@ export const useDeviceMonitor = () => {
 
   const checkDevice = async () => {
     try {
-      const res = await invoke<DeviceInfo | null>('get_device_info');
+      const res = await api.getDeviceInfo();
       const currentDeviceId = res?.name || null;
       
       // Detect device change (connect or disconnect)

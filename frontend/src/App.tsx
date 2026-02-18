@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { invoke } from '@tauri-apps/api/core';
+import { api } from './utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import DevicePanel from './components/DevicePanel';
 import PackageList from './components/PackageList';
@@ -158,13 +158,10 @@ const App: React.FC = () => {
 
     try {
       const packagesArray = Array.from(selectedPackages);
-      const result = await invoke<{ success: boolean; backup_file?: string; error?: string }>(
-        'create_backup',
-        { packages: packagesArray }
-      );
+      const result = await api.createBackup(packagesArray);
 
       if (result.success) {
-        addNotification(`✅ Backup created: ${result.backup_file}`, 'success');
+        addNotification(`✅ Backup created: ${result.backupName || result.backup_file}`, 'success');
         setSelectedPackages(new Set()); // Clear selection
       } else {
         addNotification(`❌ Backup failed: ${result.error}`, 'error');
@@ -183,9 +180,7 @@ const App: React.FC = () => {
 
     for (const packageName of selectedPackages) {
       try {
-        const result = await invoke<{ success: boolean; error?: string }>('uninstall_package', {
-          packageName,
-        });
+        const result = await api.uninstallPackage(packageName);
 
         if (result.success) {
           successCount++;
@@ -217,7 +212,7 @@ const App: React.FC = () => {
     >
       {/* Ultra-Thin Glass Navbar */}
       <motion.nav 
-        className="flex-shrink-0 px-6 py-3 relative z-50" 
+        className="flex-shrink-0 px-3 sm:px-6 py-2 sm:py-3 relative z-50" 
         style={{
           background: isLightMode 
             ? 'linear-gradient(180deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.45) 100%)'
@@ -240,6 +235,7 @@ const App: React.FC = () => {
             whileHover={{ scale: 1.02 }}
             transition={{ type: 'spring', stiffness: 400 }}
           >
+            <img src="/icon-192.png" alt="Debloat AI" className="w-7 h-7 rounded-lg" />
             <motion.h1 
               className="text-lg font-semibold tracking-tight" 
               style={{
@@ -307,10 +303,10 @@ const App: React.FC = () => {
         </div>
       </motion.nav>
 
-      {/* Main Layout - Floating Panels */}
-      <div className="flex flex-col lg:flex-row flex-1 overflow-hidden px-4 py-4 gap-4 max-w-[1800px] mx-auto w-full">
-        {/* Left Sidebar - Floating Panel with Device Info */}
-        <aside className="w-64 flex-shrink-0 overflow-y-auto glass-card p-5" style={{
+      {/* Main Layout - Responsive */}
+      <div className="flex flex-col lg:flex-row flex-1 overflow-hidden px-2 sm:px-4 py-2 sm:py-4 gap-2 sm:gap-4 max-w-[1800px] mx-auto w-full">
+        {/* Left Sidebar - Collapsible on mobile */}
+        <aside className="w-full lg:w-64 flex-shrink-0 overflow-y-auto glass-card p-3 sm:p-5 lg:max-h-full max-h-[200px]" style={{
           background: isLightMode
             ? 'rgba(255, 255, 255, 0.65)'
             : 'rgba(17, 17, 17, 0.6)',
@@ -514,8 +510,8 @@ const App: React.FC = () => {
           )}
         </main>
 
-        {/* Right Info Panel - Floating Stats */}
-        <aside className="w-56 flex-shrink-0 overflow-y-auto glass-card p-4 space-y-3" style={{
+        {/* Right Info Panel - Hidden on mobile, shown on lg */}
+        <aside className="hidden lg:block w-56 flex-shrink-0 overflow-y-auto glass-card p-4 space-y-3" style={{
           background: isLightMode
             ? 'rgba(255, 255, 255, 0.65)'
             : 'rgba(17, 17, 17, 0.6)',
@@ -703,7 +699,7 @@ const App: React.FC = () => {
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
           >
-          <div className="flex items-center gap-3 px-6 py-4 rounded-2xl backdrop-blur-xl" style={{
+          <div className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 rounded-2xl backdrop-blur-xl" style={{
             background: isLightMode 
               ? 'rgba(255, 255, 255, 0.95)'
               : 'rgba(17, 17, 17, 0.95)',

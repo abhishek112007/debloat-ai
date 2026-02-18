@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { invoke } from '@tauri-apps/api/core';
+import { api, ChatMessage } from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FiSend, FiX, FiCopy, FiCheck,
@@ -143,15 +143,13 @@ export const ChatBotModern: React.FC<ChatBotProps> = ({ deviceName, onClose }) =
     setSuggestedReplies([]);
 
     try {
-      const messageHistory = [...messages, userMessage].map(msg => ({
-        role: msg.role,
+      const history: ChatMessage[] = messages.map(msg => ({
+        role: msg.role as 'user' | 'assistant' | 'system',
         content: msg.content,
       }));
 
-      const response = await invoke<string>('chat_message', {
-        messages: messageHistory,
-        deviceName: deviceName || null,
-      });
+      const result = await api.chatMessage(userMessage.content, history);
+      const response = typeof result === 'string' ? result : result?.response || String(result);
 
       const messageId = messageUtils.generateId();
       const assistantMessage: Message = {
@@ -752,7 +750,7 @@ export const ChatBotModern: React.FC<ChatBotProps> = ({ deviceName, onClose }) =
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyPress}
             placeholder="Type your message..."
             disabled={loading}
             style={{

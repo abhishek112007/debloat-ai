@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { invoke } from '@tauri-apps/api/core';
+import { api } from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FiRefreshCw,
@@ -49,7 +49,7 @@ const BackupManager: React.FC = () => {
 
   const loadBackups = async () => {
     try {
-      const result = await invoke<BackupInfo[]>('list_backups');
+      const result = await api.listBackups();
       setBackups(result);
     } catch (error) {
       console.error('Failed to load backups:', error);
@@ -58,8 +58,8 @@ const BackupManager: React.FC = () => {
 
   const loadBackupPath = async () => {
     try {
-      const path = await invoke<string>('get_backup_path');
-      setBackupPath(path);
+      const result = await api.getBackupPath();
+      setBackupPath(result?.path ?? result);
     } catch (error) {
       console.error('Failed to get backup path:', error);
     }
@@ -73,9 +73,7 @@ const BackupManager: React.FC = () => {
 
     setLoading(true);
     try {
-      const result = await invoke<CreateBackupResult>('create_backup', {
-        packages: selectedPackages,
-      });
+      const result = await api.createBackup(selectedPackages);
 
       if (result.success) {
         alert(`✅ Backup created: ${result.backup_file}`);
@@ -98,9 +96,7 @@ const BackupManager: React.FC = () => {
 
     setRestoring(true);
     try {
-      const result = await invoke<RestoreBackupResult>('restore_backup', {
-        filename,
-      });
+      const result = await api.restoreBackup(filename);
 
       if (result.success) {
         alert(
@@ -125,7 +121,7 @@ const BackupManager: React.FC = () => {
     }
 
     try {
-      await invoke<boolean>('delete_backup', { filename });
+      await api.deleteBackup(filename);
       alert('✅ Backup deleted');
       loadBackups();
     } catch (error) {

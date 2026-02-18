@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { invoke } from '@tauri-apps/api/core';
+import { api, ChatMessage } from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiSend, FiMessageCircle, FiX, FiCopy, FiCheck, FiTrash2, FiRefreshCw, FiDownload, FiUpload, FiMic, FiZap } from 'react-icons/fi';
 import { Message } from '../types';
@@ -146,15 +146,14 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
     setLoading(true);
 
     try {
-      const messageHistory = [...messages, userMessage].map(msg => ({
-        role: msg.role,
+      // Prepare history (all messages except the current one)
+      const history: ChatMessage[] = messages.map(msg => ({
+        role: msg.role as 'user' | 'assistant' | 'system',
         content: msg.content,
       }));
 
-      const response = await invoke<string>('chat_message', {
-        messages: messageHistory,
-        deviceName: deviceName || null,
-      });
+      const result = await api.chatMessage(userMessage.content, history);
+      const response = typeof result === 'string' ? result : result?.response || String(result);
 
       const messageId = messageUtils.generateId();
       const assistantMessage: Message = {
@@ -613,7 +612,7 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
               setInput(e.target.value);
               if (e.target.value) setSuggestedReplies([]);
             }}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyPress}
             placeholder="Ask about Android packages..."
             disabled={loading}
             className="chat-input"

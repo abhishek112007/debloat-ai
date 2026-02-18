@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { invoke } from '@tauri-apps/api/core';
+import { api } from '../utils/api';
 import { PackageAnalysis, AnalysisState } from '../types/ai-advisor';
 
 /**
@@ -22,9 +22,7 @@ export function usePackageAdvisor(packageName: string | null) {
     setState({ loading: true, error: null, data: null });
 
     try {
-      const result = await invoke<PackageAnalysis>('analyze_package', {
-        packageName: pkgName,
-      });
+      const result = await api.analyzePackage(pkgName);
 
       setState({ loading: false, error: null, data: result });
     } catch (err) {

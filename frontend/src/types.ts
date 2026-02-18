@@ -1,4 +1,4 @@
-// Shared TypeScript types for Tauri Android app components
+// Shared TypeScript types for Debloat AI app components
 
 export type DeviceInfo = {
   name: string;

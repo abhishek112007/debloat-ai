@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { invoke } from '@tauri-apps/api/core';
+import { api } from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDeviceMonitor } from '../hooks/useDeviceMonitor';
 import { useTheme } from '../App';
@@ -63,12 +63,13 @@ const PackageList: React.FC<PackageListProps> = ({
   const fetchPackages = async () => {
     setLoading(true);
     try {
-      const res = await invoke<Package[]>('list_packages');
-      setPackages(res ?? []);
+      const res = await api.listPackages();
+      const pkgs = res ?? [];
+      setPackages(pkgs);
       
       // Pass package data to parent for safety checking
       if (onPackageDataChange) {
-        onPackageDataChange(res.map(p => ({ packageName: p.packageName, safetyLevel: p.safetyLevel })));
+        onPackageDataChange(pkgs.map(p => ({ packageName: p.packageName, safetyLevel: p.safetyLevel })));
       }
     } catch (err) {
       console.error('list_packages failed', err);

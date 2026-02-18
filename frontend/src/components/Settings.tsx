@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { invoke } from '@tauri-apps/api/core';
-import { open } from '@tauri-apps/plugin-dialog';
+import { api } from '../utils/api';
 import { staggerContainer, staggerItem } from '../utils/animations';
 
 // Settings interface
@@ -110,27 +109,17 @@ const Settings: React.FC = () => {
 
   const getDefaultBackupLocation = async () => {
     try {
-      const location = await invoke<string>('get_backup_path');
-      updateSetting('backupLocation', location);
+      const location = await api.getBackupPath();
+      updateSetting('backupLocation', typeof location === 'string' ? location : location?.path || '');
     } catch (error) {
       console.error('Failed to get backup location:', error);
     }
   };
 
   const selectBackupFolder = async () => {
-    try {
-      const selected = await open({
-        directory: true,
-        multiple: false,
-        defaultPath: settings.backupLocation || undefined,
-      });
-
-      if (selected && typeof selected === 'string') {
-        updateSetting('backupLocation', selected);
-      }
-    } catch (error) {
-      console.error('Failed to select folder:', error);
-    }
+    // Folder selection not available in Electron without dialog module
+    // For now just use the default backup path
+    alert('Backup location: ' + settings.backupLocation);
   };
 
   const checkForUpdates = async () => {
