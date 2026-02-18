@@ -16,8 +16,7 @@ a = Analysis(
     pathex=[src],
     binaries=[],
     datas=[
-        # Include the .env.example so users know what to configure
-        (os.path.join(src, '.env.example'), '.'),
+        # .env.example is now in the project root, not bundled with backend
     ],
     hiddenimports=[
         'requests',
