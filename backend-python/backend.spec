@@ -1,0 +1,61 @@
+# -*- mode: python ; coding: utf-8 -*-
+"""
+PyInstaller spec – builds backend-python into a single-folder dist.
+Run from repo root:
+    .venv\\Scripts\\pyinstaller.exe backend-python\\backend.spec
+"""
+
+import os
+
+block_cipher = None
+src = os.path.abspath(os.path.join(os.path.dirname(SPECPATH), 'backend-python'))
+icons_dir = os.path.abspath(os.path.join(os.path.dirname(SPECPATH), 'icons'))
+
+a = Analysis(
+    [os.path.join(src, 'main.py')],
+    pathex=[src],
+    binaries=[],
+    datas=[
+        # Include the .env.example so users know what to configure
+        (os.path.join(src, '.env.example'), '.'),
+    ],
+    hiddenimports=[
+        'requests',
+        'dotenv',
+        'json',
+        'subprocess',
+        'shutil',
+    ],
+    hookspath=[],
+    hooksconfig={},
+    runtime_hooks=[],
+    excludes=['tkinter', 'unittest', 'test', 'pip', 'setuptools'],
+    noarchive=False,
+    cipher=block_cipher,
+)
+
+pyz = PYZ(a.pure, cipher=block_cipher)
+
+exe = EXE(
+    pyz,
+    a.scripts,
+    [],
+    exclude_binaries=True,
+    name='backend',
+    debug=False,
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=True,
+    console=True,          # Required for stdin/stdout IPC with Electron
+    icon=os.path.join(icons_dir, 'icon.ico') if os.path.exists(os.path.join(icons_dir, 'icon.ico')) else None,
+)
+
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    name='backend',
+)

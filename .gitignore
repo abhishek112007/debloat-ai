@@ -5,6 +5,7 @@ package-lock.json
 # Build outputs
 dist/
 frontend/dist/
+build-output/
 
 # Python
 .venv/

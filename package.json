@@ -1,42 +1,66 @@
 {
-  "name": "debloat-ai-electron",
+  "name": "debloat-ai",
   "version": "1.0.0",
-  "description": "Debloat AI - Electron + Python version",
+  "description": "Debloat AI – Intelligently remove bloatware from Android devices",
   "main": "electron/main.js",
+  "author": "Abhishek",
+  "license": "MIT",
   "scripts": {
     "dev": "concurrently \"npm run frontend\" \"npm run electron:dev\" --names \"VITE,ELECTRON\" --prefix-colors \"cyan,magenta\"",
     "frontend": "cd frontend && npm run dev",
     "electron:dev": "cross-env NODE_ENV=development electron .",
-    "build": "npm run build:frontend && npm run build:electron",
+    "build": "npm run build:frontend && npm run build:backend && npm run build:electron",
     "build:frontend": "cd frontend && npm run build",
-    "build:electron": "electron-builder",
+    "build:backend": "node scripts/build-backend.js",
+    "build:electron": "electron-builder --win --x64",
     "start": "electron .",
-    "clean": "rimraf frontend/dist dist"
+    "clean": "rimraf frontend/dist dist build-output"
   },
   "build": {
     "appId": "com.debloatai.app",
     "productName": "Debloat AI",
+    "artifactName": "DebloatAI-Setup-${version}.${ext}",
     "directories": {
       "output": "dist"
     },
     "files": [
       "electron/**/*",
       "frontend/dist/**/*",
-      "backend-python/**/*",
-      "!backend-python/__pycache__",
-      "!backend-python/*.pyc",
-      "!backend-python/.env"
+      "icons/**/*"
     ],
     "extraResources": [
       {
-        "from": "backend-python",
-        "to": "python",
-        "filter": ["**/*", "!__pycache__", "!*.pyc", "!.env"]
+        "from": "build-output/backend",
+        "to": "backend",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "build-output/platform-tools",
+        "to": "backend/platform-tools",
+        "filter": ["adb.exe", "AdbWinApi.dll", "AdbWinUsbApi.dll"]
       }
     ],
     "win": {
-      "target": ["nsis"],
-      "icon": "icons/icon.ico"
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "icons/icon.ico",
+      "publisherName": "Debloat AI",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "icons/icon.ico",
+      "uninstallerIcon": "icons/icon.ico",
+      "installerHeaderIcon": "icons/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Debloat AI"
     },
     "mac": {
       "target": ["dmg"],
@@ -49,9 +73,7 @@
       "category": "Utility"
     }
   },
-  "dependencies": {
-    "electron-squirrel-startup": "^1.0.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "electron": "^28.0.0",
     "electron-builder": "^24.9.0",

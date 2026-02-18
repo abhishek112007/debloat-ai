@@ -93,12 +93,15 @@ export interface DeviceInfo {
   product?: string;
   manufacturer?: string;
   androidVersion?: string;
+  batteryPercentage?: number | null;
+  storageAvailable?: string | null;
   state: string;
 }
 
 export interface Package {
-  name: string;
-  type: 'system' | 'user';
+  packageName: string;
+  appName: string;
+  safetyLevel: 'Safe' | 'Caution' | 'Expert' | 'Dangerous';
 }
 
 export interface UninstallResult {
@@ -133,7 +136,8 @@ export interface BackupResult {
   success: boolean;
   backupName?: string;
   backupPath?: string;
-  message: string;
+  message?: string;
+  error?: string;
 }
 
 export interface BackupInfo {
@@ -148,7 +152,10 @@ export interface RestoreResult {
   success: boolean;
   packages?: string[];
   count?: number;
-  message: string;
+  restored?: number;
+  failed?: number;
+  errors?: string[];
+  message?: string;
 }
 
 export interface DeleteResult {

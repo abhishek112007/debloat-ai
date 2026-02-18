@@ -1,13 +1,5 @@
 import { useState, useEffect } from 'react';
-import { api } from '../utils/api';
-
-type DeviceInfo = {
-  name: string;
-  model?: string | null;
-  androidVersion: string;
-  batteryPercentage?: number | null;
-  storageAvailable?: string | null;
-};
+import { api, DeviceInfo } from '../utils/api';
 
 /**
  * Hook to monitor device connection status

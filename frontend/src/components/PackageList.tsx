@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { api } from '../utils/api';
+import { api, Package } from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDeviceMonitor } from '../hooks/useDeviceMonitor';
 import { useTheme } from '../App';
@@ -18,13 +18,7 @@ import {
   packageListItem,
 } from '../utils/animations';
 
-type SafetyLevel = 'Safe' | 'Caution' | 'Expert' | 'Dangerous';
-
-type Package = {
-  packageName: string;
-  appName: string;
-  safetyLevel: SafetyLevel;
-};
+type SafetyLevel = Package['safetyLevel'];
 
 interface PackageStats {
   total: number;

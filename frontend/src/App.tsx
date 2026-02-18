@@ -161,10 +161,10 @@ const App: React.FC = () => {
       const result = await api.createBackup(packagesArray);
 
       if (result.success) {
-        addNotification(`✅ Backup created: ${result.backupName || result.backup_file}`, 'success');
+        addNotification(`✅ Backup created: ${result.backupName}`, 'success');
         setSelectedPackages(new Set()); // Clear selection
       } else {
-        addNotification(`❌ Backup failed: ${result.error}`, 'error');
+        addNotification(`❌ Backup failed: ${result.message || result.error}`, 'error');
       }
     } catch (error) {
       addNotification(`❌ Backup error: ${error}`, 'error');

@@ -16,7 +16,7 @@ interface ChatBotProps {
   onClose?: () => void;
 }
 
-export const ChatBotModern: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
+export const ChatBotModern: React.FC<ChatBotProps> = ({ onClose }) => {
   const { theme } = useTheme();
   const isLightMode = theme === 'light';
 

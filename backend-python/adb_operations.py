@@ -17,16 +17,29 @@ class ADBOperations:
     """Handle all ADB-related operations"""
     
     def __init__(self):
-        # Try common ADB locations
         import shutil
         import os
-        adb_in_path = shutil.which("adb")
-        if adb_in_path:
-            self.adb_path = adb_in_path
-        elif os.path.exists(r"C:\platform-tools\adb.exe"):
-            self.adb_path = r"C:\platform-tools\adb.exe"
+        import sys
+        
+        # Determine base directory (PyInstaller exe or script location)
+        if getattr(sys, 'frozen', False):
+            base_dir = os.path.dirname(sys.executable)
         else:
-            self.adb_path = "adb"
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        # Search priority:
+        # 1. Bundled platform-tools next to exe (production)
+        # 2. System PATH
+        # 3. Common Windows install location
+        bundled = os.path.join(base_dir, 'platform-tools', 'adb.exe')
+        if os.path.exists(bundled):
+            self.adb_path = bundled
+        elif shutil.which('adb'):
+            self.adb_path = shutil.which('adb')
+        elif os.path.exists(r'C:\platform-tools\adb.exe'):
+            self.adb_path = r'C:\platform-tools\adb.exe'
+        else:
+            self.adb_path = 'adb'
     
     def _run_command(self, command: List[str], timeout: int = 30) -> str:
         """Run an ADB command and return output"""

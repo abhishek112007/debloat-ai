@@ -3,13 +3,24 @@ AI Advisor Module
 Handles AI-powered package analysis using Perplexity or OpenAI
 """
 import os
+import sys
 import json
 import requests
 from typing import Dict
 from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+
+def _get_base_dir():
+    """Return the directory where this script (or frozen exe) lives."""
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+# Load environment variables – search next to the exe/script, then CWD
+_base = _get_base_dir()
+load_dotenv(os.path.join(_base, '.env'))
+load_dotenv()  # also try CWD as fallback
 
 
 class AIAdvisor:

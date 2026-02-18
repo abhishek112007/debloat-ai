@@ -17,22 +17,39 @@ function getPythonPath() {
     if (fs.existsSync(venvPath)) return venvPath;
     return 'python';
   }
-  // Production (packaged)
-  if (process.platform === 'win32') {
-    return path.join(process.resourcesPath, 'python', 'main.exe');
+  // Production – bundled PyInstaller exe
+  const exeName = process.platform === 'win32' ? 'backend.exe' : 'backend';
+  return path.join(process.resourcesPath, 'backend', exeName);
+}
+
+function getBackendScript() {
+  // In dev we pass the .py script; in production the exe IS the entry point
+  if (process.env.NODE_ENV === 'development') {
+    return path.join(__dirname, '../backend-python/main.py');
   }
-  return path.join(process.resourcesPath, 'python', 'main');
+  return null; // exe needs no extra script arg
 }
 
 // ── Persistent Python process ────────────────────────────────────────
 function startPythonProcess() {
   const pythonPath = getPythonPath();
-  const mainPy = path.join(__dirname, '../backend-python/main.py');
+  const script = getBackendScript();
+  const spawnArgs = script ? [script] : [];
 
-  pythonProcess = spawn(pythonPath, [mainPy], {
-    windowsHide: true,             // No console window on Windows
+  // In production, copy .env next to the backend exe if user placed it in app dir
+  const envSrc = path.join(app.getPath('userData'), '.env');
+  const envDst = path.join(path.dirname(pythonPath), '.env');
+  if (!fs.existsSync(envDst) && fs.existsSync(envSrc)) {
+    fs.copyFileSync(envSrc, envDst);
+  }
+
+  console.log('[Electron] Starting backend:', pythonPath, spawnArgs.join(' '));
+
+  pythonProcess = spawn(pythonPath, spawnArgs, {
+    windowsHide: true,
     stdio: ['pipe', 'pipe', 'pipe'],
-    env: { ...process.env }
+    env: { ...process.env },
+    cwd: path.dirname(pythonPath)    // so dotenv finds .env next to exe
   });
 
   // Accumulate stdout and resolve matching requests

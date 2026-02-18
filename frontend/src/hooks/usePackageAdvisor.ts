@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '../utils/api';
-import { PackageAnalysis, AnalysisState } from '../types/ai-advisor';
+import { AnalysisState } from '../types/ai-advisor';
 
 /**
  * React hook for analyzing Android packages using AI

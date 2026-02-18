@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { api } from '../utils/api';
+import { api, BackupInfo } from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FiRefreshCw,
@@ -13,26 +13,6 @@ import {
   FiAlertCircle,
 } from 'react-icons/fi';
 import { staggerContainer, staggerItem } from '../utils/animations';
-
-interface BackupInfo {
-  filename: string;
-  date: string;
-  count: number;
-  device_name?: string;
-}
-
-interface CreateBackupResult {
-  success: boolean;
-  backup_file?: string;
-  error?: string;
-}
-
-interface RestoreBackupResult {
-  success: boolean;
-  restored: number;
-  failed: number;
-  errors: string[];
-}
 
 const BackupManager: React.FC = () => {
   const [backups, setBackups] = useState<BackupInfo[]>([]);
@@ -76,11 +56,11 @@ const BackupManager: React.FC = () => {
       const result = await api.createBackup(selectedPackages);
 
       if (result.success) {
-        alert(`✅ Backup created: ${result.backup_file}`);
+        alert(`✅ Backup created: ${result.backupName}`);
         loadBackups();
         setSelectedPackages([]);
       } else {
-        alert(`❌ Failed to create backup: ${result.error}`);
+        alert(`❌ Failed to create backup: ${result.message || result.error}`);
       }
     } catch (error) {
       alert(`❌ Error: ${error}`);
@@ -100,12 +80,11 @@ const BackupManager: React.FC = () => {
 
       if (result.success) {
         alert(
-          `✅ Restore complete!\n\nRestored: ${result.restored}\nFailed: ${result.failed}`
+          `✅ Restore complete!\n\nPackages: ${result.count ?? 0}`
         );
       } else {
-        const errorMsg = result.errors.join('\n');
         alert(
-          `⚠️ Restore completed with errors\n\nRestored: ${result.restored}\nFailed: ${result.failed}\n\nErrors:\n${errorMsg}`
+          `⚠️ Restore failed: ${result.message}`
         );
       }
     } catch (error) {
@@ -330,7 +309,7 @@ const BackupManager: React.FC = () => {
               >
                 {backups.map((backup) => (
                   <motion.div
-                    key={backup.filename}
+                    key={backup.name}
                     variants={staggerItem}
                     style={{
                       background: 'rgba(255,255,255,0.02)',
@@ -351,21 +330,21 @@ const BackupManager: React.FC = () => {
                           <motion.div whileHover={{ scale: 1.2, rotate: 10 }}>
                             <FiPackage className="w-3.5 h-3.5 text-accent flex-shrink-0" />
                           </motion.div>
-                          {backup.filename}
+                          {backup.name}
                         </div>
                         <div className="flex flex-wrap gap-3 text-xs">
                           <div className="flex items-center gap-1.5 text-gray-600 dark:text-text-secondary">
                             <FiCalendar className="w-3 h-3 opacity-60" />
-                            <span>{formatDate(backup.date)}</span>
+                            <span>{formatDate(backup.timestamp)}</span>
                           </div>
                           <div className="flex items-center gap-1.5 text-gray-600 dark:text-text-secondary">
                             <FiPackage className="w-3 h-3 opacity-60" />
-                            <span>{backup.count} pkg</span>
+                            <span>{backup.packageCount} pkg</span>
                           </div>
-                          {backup.device_name && (
+                          {backup.deviceInfo?.name && (
                             <div className="flex items-center gap-1.5 text-gray-600 dark:text-text-secondary">
                               <FiSmartphone className="w-3 h-3 opacity-60" />
-                              <span>{backup.device_name}</span>
+                              <span>{backup.deviceInfo.name}</span>
                             </div>
                           )}
                         </div>
@@ -373,7 +352,7 @@ const BackupManager: React.FC = () => {
 
                       <div className="flex gap-2 pt-2 border-t border-gray-200 dark:border-dark-border/30">
                         <motion.button
-                          onClick={() => handleRestore(backup.filename)}
+                          onClick={() => handleRestore(backup.name)}
                           disabled={restoring}
                           className="flex-1 px-3 py-2 text-xs font-medium rounded-lg disabled:opacity-50 flex items-center justify-center gap-1.5"
                           style={{
@@ -396,7 +375,7 @@ const BackupManager: React.FC = () => {
                           {restoring ? 'Restoring...' : 'Restore'}
                         </motion.button>
                         <motion.button
-                          onClick={() => handleDelete(backup.filename)}
+                          onClick={() => handleDelete(backup.name)}
                           className="px-3 py-2 text-xs font-medium rounded-lg flex items-center justify-center gap-1.5"
                           style={{
                             background: 'rgba(239,68,68,0.12)',
