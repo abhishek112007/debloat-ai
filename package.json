@@ -52,15 +52,14 @@
       "signAndEditExecutable": false
     },
     "nsis": {
-      "oneClick": false,
+      "oneClick": true,
       "perMachine": false,
-      "allowToChangeInstallationDirectory": true,
       "installerIcon": "icons/icon.ico",
       "uninstallerIcon": "icons/icon.ico",
-      "installerHeaderIcon": "icons/icon.ico",
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Debloat AI"
+      "shortcutName": "Debloat AI",
+      "runAfterFinish": true
     },
     "mac": {
       "target": ["dmg"],

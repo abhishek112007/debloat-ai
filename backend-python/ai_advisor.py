@@ -45,10 +45,13 @@ class AIAdvisor:
             self.model = "gpt-4-turbo-preview"
         
         if not self.api_key:
-            raise ValueError(f"{provider.upper()}_API_KEY not found in environment variables")
+            print(f"[Warning] {provider.upper()}_API_KEY not found – AI features will be unavailable", file=sys.stderr)
+            self.api_key = None  # AI methods will return error gracefully
     
     def analyze_package(self, package_name: str) -> Dict:
         """Analyze an Android package and return safety information"""
+        if not self.api_key:
+            return {"error": "API key not configured. Add PERPLEXITY_API_KEY to .env file.", "safetyLevel": "unknown", "appName": package_name, "description": "AI analysis unavailable", "recommendation": "Configure API key to enable AI analysis"}
         
         prompt = f"""You are an Android package analysis expert. Analyze package: {package_name}
 
@@ -158,6 +161,8 @@ Risk categories:
     
     def chat(self, message: str, history: list = None) -> str:
         """Chat with AI about debloating"""
+        if not self.api_key:
+            return "AI chat unavailable. Please add your PERPLEXITY_API_KEY to the .env file next to backend.exe, then restart the app."
         
         if history is None:
             history = []

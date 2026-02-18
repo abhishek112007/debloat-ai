@@ -69,7 +69,15 @@ def main():
     # Initialise heavy modules once
     adb = ADBOperations()
     backup_mgr = BackupManager()
-    advisor = AIAdvisor(provider="perplexity")
+    try:
+        advisor = AIAdvisor(provider="perplexity")
+    except Exception as e:
+        print(f"[Warning] AI advisor init failed: {e}", file=sys.stderr)
+        advisor = AIAdvisor.__new__(AIAdvisor)
+        advisor.api_key = None
+        advisor.provider = "perplexity"
+        advisor.api_url = "https://api.perplexity.ai/chat/completions"
+        advisor.model = "sonar"
 
     # Signal that we are ready
     sys.stdout.write(json.dumps({"status": "ready"}) + "\n")
@@ -101,10 +109,6 @@ def main():
             sys.stdout.flush()
         except Exception:
             traceback.print_exc(file=sys.stderr)
-
-
-if __name__ == "__main__":
-    main()
 
 
 if __name__ == "__main__":
