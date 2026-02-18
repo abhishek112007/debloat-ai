@@ -5,6 +5,9 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
 
+  // Use relative paths so Electron loadFile works correctly
+  base: './',
+
   // Prevent vite from obscuring errors
   clearScreen: false,
 
