@@ -15,14 +15,11 @@ This guide walks you through creating your first production release of Debloat A
 Ensure version consistency across all files:
 
 ```json
-// package.json
-"version": "1.0.0"
+// package.json (root)
+"version": "1.1.0"
 
-// tauri.conf.json
+// frontend/package.json
 "version": "1.0.0"
-
-// Cargo.toml (optional, auto-synced by Tauri)
-version = "1.0.0"
 ```
 
 ### 2. Update CHANGELOG.md
@@ -146,9 +143,10 @@ debloat-ai
 **Issue**: Missing dependencies or build errors
 
 **Solutions**:
-1. Check Rust compilation errors in logs
-2. Verify `tauri.conf.json` icon paths are correct
+1. Check Python compilation errors in logs
+2. Verify icon paths are correct in package.json
 3. Ensure all Windows-specific configurations are valid
+4. Check PyInstaller build output
 
 ### Linux Build Fails
 
@@ -173,9 +171,9 @@ debloat-ai
 **Issue**: Configuration errors
 
 **Solutions**:
-1. Check `tauri.conf.json` for JSON syntax errors
-2. Verify `beforeBuildCommand` works locally
-3. Test local build: `npm run build:release`
+1. Check package.json for JSON syntax errors
+2. Verify build scripts work locally
+3. Test local build: `npm run build`
 4. Check GitHub Actions logs for specific errors
 
 ## Local Testing Before Release
@@ -184,24 +182,24 @@ Before creating a tag, test the build locally:
 
 ```bash
 # Full production build
-npm run build:release
+npm run build
 
 # Check artifacts
-ls -lh backend/tauri/target/release/bundle/
+ls -lh dist/
 
 # Test the installer
-# Windows: Run the .msi
-# Linux: Run the AppImage
+# Windows: Run the .exe installer
+# Linux: Run the AppImage or .deb
 # macOS: Open the .dmg
 ```
 
 ## Best Practices
 
-1. **Test Locally First**: Always run `npm run build:release` before tagging
+1. **Test Locally First**: Always run `npm run build` before tagging
 2. **Semantic Versioning**: Follow semver (MAJOR.MINOR.PATCH)
 3. **Changelog**: Keep CHANGELOG.md updated
 4. **Draft Releases**: Use draft releases to test before going public
-5. **Pre-releases**: Use `-beta` or `-rc` tags for testing (e.g., `v1.0.0-beta.1`)
+5. **Pre-releases**: Use `-beta` or `-rc` tags for testing (e.g., `v1.1.0-beta.1`)
 6. **Backup**: Keep previous release artifacts in case rollback is needed
 
 ## Release Checklist
@@ -209,10 +207,10 @@ ls -lh backend/tauri/target/release/bundle/
 Before tagging a release:
 
 - [ ] All features tested locally
-- [ ] Version numbers updated in package.json and tauri.conf.json
+- [ ] Version numbers updated in package.json
 - [ ] CHANGELOG.md updated
 - [ ] README.md reflects latest changes
-- [ ] Local production build succeeds (`npm run build:release`)
+- [ ] Local production build succeeds (`npm run build`)
 - [ ] All tests pass
 - [ ] Documentation is up to date
 - [ ] No sensitive data (API keys) in repository

@@ -15,7 +15,7 @@
 [![React](https://img.shields.io/badge/React-18.2-61DAFB.svg)](https://react.dev)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB.svg)](https://www.python.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178C6.svg)](https://www.typescriptlang.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-009688.svg)](https://fastapi.tiangolo.com)
+[![Vite](https://img.shields.io/badge/Vite-5.0-646CFF.svg)](https://vitejs.dev)
 
 [Features](#-features) • [Installation](#-installation) • [Usage](#-how-to-use) • [AI Features](#-ai-features) • [Contributing](#-contributing)
 
@@ -152,22 +152,21 @@ pip install -r requirements.txt
 cd ..
 
 # (Optional) Set up AI features
+# Create a .env file in the project root (not inside backend-python)
 cp .env.example .env
-# Edit .env and add your API key
+# Edit .env and add your Perplexity API key:
+# PERPLEXITY_API_KEY=your_key_here
 
 # Run in development mode
-# Terminal 1: Backend
-cd backend-python
-python main.py
-
-# Terminal 2: Frontend + Electron
 npm run dev
 ```
 
 The app will start with:
 - 🌐 Frontend dev server at `http://localhost:5173`
-- 🐍 Python backend API at `http://localhost:8000`
+- 🐍 Python backend process (spawned by Electron)
 - ⚡ Electron window (loads frontend)
+
+**Note**: The backend is automatically spawned by Electron. You don't need to start it manually.
 
 ### Build Production Release
 
@@ -304,12 +303,12 @@ debloat-ai/
 │   │
 │   └── vite.config.ts             # Vite configuration
 │
-├── 📁 backend-python/              # Python FastAPI Backend
-│   ├── main.py                    # FastAPI server & routes
+├── 🐍 backend-python/              # Python Backend (IPC)
+│   ├── main.py                    # Backend process & command router
 │   ├── adb_operations.py          # ADB command wrappers
 │   ├── ai_advisor.py              # Perplexity AI integration
 │   ├── backup_manager.py          # Backup/restore logic
-│   ├── api_types.py               # Pydantic models
+│   ├── api_types.py               # Type definitions
 │   ├── requirements.txt           # Python dependencies
 │   └── test_backend.py            # Backend tests
 │
@@ -356,17 +355,17 @@ debloat-ai/
 
 | Technology | Purpose |
 |------------|---------|
-| Python 3.14 | Backend Language |
-| FastAPI | REST API Framework |
-| Pydantic | Data Validation |
-| PyInstaller | Backend compilation |
+| Python 3.10+ | Backend Language |
+| Subprocess | ADB Command Execution |
+| JSON IPC | Electron Communication |
+| PyInstaller | Backend Compilation |
 
 ### External Services
 
 | Service | Purpose |
 |---------|---------|
 | ADB (Android Debug Bridge) | Android device communication |
-| Perplexity AI | Package analysis & chatbot |
+| Perplexity AI | AI-powered package analysis & chatbot |
 
 ---
 
@@ -383,8 +382,8 @@ debloat-ai/
 | `npm run build:electron` | Create Windows installer |
 | `npm run clean` | Clean build artifacts |
 
-> **Note**: Backend must be started manually in development:  
-> `cd backend-python && python main.py`
+> **Note**: In development, the backend process is automatically spawned by Electron via IPC.
+> The backend communicates through stdin/stdout, not HTTP.
 
 ---
 
@@ -475,10 +474,13 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for det
 
 ## 🙏 Acknowledgments
 
-- [Tauri](https://tauri.app/) - Amazing desktop framework
-- [React](https://react.dev/) - UI library
-- [Perplexity AI](https://www.perplexity.ai/) - AI analysis
-- [Android ADB](https://developer.android.com/tools/adb) - Device communication
+- [Electron](https://www.electronjs.org/) - Cross-platform desktop framework
+- [React](https://react.dev/) - Modern UI library
+- [Vite](https://vitejs.dev/) - Lightning fast build tool
+- [Perplexity AI](https://www.perplexity.ai/) - AI-powered package analysis
+- [Android ADB](https://developer.android.com/tools/adb) - Android device communication
+- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
+- [PyInstaller](https://pyinstaller.org/) - Python application bundler
 - Community bloatware lists and contributors
 
 ---

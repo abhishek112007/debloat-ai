@@ -68,12 +68,12 @@ debloat-ai/
 │   ├── tailwind.config.js      # Tailwind CSS config
 │   └── postcss.config.js       # PostCSS config
 │
-├── 🐍 backend-python/           # Python FastAPI Backend
-│   ├── main.py                 # FastAPI server & routes
+├── 🐍 backend-python/           # Python Backend (IPC)
+│   ├── main.py                 # Backend process & command router
 │   ├── adb_operations.py       # ADB command wrappers
 │   ├── ai_advisor.py           # Perplexity AI integration
 │   ├── backup_manager.py       # Backup/restore logic
-│   ├── api_types.py            # Pydantic models (types)
+│   ├── api_types.py            # Type definitions (reference)
 │   ├── requirements.txt        # Python dependencies
 │   ├── backend.spec            # PyInstaller build spec
 │   ├── test_backend.py         # Backend tests
@@ -123,11 +123,11 @@ debloat-ai/
 ├─────────────────────────────────────────────────┤
 │  Electron Main Process (Node.js)                │
 │  - Window Management                            │
-│  - IPC Communication                            │
+│  - IPC Communication (stdin/stdout)             │
 │  - Backend Process Spawning                     │
 ├─────────────────────────────────────────────────┤
-│  Backend (Python + FastAPI)                     │
-│  - REST API Server (FastAPI)                    │
+│  Backend (Python - Persistent Process)          │
+│  - Command Router (JSON over stdin/stdout)      │
 │  - ADB Operations (subprocess)                  │
 │  - AI Integration (Perplexity API)              │
 │  - Backup Management (JSON files)               │
@@ -151,10 +151,16 @@ debloat-ai/
 User connects device
        │
        ▼
-Frontend polls backend (/api/device/status)
+Frontend polls via IPC (get_device_info)
+       │
+       ▼
+Electron sends JSON command to Python backend (stdin)
        │
        ▼
 Backend executes: adb devices
+       │
+       ▼
+Backend sends JSON response (stdout)
        │
        ▼
 Frontend displays device info
@@ -166,13 +172,19 @@ Frontend displays device info
 User clicks "Refresh"
        │
        ▼
-Frontend → /api/packages
+Frontend → IPC command (list_packages)
+       │
+       ▼
+Electron → Backend (stdin)
        │
        ▼
 Backend executes: adb shell pm list packages -f
        │
        ▼
 Backend parses output
+       │
+       ▼
+Backend → Electron (stdout)
        │
        ▼
 Frontend displays packages with filters
@@ -184,13 +196,19 @@ Frontend displays packages with filters
 User clicks "AI Advice"
        │
        ▼
-Frontend → /api/ai/analyze-package
+Frontend → IPC command (analyze_package)
+       │
+       ▼
+Electron → Backend (stdin)
        │
        ▼
 Backend → Perplexity API request
        │
        ▼
 AI analyzes package safety
+       │
+       ▼
+Backend → Electron (stdout)
        │
        ▼
 Frontend displays risk level + advice
@@ -202,13 +220,19 @@ Frontend displays risk level + advice
 User selects package + confirms
        │
        ▼
-Frontend → /api/packages/{package_name}
+Frontend → IPC command (uninstall_package)
+       │
+       ▼
+Electron → Backend (stdin)
        │
        ▼
 Backend creates backup (if enabled)
        │
        ▼
 Backend executes: adb shell pm uninstall --user 0 {package}
+       │
+       ▼
+Backend → Electron (stdout)
        │
        ▼
 Frontend shows success/error toast
@@ -228,14 +252,15 @@ Frontend shows success/error toast
 
 ### Backend Architecture
 
-- **RESTful API**: Clear endpoint structure matching resources
+- **IPC Communication**: JSON over stdin/stdout (not HTTP)
+- **Persistent Process**: Stays alive for app lifetime, spawned by Electron
 - **Separation of Concerns**: 
-  - `main.py` → Routes & API
+  - `main.py` → Command router & IPC handler
   - `adb_operations.py` → ADB logic
   - `ai_advisor.py` → AI logic
   - `backup_manager.py` → Backup logic
-- **Type Validation**: Pydantic models for request/response validation
-- **Error Handling**: Consistent error responses across all endpoints
+- **Type Definitions**: Python type hints for clarity
+- **Error Handling**: Consistent error responses across all commands
 
 ### Communication Flow
 
@@ -246,11 +271,15 @@ Custom Hook (useDeviceMonitor)
       ↓
 Utility Function (api.ts)
       ↓
-Fetch API → HTTP Request
+Electron IPC (preload.js)
       ↓
-FastAPI Backend → Process
+Main Process (main.js)
       ↓
-Response → JSON
+Python Backend (stdin/stdout)
+      ↓
+ADB / Perplexity API
+      ↓
+Response back up the chain
       ↓
 Frontend State Update
       ↓
@@ -270,7 +299,7 @@ npm run dev
 **What happens:**
 1. Vite dev server starts (frontend) → `localhost:5173`
 2. Electron starts in dev mode
-3. Backend must be started manually: `cd backend-python && python main.py`
+3. Backend is automatically spawned by Electron via IPC
 4. Hot reloading enabled for frontend
 
 ### Production Build
@@ -315,32 +344,67 @@ npm run build
 
 | File | Purpose |
 |------|---------|
-| `main.py` | FastAPI app, routes, CORS, startup/shutdown |
+| `main.py` | Persistent backend process, command router (stdin/stdout) |
 | `adb_operations.py` | All ADB commands wrapped in Python functions |
 | `ai_advisor.py` | Perplexity API client, safety analysis logic |
 | `backup_manager.py` | JSON backup creation, restore functionality |
 
 ---
 
-## 🌐 API Endpoints
+## 🔌 IPC Commands
 
-### Device Management
-- `GET /api/device/status` - Check if device connected
-- `GET /api/device/info` - Get device model, Android version
+The backend communicates via JSON over stdin/stdout (not HTTP). Each command is a JSON object:
 
-### Package Management
-- `GET /api/packages` - List all installed packages
-- `DELETE /api/packages/{package_name}` - Uninstall package
-- `POST /api/packages/{package_name}/restore` - Reinstall package
+```json
+{
+  "id": "unique-request-id",
+  "command": "command_name",
+  "args": { /* command-specific arguments */ }
+}
+```
 
-### AI Features
-- `POST /api/ai/analyze-package` - Get AI advice for package
-- `POST /api/ai/chat` - Chat with AI assistant
+### Available Commands
 
-### Backup
-- `GET /api/backups` - List all backups
-- `POST /api/backups` - Create new backup
-- `POST /api/backups/restore` - Restore from backup
+#### Device Management
+- `get_device_info` - Get device model, Android version, serial
+  - Args: None
+  - Returns: `DeviceInfo | null`
+
+#### Package Management
+- `list_packages` - List all installed packages
+  - Args: `{ type?: "all" | "system" | "user" }`
+  - Returns: `Package[]`
+- `uninstall_package` - Uninstall package
+  - Args: `{ packageName: string }`
+  - Returns: `{ success: boolean, error?: string }`
+- `reinstall_package` - Reinstall package
+  - Args: `{ packageName: string }`
+  - Returns: `{ success: boolean, error?: string }`
+
+#### AI Features
+- `analyze_package` - Get AI advice for package
+  - Args: `{ packageName: string }`
+  - Returns: AI analysis object
+- `chat_message` - Chat with AI assistant
+  - Args: `{ message: string, history: ChatMessage[] }`
+  - Returns: `{ response: string }`
+
+#### Backup Management
+- `list_backups` - List all backups
+  - Args: None
+  - Returns: `BackupInfo[]`
+- `create_backup` - Create new backup
+  - Args: `{ packages: Package[], deviceInfo: DeviceInfo }`
+  - Returns: `{ success: boolean, error?: string }`
+- `restore_backup` - Restore from backup
+  - Args: `{ backupName: string }`
+  - Returns: `{ success: boolean, error?: string }`
+- `delete_backup` - Delete a backup
+  - Args: `{ backupName: string }`
+  - Returns: `{ success: boolean, error?: string }`
+- `get_backup_path` - Get backup directory path
+  - Args: None
+  - Returns: `{ path: string }`
 
 ---
 
@@ -419,11 +483,15 @@ Cmd+Option+I (macOS)
 
 ### Debugging Backend
 ```bash
-# Look at FastAPI logs
+# The backend runs as a subprocess spawned by Electron
+# View backend output in Electron's terminal or console
+# In development: Check the terminal where you ran `npm run dev`
+
+# Manual testing (standalone):
 cd backend-python
 python main.py
-# Backend runs on http://localhost:8000
-# API docs at http://localhost:8000/docs
+# Backend expects JSON commands via stdin
+# Outputs JSON responses via stdout
 ```
 
 ### Testing ADB Commands

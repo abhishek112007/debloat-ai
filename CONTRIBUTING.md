@@ -135,7 +135,7 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed architecture documentation.
 - `frontend/src/components/` - React UI components
 - `frontend/src/hooks/` - Custom React hooks
 - `frontend/src/utils/` - Helper functions
-- `backend-python/` - FastAPI backend
+- `backend-python/` - Python backend (IPC communication)
 - `electron/` - Electron main process
 
 ---

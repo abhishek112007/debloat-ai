@@ -1,5 +1,5 @@
 """
-API Wrapper for Electron
+API Type Definitions for Electron IPC Communication
 Replaces Tauri invoke() calls with Electron IPC
 """
 from typing import TypedDict, List, Dict, Optional, Any

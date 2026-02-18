@@ -1,15 +1,16 @@
 # Python Backend Requirements
 # Install with: pip install -r requirements.txt
 
-# Core dependencies
-requests>=2.31.0
-python-dotenv>=1.0.0
+# Core dependencies for AI integration
+requests>=2.31.0          # HTTP client for Perplexity API calls
+python-dotenv>=1.0.0      # Environment variable management (.env file)
 
-# Optional: Use python-adb instead of subprocess (more reliable)
-# adb-shell>=0.4.0
-# pure-python-adb>=0.3.0
+# Optional: Alternative ADB libraries (not currently used)
+# adb-shell>=0.4.0        # Pure Python ADB implementation
+# pure-python-adb>=0.3.0  # Alternative ADB library
 
 # Development dependencies (optional)
-# pytest>=7.4.0
-# black>=23.0.0
-# pylint>=2.17.0
+# pytest>=7.4.0           # Testing framework
+# black>=23.0.0           # Code formatter
+# pylint>=2.17.0          # Linter
+# mypy>=1.0.0             # Type checking

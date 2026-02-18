@@ -209,11 +209,11 @@ adb --version
 If you prefer to build from source or the pre-built installers don't work:
 
 ```bash
-# Prerequisites: Node.js 16+, Rust stable, ADB
+# Prerequisites: Node.js 18+, Python 3.10+, ADB
 git clone https://github.com/abhishek112007/debloat-ai.git
 cd debloat-ai
 npm install
-npm run build:release
+npm run build
 ```
 
 See the main [README.md](README.md) for detailed development setup.
