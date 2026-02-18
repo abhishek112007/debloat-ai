@@ -6,10 +6,16 @@
 
 **Safely remove bloatware from your Android devices using ADB + AI intelligence**
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub release](https://img.shields.io/github/v/release/abhishek112007/debloat-ai)](https://github.com/abhishek112007/debloat-ai/releases)
+[![GitHub issues](https://img.shields.io/github/issues/abhishek112007/debloat-ai)](https://github.com/abhishek112007/debloat-ai/issues)
+[![GitHub stars](https://img.shields.io/github/stars/abhishek112007/debloat-ai)](https://github.com/abhishek112007/debloat-ai/stargazers)
+
 [![Electron](https://img.shields.io/badge/Electron-28.0-47848F.svg)](https://www.electronjs.org)
 [![React](https://img.shields.io/badge/React-18.2-61DAFB.svg)](https://react.dev)
-[![Python](https://img.shields.io/badge/Python-3.14-3776AB.svg)](https://www.python.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org)
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB.svg)](https://www.python.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178C6.svg)](https://www.typescriptlang.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-009688.svg)](https://fastapi.tiangolo.com)
 
 [Features](#-features) • [Installation](#-installation) • [Usage](#-how-to-use) • [AI Features](#-ai-features) • [Contributing](#-contributing)
 

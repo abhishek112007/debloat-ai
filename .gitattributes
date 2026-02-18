@@ -1,0 +1,14 @@
+# GitHub language detection configuration
+# This ensures GitHub shows accurate language statistics
+
+# Mark vendored/generated code as vendored (excluded from stats)
+build-output/** linguist-vendored
+dist/** linguist-vendored
+frontend/dist/** linguist-vendored
+node_modules/** linguist-vendored
+
+# Documentation files
+*.md linguist-documentation
+
+# Ignore Rust files from language statistics (migrated to Python)
+*.rs linguist-vendored
