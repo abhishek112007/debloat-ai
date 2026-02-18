@@ -15,10 +15,19 @@ import {
   staggerItem,
 } from '../utils/animations';
 
-const DevicePanel: React.FC = () => {
+interface DevicePanelProps {
+  onRefresh?: () => void;
+}
+
+const DevicePanel: React.FC<DevicePanelProps> = ({ onRefresh }) => {
   const { device, isConnected, loading, refresh } = useDeviceMonitor();
   const { theme } = useTheme();
   const isLightMode = theme === 'light';
+
+  const handleRefresh = () => {
+    refresh(); // Refresh device info
+    onRefresh?.(); // Trigger package list refresh
+  };
 
   // Card style based on theme
   const cardStyle = {
@@ -330,7 +339,7 @@ const DevicePanel: React.FC = () => {
       {/* Refresh Button */}
       <motion.button
         type="button"
-        onClick={refresh}
+        onClick={handleRefresh}
         disabled={loading}
         className="mt-6 w-full btn-primary text-sm flex items-center justify-center gap-2 group disabled:hover:translate-y-0 overflow-hidden relative"
         whileHover={{ 

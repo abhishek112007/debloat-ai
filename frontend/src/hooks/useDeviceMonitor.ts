@@ -40,8 +40,8 @@ export const useDeviceMonitor = () => {
     // Check immediately
     checkDevice();
 
-    // Auto-refresh every 3 seconds
-    const interval = setInterval(checkDevice, 3000);
+    // Auto-refresh every 5 seconds (reduced from 3s to lower CPU/IPC overhead)
+    const interval = setInterval(checkDevice, 5000);
 
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps

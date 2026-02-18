@@ -289,6 +289,38 @@
                 0 4px 16px var(--theme-shadow);
     background: var(--theme-card);
   }
+  
+  /* Package card hover - CSS-based for GPU acceleration */
+  .package-card-hover:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.03);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08) !important;
+  }
+  .package-card-hover:active {
+    transform: scale(0.98);
+  }
+
+  /* Package fade-in animation */
+  .pkg-fade-in {
+    animation: pkgFadeIn 0.15s ease-out both;
+  }
+  @keyframes pkgFadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* AI Advisor button hover */
+  .ai-advisor-btn {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .ai-advisor-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(88, 166, 175, 0.25);
+  }
+  .ai-advisor-btn:active {
+    transform: scale(0.95);
+  }
+
   /* Checkbox Styles with Microinteractions */
   .checkbox-modern {
     border-color: var(--theme-border);

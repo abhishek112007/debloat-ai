@@ -123,8 +123,14 @@ const App: React.FC = () => {
   const [filterBySafety, setFilterBySafety] = useState<string | null>(null);
   const [packageData, setPackageData] = useState<Array<{packageName: string; safetyLevel: string}>>([]);
   const [aiAdvisorPackage, setAiAdvisorPackage] = useState<string | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   
   const isLightMode = theme === 'light';
+  
+  // Trigger package list refresh
+  const handleRefresh = () => {
+    setRefreshTrigger(prev => prev + 1);
+  };
 
   // Add notification
   const addNotification = (message: string, type: 'success' | 'error' | 'info') => {
@@ -318,36 +324,7 @@ const App: React.FC = () => {
           border: isLightMode ? '1px solid rgba(0, 0, 0, 0.05)' : '1px solid rgba(255, 255, 255, 0.08)',
           borderRadius: '12px'
         }}>
-          {/* Selection Summary - Only show when active */}
-          {selectedPackages.size > 0 && (
-            <div className="mb-5 p-4 rounded-xl transition-all duration-300 device-connected-pulse" style={{
-              background: 'rgba(46, 196, 182, 0.08)',
-              boxShadow: '0 0 20px rgba(46, 196, 182, 0.12)',
-              border: '1px solid rgba(46, 196, 182, 0.15)'
-            }}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="status-dot status-connected" />
-                  <span className="text-sm font-semibold" style={{color: 'var(--theme-accent)'}}>Active Selection</span>
-                </div>
-                <button
-                  onClick={() => setSelectedPackages(new Set())}
-                  className="p-1.5 rounded-lg transition-all duration-200 hover:bg-white/5"
-                  title="Clear selection"
-                >
-                  <FiX className="w-4 h-4 transition-transform duration-200 hover:rotate-90" style={{color: 'var(--theme-accent)'}} />
-                </button>
-              </div>
-              <div className="text-3xl font-bold mb-1" style={{color: 'var(--theme-accent)'}}>
-                {selectedPackages.size}
-              </div>
-              <div className="text-xs opacity-70" style={{color: 'var(--theme-accent)'}}>
-                package{selectedPackages.size !== 1 ? 's' : ''} selected
-              </div>
-            </div>
-          )}
-          
-          <DevicePanel />
+          <DevicePanel onRefresh={handleRefresh} />
         </aside>
 
         {/* Main Content - Floating Panel */}
@@ -506,6 +483,7 @@ const App: React.FC = () => {
               filterBySafety={filterBySafety}
               onPackageDataChange={setPackageData}
               onAiAdvisorOpen={setAiAdvisorPackage}
+              refreshTrigger={refreshTrigger}
             />
           )}
         </main>

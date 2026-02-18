@@ -6,9 +6,9 @@
 
 **Safely remove bloatware from your Android devices using ADB + AI intelligence**
 
-[![Tauri](https://img.shields.io/badge/Tauri-2.0-24C8D8.svg)](https://tauri.app)
+[![Electron](https://img.shields.io/badge/Electron-28.0-47848F.svg)](https://www.electronjs.org)
 [![React](https://img.shields.io/badge/React-18.2-61DAFB.svg)](https://react.dev)
-[![Rust](https://img.shields.io/badge/Rust-2021-orange.svg)](https://www.rust-lang.org)
+[![Python](https://img.shields.io/badge/Python-3.14-3776AB.svg)](https://www.python.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org)
 
 [Features](#-features) • [Installation](#-installation) • [Usage](#-how-to-use) • [AI Features](#-ai-features) • [Contributing](#-contributing)

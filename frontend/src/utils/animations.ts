@@ -288,19 +288,19 @@ export const packageListContainer = {
   show: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.03,
-      delayChildren: 0.05
+      staggerChildren: 0.015,
+      delayChildren: 0.02
     }
   }
 };
 
 export const packageListItem = {
-  hidden: { opacity: 0, y: 10 },
+  hidden: { opacity: 0, y: 6 },
   show: { 
     opacity: 1, 
     y: 0,
     transition: {
-      duration: 0.25,
+      duration: 0.15,
       ease: easings.smooth
     }
   }

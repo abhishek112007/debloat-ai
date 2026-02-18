@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { api, Package } from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDeviceMonitor } from '../hooks/useDeviceMonitor';
@@ -13,10 +13,6 @@ import {
   FiXOctagon,
   FiInfo,
 } from 'react-icons/fi';
-import {
-  packageListContainer,
-  packageListItem,
-} from '../utils/animations';
 
 type SafetyLevel = Package['safetyLevel'];
 
@@ -36,6 +32,7 @@ interface PackageListProps {
   filterBySafety?: string | null;
   onPackageDataChange?: (packages: Array<{packageName: string; safetyLevel: string}>) => void;
   onAiAdvisorOpen?: (packageName: string) => void;
+  refreshTrigger?: number;
 }
 
 const PackageList: React.FC<PackageListProps> = ({
@@ -45,6 +42,7 @@ const PackageList: React.FC<PackageListProps> = ({
   filterBySafety,
   onPackageDataChange,
   onAiAdvisorOpen,
+  refreshTrigger,
 }) => {
   const { theme } = useTheme();
   const isLightMode = theme === 'light';
@@ -90,6 +88,14 @@ const PackageList: React.FC<PackageListProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected, deviceId]);
 
+  // Refresh packages when refreshTrigger changes (manual refresh from DevicePanel)
+  useEffect(() => {
+    if (refreshTrigger && refreshTrigger > 0 && isConnected && deviceId) {
+      fetchPackages();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshTrigger]);
+
   // Update stats whenever packages change
   useEffect(() => {
     const stats: PackageStats = {
@@ -103,23 +109,26 @@ const PackageList: React.FC<PackageListProps> = ({
     onStatsChange(stats);
   }, [packages, selectedPackages, onStatsChange]);
 
-  const filtered = packages.filter((pkg) => {
-    // Search filter
-    const matchesSearch =
-      pkg.packageName.toLowerCase().includes(search.toLowerCase()) ||
-      pkg.appName.toLowerCase().includes(search.toLowerCase());
-    
-    if (!matchesSearch) return false;
-    
-    // Safety level filter
-    if (filterBySafety) {
-      return pkg.safetyLevel === filterBySafety;
-    }
-    
-    return true;
-  });
+  const filtered = useMemo(() => {
+    const searchLower = search.toLowerCase();
+    return packages.filter((pkg) => {
+      // Search filter
+      const matchesSearch =
+        pkg.packageName.toLowerCase().includes(searchLower) ||
+        pkg.appName.toLowerCase().includes(searchLower);
+      
+      if (!matchesSearch) return false;
+      
+      // Safety level filter
+      if (filterBySafety) {
+        return pkg.safetyLevel === filterBySafety;
+      }
+      
+      return true;
+    });
+  }, [packages, search, filterBySafety]);
 
-  const toggleSelect = (packageName: string) => {
+  const toggleSelect = useCallback((packageName: string) => {
     const newSet = new Set(selectedPackages);
     if (newSet.has(packageName)) {
       newSet.delete(packageName);
@@ -127,7 +136,7 @@ const PackageList: React.FC<PackageListProps> = ({
       newSet.add(packageName);
     }
     onSelectionChange(newSet);
-  };
+  }, [selectedPackages, onSelectionChange]);
 
   const getSafetyStyles = (level: SafetyLevel): string => {
     switch (level) {
@@ -160,14 +169,22 @@ const PackageList: React.FC<PackageListProps> = ({
   };
 
   return (
-    <div className="w-full glass-card-float text-gray-800 dark:text-text-primary p-5 md:p-6 animate-scale-in">
+    <div className="w-full p-5 md:p-6" style={{
+      background: isLightMode 
+        ? 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.75) 100%)'
+        : 'linear-gradient(135deg, rgba(26,26,26,0.85) 0%, rgba(20,20,20,0.85) 100%)',
+      backdropFilter: 'blur(20px)',
+      borderRadius: '16px',
+      border: isLightMode ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255,255,255,0.08)',
+      boxShadow: isLightMode ? '0 4px 16px rgba(0,0,0,0.06)' : '0 4px 16px rgba(0,0,0,0.3)',
+    }}>
       {/* Minimal Header */}
       <div className="mb-5">
-        <h3 className="text-base font-semibold text-gray-900 dark:text-text-primary flex items-center gap-2.5 transition-colors duration-250">
-          <FiPackage className="w-4 h-4 text-accent" />
+        <h3 className="text-base font-semibold flex items-center gap-2.5" style={{ color: isLightMode ? '#1A1A1A' : '#FFFFFF' }}>
+          <FiPackage className="w-4 h-4" style={{ color: isLightMode ? '#2EC4B6' : '#58A6AF' }} />
           Packages
         </h3>
-        <p className="text-xs text-gray-500 dark:text-text-tertiary mt-1.5 transition-colors duration-250">
+        <p className="text-xs mt-1.5" style={{ color: isLightMode ? '#666666' : '#A0A0A0' }}>
           {filtered.length} of {packages.length} shown
         </p>
       </div>
@@ -175,7 +192,7 @@ const PackageList: React.FC<PackageListProps> = ({
       {/* Minimal Search Bar */}
       <div className="relative mb-5 group">
         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-          <FiSearch className="w-4 h-4 text-gray-400 group-focus-within:text-accent transition-all duration-250" />
+          <FiSearch className="w-4 h-4" style={{ color: isLightMode ? '#999999' : '#A0A0A0' }} />
         </div>
         <input
           type="text"
@@ -183,12 +200,13 @@ const PackageList: React.FC<PackageListProps> = ({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={{
-            backgroundColor: isLightMode ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.03)',
-            border: isLightMode ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.08)',
+            backgroundColor: isLightMode ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.05)',
+            border: isLightMode ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255,255,255,0.10)',
             borderRadius: '10px',
             padding: '10px 40px 10px 38px',
             width: '100%',
             fontSize: '14px',
+            color: isLightMode ? '#1A1A1A' : '#FFFFFF',
             outline: 'none',
             transition: 'all 250ms ease',
           }}
@@ -206,8 +224,8 @@ const PackageList: React.FC<PackageListProps> = ({
         {search && (
           <button
             onClick={() => setSearch('')}
-            className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-accent transition-all duration-250"
-            style={{ transform: 'scale(1)' }}
+            className="absolute inset-y-0 right-0 pr-3.5 flex items-center transition-all duration-250"
+            style={{ color: isLightMode ? '#999999' : '#A0A0A0', transform: 'scale(1)' }}
             onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
             aria-label="Clear search"
@@ -222,73 +240,48 @@ const PackageList: React.FC<PackageListProps> = ({
               key={i} 
               className="h-14 rounded-xl animate-pulse" 
               style={{
-                background: 'rgba(255,255,255,0.02)',
+                background: isLightMode ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)',
                 animationDelay: `${i * 80}ms`
               }} 
             />
           ))}
         </div>
       ) : (
-        <div className="space-y-2 animate-scale-in">
+        <div className="space-y-2">
           {filtered.length === 0 ? (
-            <div className="px-4 py-12 text-center animate-fade-in">
-              <FiPackage className="w-12 h-12 mx-auto mb-3 text-gray-400 dark:text-gray-600 opacity-50" />
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors duration-250">No packages found</p>
-              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1 transition-colors duration-250">Try adjusting your search</p>
+            <div className="px-4 py-12 text-center">
+              <FiPackage className="w-12 h-12 mx-auto mb-3 opacity-50" style={{ color: isLightMode ? '#999999' : '#A0A0A0' }} />
+              <p className="text-sm font-medium" style={{ color: isLightMode ? '#666666' : '#A0A0A0' }}>No packages found</p>
+              <p className="text-xs mt-1" style={{ color: isLightMode ? '#999999' : '#888888' }}>Try adjusting your search</p>
             </div>
           ) : (
-            <motion.div
-              variants={packageListContainer}
-              initial="hidden"
-              animate="show"
-              className="space-y-2"
-            >
+            <div className="space-y-2">
               {filtered.map((pkg) => {
                 const isSelected = selectedPackages.has(pkg.packageName);
                 
                 return (
-                  <motion.div
+                  <div
                     key={pkg.packageName}
-                    variants={packageListItem}
-                    layout
+                    className="package-card-hover pkg-fade-in"
+                    style={{
+                      background: isSelected 
+                        ? (isLightMode 
+                            ? 'linear-gradient(135deg, rgba(46,196,182,0.15) 0%, rgba(46,196,182,0.10) 100%)'
+                            : 'linear-gradient(135deg, rgba(88,166,175,0.15) 0%, rgba(88,166,175,0.10) 100%)')
+                        : (isLightMode ? 'rgba(255,255,255,0.7)' : 'rgba(40,40,40,0.6)'),
+                      border: isLightMode ? '1px solid rgba(0,0,0,0.10)' : '1px solid rgba(255,255,255,0.10)',
+                      borderRadius: '12px',
+                      padding: '14px 16px',
+                      cursor: 'pointer',
+                      boxShadow: isSelected
+                        ? (isLightMode 
+                            ? '0 0 18px rgba(46,196,182,0.20), 0 4px 14px rgba(0,0,0,0.08)'
+                            : '0 0 18px rgba(88,166,175,0.15), 0 4px 14px rgba(0,0,0,0.06)')
+                        : (isLightMode ? '0 2px 8px rgba(0,0,0,0.06)' : '0 2px 8px rgba(0,0,0,0.04)'),
+                      transition: 'all 0.15s ease',
+                    }}
+                    onClick={() => toggleSelect(pkg.packageName)}
                   >
-                    {/* Glassmorphic Chip Card */}
-                    <motion.div
-                      style={{
-                        background: isSelected 
-                          ? (isLightMode 
-                              ? 'linear-gradient(135deg, rgba(46,196,182,0.12) 0%, rgba(46,196,182,0.08) 100%)'
-                              : 'linear-gradient(135deg, rgba(88,166,175,0.12) 0%, rgba(88,166,175,0.08) 100%)')
-                          : (isLightMode ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)'),
-                        border: isLightMode ? '1px solid rgba(0,0,0,0.05)' : 'none',
-                        borderRadius: '12px',
-                        padding: '14px 16px',
-                        cursor: 'pointer',
-                        boxShadow: isSelected
-                          ? (isLightMode 
-                              ? '0 0 16px rgba(46,196,182,0.15), 0 4px 12px rgba(0,0,0,0.06)'
-                              : '0 0 16px rgba(88,166,175,0.12), 0 4px 12px rgba(0,0,0,0.04)')
-                          : (isLightMode ? '0 2px 6px rgba(0,0,0,0.04)' : '0 2px 6px rgba(0,0,0,0.02)'),
-                      }}
-                      onClick={() => toggleSelect(pkg.packageName)}
-                      whileHover={{
-                        y: -2,
-                        boxShadow: isSelected
-                          ? (isLightMode 
-                              ? '0 0 20px rgba(46,196,182,0.20), 0 6px 16px rgba(0,0,0,0.08)'
-                              : '0 0 20px rgba(88,166,175,0.18), 0 6px 16px rgba(0,0,0,0.06)')
-                          : (isLightMode 
-                              ? '0 0 12px rgba(46,196,182,0.10), 0 4px 10px rgba(0,0,0,0.06)'
-                              : '0 0 12px rgba(88,166,175,0.08), 0 4px 10px rgba(0,0,0,0.04)'),
-                        background: isSelected
-                          ? (isLightMode
-                              ? 'linear-gradient(135deg, rgba(46,196,182,0.16) 0%, rgba(46,196,182,0.10) 100%)'
-                              : 'linear-gradient(135deg, rgba(88,166,175,0.16) 0%, rgba(88,166,175,0.10) 100%)')
-                          : (isLightMode ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.04)'),
-                        transition: { duration: 0.2 }
-                      }}
-                      whileTap={{ scale: 0.98 }}
-                    >
                     <div className="flex items-center gap-3">
                       {/* Checkbox */}
                       <input
@@ -298,45 +291,46 @@ const PackageList: React.FC<PackageListProps> = ({
                           e.stopPropagation();
                           toggleSelect(pkg.packageName);
                         }}
-                        className="checkbox-modern flex-shrink-0"
+                        className="flex-shrink-0"
+                        style={{
+                          width: '20px',
+                          height: '20px',
+                          accentColor: isLightMode ? '#2EC4B6' : '#58A6AF',
+                          cursor: 'pointer',
+                          border: `2px solid ${isLightMode ? '#2EC4B6' : '#58A6AF'}`,
+                          borderRadius: '4px',
+                        }}
                         onClick={(e) => e.stopPropagation()}
                       />
                       
                       {/* Package Info */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <FiPackage className="w-3.5 h-3.5 text-accent flex-shrink-0" />
-                          <span className="text-sm font-semibold text-gray-900 dark:text-text-primary truncate">
+                          <FiPackage className="w-3.5 h-3.5 flex-shrink-0" style={{ color: isLightMode ? '#2EC4B6' : '#58A6AF' }} />
+                          <span className="text-sm font-semibold truncate" style={{ color: isLightMode ? '#0F0F0F' : '#FFFFFF', fontWeight: '600' }}>
                             {pkg.appName}
                           </span>
                         </div>
-                        <div className="text-xs font-mono text-gray-500 dark:text-text-tertiary truncate">
+                        <div className="text-xs font-mono truncate" style={{ color: isLightMode ? '#525252' : '#A0A0A0' }}>
                           {pkg.packageName}
                         </div>
                       </div>
                       
                       {/* AI Advisor Button */}
-                      <motion.button
+                      <button
                         onClick={(e) => {
                           e.stopPropagation();
                           onAiAdvisorOpen?.(pkg.packageName);
                         }}
-                        className="flex-shrink-0 p-2 rounded-lg"
+                        className="flex-shrink-0 p-2 rounded-lg ai-advisor-btn"
                         style={{
-                          background: isLightMode ? 'rgba(46, 196, 182, 0.12)' : 'rgba(88, 166, 175, 0.12)',
-                          border: isLightMode ? '1px solid rgba(46, 196, 182, 0.15)' : 'none',
+                          background: isLightMode ? 'rgba(46, 196, 182, 0.15)' : 'rgba(88, 166, 175, 0.15)',
+                          border: isLightMode ? '1px solid rgba(46, 196, 182, 0.20)' : '1px solid rgba(88, 166, 175, 0.20)',
                         }}
-                        whileHover={{
-                          scale: 1.1,
-                          boxShadow: isLightMode 
-                            ? '0 4px 12px rgba(46, 196, 182, 0.25)'
-                            : '0 4px 12px rgba(88, 166, 175, 0.25)',
-                        }}
-                        whileTap={{ scale: 0.95 }}
                         title="AI Safety Analysis"
                       >
-                        <FiZap className="w-4 h-4" style={{ color: 'var(--theme-accent)' }} />
-                      </motion.button>
+                        <FiZap className="w-4 h-4" style={{ color: isLightMode ? '#2EC4B6' : '#58A6AF' }} />
+                      </button>
                       
                       {/* Safety Badge */}
                       <div className="flex-shrink-0">
@@ -352,11 +346,10 @@ const PackageList: React.FC<PackageListProps> = ({
                         </span>
                       </div>
                     </div>
-                  </motion.div>
-                </motion.div>
+                  </div>
               );
             })}
-            </motion.div>
+            </div>
           )}
         </div>
       )}

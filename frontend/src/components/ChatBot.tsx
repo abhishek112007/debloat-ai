@@ -46,25 +46,45 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
 
   // Initialize speech recognition
   useEffect(() => {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = false;
-      recognitionRef.current.interimResults = false;
-      
-      recognitionRef.current.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        setInput(transcript);
-        setIsRecording(false);
-      };
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      try {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+        recognition.maxAlternatives = 1;
+        
+        recognition.onresult = (event: any) => {
+          const results = event.results;
+          if (results.length > 0) {
+            const transcript = results[results.length - 1][0].transcript;
+            setInput(transcript);
+            // Auto-stop when we get a final result
+            if (results[results.length - 1].isFinal) {
+              setIsRecording(false);
+            }
+          }
+        };
 
-      recognitionRef.current.onerror = () => {
-        setIsRecording(false);
-      };
+        recognition.onerror = (event: any) => {
+          console.error('Speech recognition error:', event.error);
+          setIsRecording(false);
+          if (event.error === 'not-allowed') {
+            alert('Microphone access denied. Please allow microphone permission.');
+          } else if (event.error === 'network') {
+            alert('Speech recognition requires internet connection.');
+          }
+        };
 
-      recognitionRef.current.onend = () => {
-        setIsRecording(false);
-      };
+        recognition.onend = () => {
+          setIsRecording(false);
+        };
+
+        recognitionRef.current = recognition;
+      } catch (err) {
+        console.error('Failed to initialize speech recognition:', err);
+      }
     }
   }, []);
 
@@ -118,16 +138,28 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
   // Voice input toggle
   const toggleVoiceInput = () => {
     if (!recognitionRef.current) {
-      alert('Speech recognition is not supported in your browser');
+      alert('Speech recognition is not supported in this app. Please type your message instead.');
       return;
     }
 
     if (isRecording) {
-      recognitionRef.current.stop();
+      try {
+        recognitionRef.current.stop();
+      } catch (e) { /* ignore */ }
       setIsRecording(false);
     } else {
-      recognitionRef.current.start();
-      setIsRecording(true);
+      try {
+        recognitionRef.current.start();
+        setIsRecording(true);
+      } catch (err: any) {
+        console.error('Failed to start speech recognition:', err);
+        setIsRecording(false);
+        if (err?.message?.includes('already started')) {
+          recognitionRef.current.stop();
+        } else {
+          alert('Could not start voice input. Please check microphone permissions.');
+        }
+      }
     }
   };
 

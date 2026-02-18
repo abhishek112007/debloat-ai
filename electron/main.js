@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, session } = require('electron');
 const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
@@ -104,14 +104,20 @@ function startPythonProcess() {
 // Send a command and get back a promise
 function callPython(command, args = {}) {
   return new Promise((resolve, reject) => {
-    if (!pythonProcess || !pythonReady) {
-      return reject(new Error('Python backend not ready'));
-    }
-    const id = ++requestId;
-    pendingRequests.set(id, { resolve, reject });
-
-    const payload = JSON.stringify({ id, command, args }) + '\n';
-    pythonProcess.stdin.write(payload);
+    // Wait up to 15 seconds for backend to become ready
+    const waitForReady = (elapsed = 0) => {
+      if (pythonProcess && pythonReady) {
+        const id = ++requestId;
+        pendingRequests.set(id, { resolve, reject });
+        const payload = JSON.stringify({ id, command, args }) + '\n';
+        pythonProcess.stdin.write(payload);
+      } else if (elapsed >= 15000) {
+        reject(new Error('Python backend not ready after 15s'));
+      } else {
+        setTimeout(() => waitForReady(elapsed + 200), 200);
+      }
+    };
+    waitForReady();
   });
 }
 
@@ -139,8 +145,7 @@ function createWindow() {
 
   if (process.env.NODE_ENV === 'development') {
     mainWindow.loadURL('http://localhost:5173');
-    // DevTools disabled – uncomment below only when debugging:
-    // mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(__dirname, '../frontend/dist/index.html'));
   }
@@ -151,6 +156,12 @@ function createWindow() {
 
 // ── App lifecycle ────────────────────────────────────────────────────
 app.whenReady().then(() => {
+  // Grant microphone permission for voice input in chatbot
+  session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
+    const allowed = ['media', 'microphone', 'clipboard-read', 'clipboard-sanitized-write'];
+    callback(allowed.includes(permission));
+  });
+
   startPythonProcess();
   createWindow();
 
