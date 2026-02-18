@@ -1,35 +1,134 @@
+# ========================================
 # Dependencies
+# ========================================
 node_modules/
+frontend/node_modules/
 package-lock.json
+frontend/package-lock.json
 
-# Build outputs
+# Python virtual environment
+.venv/
+venv/
+env/
+ENV/
+
+# ========================================
+# Build Outputs
+# ========================================
 dist/
 frontend/dist/
 build-output/
+out/
+release/
 
+# Electron builder outputs
+*.exe
+*.dmg
+*.AppImage
+*.deb
+*.rpm
+*.snap
+
+# ========================================
 # Python
-.venv/
+# ========================================
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist-python/
+build/
+*.egg
 
+# PyInstaller
+*.manifest
+*.spec.bak
+
+# ========================================
 # Logs
+# ========================================
 *.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
 
-# Editor
-.vscode/*
-!.vscode/extensions.json
-.idea/
-.DS_Store
-*.suo
-*.sw?
-
-# Environment files
+# ========================================
+# Environment Variables
+# ========================================
 .env
 .env.*
+!.env.example
 backend-python/.env
 
-# OS
+# ========================================
+# IDE & Editor
+# ========================================
+# VS Code
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.iws
+
+# Vim
+*.swp
+*.swo
+*.sw?
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ========================================
+# OS Files
+# ========================================
+# Windows
 Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Linux
+*~
+
+# ========================================
+# Testing
+# ========================================
+coverage/
+.nyc_output/
+.pytest_cache/
+htmlcov/
+
+# ========================================
+# Temporary Files
+# ========================================
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# ========================================
+# Project Specific
+# ========================================
+# Backup files created by the app
+backups/*.json
+
+# Platform tools (bundled separately)
+platform-tools/
+
+# Documentation drafts
 ICON_GENERATION_GUIDE.md
-docs/
