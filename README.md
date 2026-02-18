@@ -228,11 +228,13 @@ Open the chatbot to ask questions in natural language:
 ### Setting Up AI (Optional)
 
 1. Get an API key from [Perplexity AI](https://www.perplexity.ai/settings/api)
-2. Create a `.env` file in `backend/tauri/`:
+2. Create a `.env` file in the project root:
    ```
    PERPLEXITY_API_KEY=your_key_here
    ```
 3. Restart the application
+
+> **Note**: The backend will automatically load the API key from the `.env` file.
 
 ---
 
@@ -246,41 +248,59 @@ debloat-ai/
 │   │   ├── App.tsx                # Main application component
 │   │   ├── types.ts               # TypeScript interfaces
 │   │   │
-│   │   ├── 📁 components/
+│   │   ├── 📁 components/         # React components
 │   │   │   ├── DevicePanel.tsx    # Device connection status
 │   │   │   ├── PackageList.tsx    # Package list with filtering
 │   │   │   ├── AIPackageAdvisor.tsx # AI analysis sidebar
 │   │   │   ├── ChatBot.tsx        # AI chatbot interface
+│   │   │   ├── FloatingChat.tsx   # Floating chat button
 │   │   │   ├── BackupManager.tsx  # Backup/restore UI
+│   │   │   ├── Settings.tsx       # App settings
 │   │   │   └── ThemeSelector.tsx  # Theme picker
 │   │   │
 │   │   ├── 📁 hooks/              # Custom React hooks
 │   │   │   ├── useDeviceMonitor.ts
 │   │   │   ├── usePackageAdvisor.ts
-│   │   │   └── useDarkMode.ts
+│   │   │   ├── useDarkMode.ts
+│   │   │   └── useToast.tsx
 │   │   │
 │   │   ├── 📁 utils/              # Utility functions
+│   │   │   ├── api.ts             # Backend API calls
+│   │   │   ├── filterUtils.ts     # Package filtering
+│   │   │   ├── storage.ts         # LocalStorage helpers
+│   │   │   └── themes.ts          # Theme definitions
+│   │   │
 │   │   └── 📁 styles/             # Component styles
 │   │
-│   └── vite.config.ts
+│   └── vite.config.ts             # Vite configuration
 │
-├── 📁 backend/tauri/               # Rust backend
-│   ├── src/
-│   │   ├── main.rs                # App entry point
-│   │   ├── lib.rs                 # Module exports
-│   │   ├── adb.rs                 # ADB communication
-│   │   ├── commands.rs            # Tauri IPC commands
-│   │   ├── package_database.rs    # Bloatware definitions
-│   │   ├── ai_advisor.rs          # Perplexity AI integration
-│   │   ├── chatbot.rs             # AI chatbot logic
-│   │   └── backup.rs              # Backup system
-│   │
-│   └── icons/                     # App icons (all platforms)
+├── 📁 backend-python/              # Python FastAPI Backend
+│   ├── main.py                    # FastAPI server & routes
+│   ├── adb_operations.py          # ADB command wrappers
+│   ├── ai_advisor.py              # Perplexity AI integration
+│   ├── backup_manager.py          # Backup/restore logic
+│   ├── api_types.py               # Pydantic models
+│   ├── requirements.txt           # Python dependencies
+│   └── test_backend.py            # Backend tests
 │
-├── 📁 docs/                        # Additional documentation
-├── package.json                   # NPM scripts & dependencies
-└── Cargo.toml                     # Rust workspace config
+├── 📁 electron/                    # Electron Main Process
+│   ├── main.js                    # Main process entry point
+│   └── preload.js                 # Preload script (IPC)
+│
+├── 📁 icons/                       # Application icons
+├── 📁 scripts/                     # Build scripts
+│   └── build-backend.js           # PyInstaller automation
+│
+├── 📄 README.md                   # You are here
+├── 📄 ARCHITECTURE.md             # Detailed code architecture
+├── 📄 CONTRIBUTING.md             # Contribution guidelines
+├── 📄 INSTALL.md                  # Installation instructions
+├── 📄 CHANGELOG.md                # Version history
+├── 📄 RELEASING.md                # Release process guide
+└── package.json                   # Main project configuration
 ```
+
+> **📚 For detailed architecture documentation, see [ARCHITECTURE.md](ARCHITECTURE.md)**
 
 ---
 
@@ -293,26 +313,30 @@ debloat-ai/
 | React 18.2 | UI Framework |
 | TypeScript 5.3 | Type Safety |
 | Tailwind CSS 3.4 | Styling |
-| Vite 5.0 | Build Tool |
-| Framer Motion | Animations |
-| Lucide React | Icons |
+| Vite 5.0 | Build Tool & Dev Server |
+
+### Desktop Framework
+
+| Technology | Purpose |
+|------------|---------|
+| Electron 28.0 | Cross-platform desktop app |
+| Node.js | Runtime environment |
 
 ### Backend
 
 | Technology | Purpose |
 |------------|---------|
-| Tauri 2.0 | Desktop Framework |
-| Rust (2021 Edition) | Backend Language |
-| reqwest | HTTP Client |
-| tokio | Async Runtime |
-| serde | JSON Serialization |
+| Python 3.14 | Backend Language |
+| FastAPI | REST API Framework |
+| Pydantic | Data Validation |
+| PyInstaller | Backend compilation |
 
 ### External Services
 
 | Service | Purpose |
 |---------|---------|
-| ADB | Android Device Communication |
-| Perplexity AI | Package Analysis & Chatbot |
+| ADB (Android Debug Bridge) | Android device communication |
+| Perplexity AI | Package analysis & chatbot |
 
 ---
 
@@ -320,13 +344,17 @@ debloat-ai/
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start both frontend & backend in development |
+| `npm run dev` | Start frontend (Vite) & Electron in development mode |
 | `npm run frontend` | Start Vite dev server only |
-| `npm run build` | Build frontend for production |
-| `npm run tauri` | Run Tauri in dev mode |
-| `npm run tauri:build` | Build production executable |
-| `npm run build:release` | Full production build with optimizations |
+| `npm run electron:dev` | Run Electron in development mode |
+| `npm run build` | Full production build (frontend + backend + Electron) |
+| `npm run build:frontend` | Build React app for production |
+| `npm run build:backend` | Compile Python backend with PyInstaller |
+| `npm run build:electron` | Create Windows installer |
 | `npm run clean` | Clean build artifacts |
+
+> **Note**: Backend must be started manually in development:  
+> `cd backend-python && python main.py`
 
 ---
 
@@ -357,10 +385,11 @@ npm install
 
 ### AI Features Not Working?
 
-1. Check if `.env` file exists in `backend/tauri/`
+1. Check if `.env` file exists in the project root
 2. Verify your API key is valid
 3. Check your internet connection
-4. Restart the application
+4. Check backend logs for API errors
+5. Restart the application
 
 ---
 
@@ -381,23 +410,27 @@ The app includes 50+ pre-classified packages from:
 
 ## 🤝 Contributing
 
-Contributions are welcome! Here's how you can help:
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
-### Areas for Improvement
-
-- 📦 Add more bloatware packages to the database
-- 📶 Support for wireless ADB
-- 🌍 Multi-language support
-- 🎨 New themes
-- 📱 Device-specific profiles
-
-### How to Contribute
+### Quick Start
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Commit your changes: `git commit -m 'Add amazing feature'`
-4. Push to the branch: `git push origin feature/amazing-feature`
-5. Open a Pull Request
+3. Make your changes and test thoroughly
+4. Commit: `git commit -m 'feat: add amazing feature'`
+5. Push: `git push origin feature/amazing-feature`
+6. Open a Pull Request
+
+### Areas for Contribution
+
+- 📦 Add more bloatware packages to the database
+- 🌍 Multi-language support
+- 🎨 New themes and UI improvements
+- 📱 Device-specific profiles
+- 🧪 Testing and bug reports
+- 📖 Documentation improvements
+
+> **📚 See [CONTRIBUTING.md](CONTRIBUTING.md) for full contribution guidelines**
 
 ---
 
