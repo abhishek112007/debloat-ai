@@ -34,6 +34,10 @@ a = Analysis(
     cipher=block_cipher,
 )
 
+# Remove api-ms-win-* Universal CRT forwarder DLLs – already on Win10+
+# These cause NSIS installer issues due to long filenames
+a.binaries = [b for b in a.binaries if not b[0].lower().startswith('api-ms-win-')]
+
 pyz = PYZ(a.pure, cipher=block_cipher)
 
 exe = EXE(
