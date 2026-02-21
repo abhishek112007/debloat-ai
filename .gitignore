@@ -3,8 +3,6 @@
 # ========================================
 node_modules/
 frontend/node_modules/
-package-lock.json
-frontend/package-lock.json
 
 # Python virtual environment
 .venv/
