@@ -8,12 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.1] - 2026-02-21
 
 ### Fixed
-- Chatbot input box not clickable — removed heavy framer-motion animations blocking input
-- Chatbot not responsive — now fills available space and adapts to window size
-- Reduced animation overhead — replaced per-message spring animations with lightweight fades
-- Typing indicator now uses pure CSS animations instead of framer-motion
-- Added responsive breakpoints for small windows and short screens
-- Input area now always visible with `flex-shrink: 0`
+- Chat input box was unclickable due to Framer Motion `whileFocus` conflict
+- Chat window now fully responsive — adapts to any window size
+- Reduced app lag by removing 6+ continuously running CSS/JS animations
+- Floating button simplified — no more constant bounce, ring pulse, or icon wiggle
+- Chat container uses relative sizing instead of fixed 420×550px
 
 ---
 
