@@ -664,85 +664,39 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
           )}
         </AnimatePresence>
 
-        <AnimatePresence>
-          {messages.map((msg, index) => (
+        <AnimatePresence initial={false}>
+          {messages.map((msg) => (
             <motion.div
               key={msg.id}
               className={`message ${msg.role}`}
-              initial={{
-                opacity: 0,
-                x: msg.role === 'user' ? 30 : -30,
-                y: 10,
-                scale: 0.95
-              }}
-              animate={{
-                opacity: 1,
-                x: 0,
-                y: 0,
-                scale: 1
-              }}
-              transition={{
-                duration: 0.3,
-                delay: index === messages.length - 1 ? 0 : 0,
-                type: 'spring',
-                stiffness: 300,
-                damping: 25
-              }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
             >
-              <motion.div
-                className="message-avatar"
-                whileHover={{ scale: 1.15, rotate: 10 }}
-                transition={{ type: 'spring', stiffness: 400 }}
-              >
+              <div className="message-avatar">
                 {msg.role === 'user' ? '👤' : '🤖'}
-              </motion.div>
+              </div>
               <div className="message-content">
-                <motion.div
+                <div
                   className={`message-text ${msg.streaming ? 'streaming' : ''}`}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.1 }}
                 >
                   {formatMessage(msg.content)}
-                </motion.div>
+                </div>
                 <div className="message-actions">
-                  <motion.div
-                    className="message-timestamp"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                  >
+                  <div className="message-timestamp">
                     {new Date(msg.timestamp).toLocaleTimeString()}
-                  </motion.div>
-                  <motion.button
+                  </div>
+                  <button
                     className="copy-msg-btn"
                     onClick={() => copyToClipboard(msg.content, msg.id)}
                     title="Copy message"
-                    whileHover={{ scale: 1.2 }}
-                    whileTap={{ scale: 0.9 }}
                   >
-                    <AnimatePresence mode="wait">
-                      {copiedId === msg.id ? (
-                        <motion.div
-                          key="check"
-                          initial={{ scale: 0, rotate: -180 }}
-                          animate={{ scale: 1, rotate: 0 }}
-                          exit={{ scale: 0, rotate: 180 }}
-                        >
-                          <FiCheck className="w-3 h-3" />
-                        </motion.div>
-                      ) : (
-                        <motion.div
-                          key="copy"
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          exit={{ scale: 0 }}
-                        >
-                          <FiCopy className="w-3 h-3" />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.button>
+                    {copiedId === msg.id ? (
+                      <FiCheck className="w-3 h-3" />
+                    ) : (
+                      <FiCopy className="w-3 h-3" />
+                    )}
+                  </button>
                 </div>
               </div>
             </motion.div>
@@ -754,40 +708,23 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
           {loading && (
             <motion.div
               className="message assistant typing"
-              initial={{ opacity: 0, y: 20, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.9 }}
-              transition={{ type: 'spring', stiffness: 300 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
             >
-              <motion.div
-                className="message-avatar"
-                animate={{ rotate: [0, 10, -10, 0] }}
-                transition={{ duration: 1, repeat: Infinity }}
-              >
+              <div className="message-avatar">
                 🤖
-              </motion.div>
+              </div>
               <div className="message-content">
                 <div className="typing-indicator">
-                  <motion.span
-                    animate={{ y: [0, -10, 0] }}
-                    transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
-                  />
-                  <motion.span
-                    animate={{ y: [0, -10, 0] }}
-                    transition={{ duration: 0.6, repeat: Infinity, delay: 0.15 }}
-                  />
-                  <motion.span
-                    animate={{ y: [0, -10, 0] }}
-                    transition={{ duration: 0.6, repeat: Infinity, delay: 0.3 }}
-                  />
+                  <span />
+                  <span />
+                  <span />
                 </div>
-                <motion.div
-                  className="typing-text"
-                  animate={{ opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                >
+                <div className="typing-text">
                   AI is thinking...
-                </motion.div>
+                </div>
               </div>
             </motion.div>
           )}
@@ -882,11 +819,9 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
 
         <motion.div
           className="input-area"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          initial={false}
         >
-          <motion.input
+          <input
             ref={inputRef}
             type="text"
             value={input}
@@ -900,40 +835,26 @@ export const ChatBot: React.FC<ChatBotProps> = ({ deviceName, onClose }) => {
               : "Ask about Android packages..."}
             disabled={loading}
             className="chat-input"
-            whileFocus={{ scale: 1.01 }}
             style={{
               borderColor: actionModeEnabled ? 'rgba(16, 185, 129, 0.4)' : undefined,
             }}
           />
-          <motion.button
+          <button
             onClick={toggleVoiceInput}
             className={`voice-btn ${isRecording ? 'recording' : ''}`}
             title={isRecording ? 'Stop recording' : 'Voice input'}
             disabled={loading}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            animate={isRecording ? {
-              boxShadow: ['0 0 0 0 rgba(239, 68, 68, 0.7)', '0 0 0 15px rgba(239, 68, 68, 0)', '0 0 0 0 rgba(239, 68, 68, 0.7)']
-            } : {}}
-            transition={isRecording ? { duration: 1.5, repeat: Infinity } : {}}
           >
             <FiMic className="w-5 h-5" />
-          </motion.button>
-          <motion.button
+          </button>
+          <button
             onClick={sendMessage}
             disabled={!input.trim() || loading}
             className="send-btn"
             title="Send message"
-            whileHover={{ scale: 1.1, rotate: 15 }}
-            whileTap={{ scale: 0.9 }}
           >
-            <motion.div
-              animate={loading ? { rotate: 360 } : {}}
-              transition={loading ? { duration: 1, repeat: Infinity, ease: 'linear' } : {}}
-            >
-              <FiSend className="w-5 h-5" />
-            </motion.div>
-          </motion.button>
+            <FiSend className="w-5 h-5" />
+          </button>
         </motion.div>
       </div>
     </motion.div>

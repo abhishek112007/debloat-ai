@@ -55,8 +55,9 @@
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: 550px;
-  width: 420px;
+  height: 100%;
+  width: 100%;
+  max-height: 100%;
   background: var(--chat-bg);
   border-radius: 24px;
   box-shadow:
@@ -65,14 +66,6 @@
   overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   backdrop-filter: blur(20px);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.chat-container:hover {
-  box-shadow:
-    0 30px 60px -15px var(--chat-shadow),
-    0 0 0 1px rgba(255, 255, 255, 0.15),
-    0 0 80px -20px var(--chat-accent-glow);
 }
 
 /* Header */
@@ -249,6 +242,7 @@
 /* Messages Container */
 .messages {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 20px;
@@ -690,6 +684,7 @@
 .input-container {
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
 }
 
 .suggested-replies {
@@ -740,10 +735,11 @@
 .input-area {
   display: flex;
   gap: 10px;
-  padding: 16px;
+  padding: 12px 16px;
   background: var(--chat-header-bg);
   backdrop-filter: blur(20px);
   border-top: 1px solid var(--chat-header-border);
+  flex-shrink: 0;
 }
 
 .chat-input {

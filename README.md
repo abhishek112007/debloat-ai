@@ -84,6 +84,34 @@ Toggle **Action Mode** ON to let the chatbot execute commands directly. Toggle i
 
 ---
 
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/main-interface.png" alt="Main Interface" width="800" />
+  <br>
+  <em>Smart package categorization with 398 packages analyzed and sorted by safety levels</em>
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/ai-assistant.png" alt="AI Assistant" width="800" />
+  <br>
+  <em>AI Assistant with Action Mode toggle and quick action buttons for common tasks</em>
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/safety-analysis.png" alt="AI Safety Analysis" width="800" />
+  <br>
+  <em>Real-time AI safety analysis powered by Perplexity AI</em>
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/backup-manager.png" alt="Backup Manager" width="800" />
+  <br>
+  <em>Comprehensive backup system with 8 vaults for safe package restoration</em>
+</p>
+
+---
+
 ## Quick Start
 
 ### Prerequisites

@@ -1,6 +1,6 @@
 {
   "name": "debloat-ai",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Debloat AI – Intelligently remove bloatware from Android devices",
   "main": "electron/main.js",
   "author": "Abhishek",
