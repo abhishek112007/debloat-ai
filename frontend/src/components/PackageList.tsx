@@ -30,7 +30,7 @@ interface PackageListProps {
   onSelectionChange: (selected: Set<string>) => void;
   onStatsChange: (stats: PackageStats) => void;
   filterBySafety?: string | null;
-  onPackageDataChange?: (packages: Array<{packageName: string; safetyLevel: string}>) => void;
+  onPackageDataChange?: (packages: Array<{ packageName: string; safetyLevel: string }>) => void;
   onAiAdvisorOpen?: (packageName: string) => void;
   refreshTrigger?: number;
 }
@@ -52,16 +52,23 @@ const PackageList: React.FC<PackageListProps> = ({
   const [detailPackage, setDetailPackage] = useState<Package | null>(null);
   const { isConnected, deviceId } = useDeviceMonitor();
 
-  const fetchPackages = async () => {
+  const fetchPackages = useCallback(async (retryCount = 0) => {
     setLoading(true);
     try {
       const res = await api.listPackages();
       const pkgs = res ?? [];
       setPackages(pkgs);
-      
+
       // Pass package data to parent for safety checking
       if (onPackageDataChange) {
         onPackageDataChange(pkgs.map(p => ({ packageName: p.packageName, safetyLevel: p.safetyLevel })));
+      }
+
+      // If device is connected but packages came back empty, retry (ADB may not be ready yet)
+      if (pkgs.length === 0 && retryCount < 6) {
+        setTimeout(() => {
+          fetchPackages(retryCount + 1);
+        }, 2000);
       }
     } catch (err) {
       console.error('list_packages failed', err);
@@ -69,29 +76,49 @@ const PackageList: React.FC<PackageListProps> = ({
       if (onPackageDataChange) {
         onPackageDataChange([]);
       }
+      // Retry on error too (device may still be initializing)
+      if (retryCount < 6) {
+        setTimeout(() => {
+          fetchPackages(retryCount + 1);
+        }, 2000);
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }, [onPackageDataChange]);
 
   // Fetch packages when device connects or changes
   useEffect(() => {
     if (isConnected && deviceId) {
+      // Fetch immediately
       fetchPackages();
+      // Also retry after a short delay in case ADB isn't fully ready yet
+      const retryTimer = setTimeout(() => {
+        if (packages.length === 0) {
+          fetchPackages();
+        }
+      }, 3000);
       // Clear selection when device changes
       onSelectionChange(new Set());
+      return () => clearTimeout(retryTimer);
     } else {
       // Clear packages when device disconnects
       setPackages([]);
       onSelectionChange(new Set());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isConnected, deviceId]);
+  }, [isConnected, deviceId, fetchPackages]);
 
   // Refresh packages when refreshTrigger changes (manual refresh from DevicePanel)
   useEffect(() => {
-    if (refreshTrigger && refreshTrigger > 0 && isConnected && deviceId) {
-      fetchPackages();
+    if (refreshTrigger && refreshTrigger > 0) {
+      // Force refresh regardless of connection state (user explicitly requested it)
+      setLoading(true);
+      // Small delay to ensure device state is updated
+      const refreshTimer = setTimeout(() => {
+        fetchPackages(0); // Start fresh with retry count 0
+      }, 500);
+      return () => clearTimeout(refreshTimer);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshTrigger]);
@@ -116,14 +143,14 @@ const PackageList: React.FC<PackageListProps> = ({
       const matchesSearch =
         pkg.packageName.toLowerCase().includes(searchLower) ||
         pkg.appName.toLowerCase().includes(searchLower);
-      
+
       if (!matchesSearch) return false;
-      
+
       // Safety level filter
       if (filterBySafety) {
         return pkg.safetyLevel === filterBySafety;
       }
-      
+
       return true;
     });
   }, [packages, search, filterBySafety]);
@@ -170,7 +197,7 @@ const PackageList: React.FC<PackageListProps> = ({
 
   return (
     <div className="w-full p-5 md:p-6" style={{
-      background: isLightMode 
+      background: isLightMode
         ? 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.75) 100%)'
         : 'linear-gradient(135deg, rgba(26,26,26,0.85) 0%, rgba(20,20,20,0.85) 100%)',
       backdropFilter: 'blur(20px)',
@@ -236,13 +263,13 @@ const PackageList: React.FC<PackageListProps> = ({
       </div>      {loading ? (
         <div className="space-y-2.5">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div 
-              key={i} 
-              className="h-14 rounded-xl animate-pulse" 
+            <div
+              key={i}
+              className="h-14 rounded-xl animate-pulse"
               style={{
                 background: isLightMode ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)',
                 animationDelay: `${i * 80}ms`
-              }} 
+              }}
             />
           ))}
         </div>
@@ -251,32 +278,50 @@ const PackageList: React.FC<PackageListProps> = ({
           {filtered.length === 0 ? (
             <div className="px-4 py-12 text-center">
               <FiPackage className="w-12 h-12 mx-auto mb-3 opacity-50" style={{ color: isLightMode ? '#999999' : '#A0A0A0' }} />
-              <p className="text-sm font-medium" style={{ color: isLightMode ? '#666666' : '#A0A0A0' }}>No packages found</p>
-              <p className="text-xs mt-1" style={{ color: isLightMode ? '#999999' : '#888888' }}>Try adjusting your search</p>
+              {packages.length === 0 && isConnected ? (
+                <>
+                  <p className="text-sm font-medium mb-2" style={{ color: isLightMode ? '#666666' : '#A0A0A0' }}>Device connected but no packages loaded</p>
+                  <div className="text-xs space-y-1" style={{ color: isLightMode ? '#999999' : '#888888' }}>
+                    <p>This usually means ADB cannot access your device.</p>
+                    <p className="font-semibold mt-3" style={{ color: isLightMode ? '#2EC4B6' : '#58A6AF' }}>Quick Fix:</p>
+                    <ol className="text-left inline-block mt-2 space-y-1">
+                      <li>1. Check USB debugging is enabled on your phone</li>
+                      <li>2. Accept the USB debugging popup on your device</li>
+                      <li>3. Try a different USB port or cable</li>
+                      <li>4. Click "Refresh Device Info" button above</li>
+                    </ol>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-medium" style={{ color: isLightMode ? '#666666' : '#A0A0A0' }}>No packages found</p>
+                  <p className="text-xs mt-1" style={{ color: isLightMode ? '#999999' : '#888888' }}>Try adjusting your search</p>
+                </>
+              )}
             </div>
           ) : (
             <div className="space-y-2">
               {filtered.map((pkg) => {
                 const isSelected = selectedPackages.has(pkg.packageName);
-                
+
                 return (
                   <div
                     key={pkg.packageName}
                     className="package-card-hover pkg-fade-in"
                     style={{
-                      background: isSelected 
-                        ? (isLightMode 
-                            ? 'linear-gradient(135deg, rgba(46,196,182,0.15) 0%, rgba(46,196,182,0.10) 100%)'
-                            : 'linear-gradient(135deg, rgba(88,166,175,0.15) 0%, rgba(88,166,175,0.10) 100%)')
+                      background: isSelected
+                        ? (isLightMode
+                          ? 'linear-gradient(135deg, rgba(46,196,182,0.15) 0%, rgba(46,196,182,0.10) 100%)'
+                          : 'linear-gradient(135deg, rgba(88,166,175,0.15) 0%, rgba(88,166,175,0.10) 100%)')
                         : (isLightMode ? 'rgba(255,255,255,0.7)' : 'rgba(40,40,40,0.6)'),
                       border: isLightMode ? '1px solid rgba(0,0,0,0.10)' : '1px solid rgba(255,255,255,0.10)',
                       borderRadius: '12px',
                       padding: '14px 16px',
                       cursor: 'pointer',
                       boxShadow: isSelected
-                        ? (isLightMode 
-                            ? '0 0 18px rgba(46,196,182,0.20), 0 4px 14px rgba(0,0,0,0.08)'
-                            : '0 0 18px rgba(88,166,175,0.15), 0 4px 14px rgba(0,0,0,0.06)')
+                        ? (isLightMode
+                          ? '0 0 18px rgba(46,196,182,0.20), 0 4px 14px rgba(0,0,0,0.08)'
+                          : '0 0 18px rgba(88,166,175,0.15), 0 4px 14px rgba(0,0,0,0.06)')
                         : (isLightMode ? '0 2px 8px rgba(0,0,0,0.06)' : '0 2px 8px rgba(0,0,0,0.04)'),
                       transition: 'all 0.15s ease',
                     }}
@@ -302,7 +347,7 @@ const PackageList: React.FC<PackageListProps> = ({
                         }}
                         onClick={(e) => e.stopPropagation()}
                       />
-                      
+
                       {/* Package Info */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
@@ -315,7 +360,7 @@ const PackageList: React.FC<PackageListProps> = ({
                           {pkg.packageName}
                         </div>
                       </div>
-                      
+
                       {/* AI Advisor Button */}
                       <button
                         onClick={(e) => {
@@ -331,10 +376,10 @@ const PackageList: React.FC<PackageListProps> = ({
                       >
                         <FiZap className="w-4 h-4" style={{ color: isLightMode ? '#2EC4B6' : '#58A6AF' }} />
                       </button>
-                      
+
                       {/* Safety Badge */}
                       <div className="flex-shrink-0">
-                        <span 
+                        <span
                           className={getSafetyStyles(pkg.safetyLevel)}
                           style={{
                             fontSize: '11px',
@@ -347,8 +392,8 @@ const PackageList: React.FC<PackageListProps> = ({
                       </div>
                     </div>
                   </div>
-              );
-            })}
+                );
+              })}
             </div>
           )}
         </div>
@@ -389,123 +434,123 @@ const PackageList: React.FC<PackageListProps> = ({
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
             >
-            {/* Modal Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2.5">
-                <div 
-                  style={{
-                    background: isLightMode ? 'rgba(46,196,182,0.12)' : 'rgba(88,166,175,0.12)',
-                    borderRadius: '10px',
-                    padding: '8px',
-                  }}
-                >
-                  <FiInfo className="w-5 h-5 text-accent" />
+              {/* Modal Header */}
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2.5">
+                  <div
+                    style={{
+                      background: isLightMode ? 'rgba(46,196,182,0.12)' : 'rgba(88,166,175,0.12)',
+                      borderRadius: '10px',
+                      padding: '8px',
+                    }}
+                  >
+                    <FiInfo className="w-5 h-5 text-accent" />
+                  </div>
+                  <h4 className="text-lg font-semibold text-text-primary">
+                    Package Details
+                  </h4>
                 </div>
-                <h4 className="text-lg font-semibold text-text-primary">
-                  Package Details
-                </h4>
-              </div>
-              <motion.button
-                onClick={() => setDetailPackage(null)}
-                style={{
-                  background: isLightMode ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)',
-                  border: isLightMode ? '1px solid rgba(0,0,0,0.05)' : 'none',
-                  borderRadius: '8px',
-                  padding: '8px',
-                  cursor: 'pointer',
-                }}
-                whileHover={{
-                  background: 'rgba(239,68,68,0.15)',
-                  scale: 1.05,
-                  rotate: 90,
-                  transition: { duration: 0.2 }
-                }}
-                whileTap={{ scale: 0.95 }}
-                aria-label="Close dialog"
-              >
-                <FiX className="w-5 h-5 text-text-secondary" />
-              </motion.button>
-            </div>
-            
-            {/* Modal Content */}
-            <div className="space-y-4">
-              {/* Package Name */}
-              <div 
-                style={{
-                  background: isLightMode ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.03)',
-                  border: isLightMode ? '1px solid rgba(0,0,0,0.05)' : 'none',
-                  borderRadius: '12px',
-                  padding: '16px',
-                }}
-              >
-                <div className="flex items-center gap-2 text-xs font-semibold text-text-tertiary uppercase tracking-wide mb-2.5">
-                  <FiPackage className="w-3.5 h-3.5" />
-                  Package Name
-                </div>
-                <div 
-                  className="font-mono text-sm text-text-primary break-all"
+                <motion.button
+                  onClick={() => setDetailPackage(null)}
                   style={{
                     background: isLightMode ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)',
+                    border: isLightMode ? '1px solid rgba(0,0,0,0.05)' : 'none',
                     borderRadius: '8px',
-                    padding: '10px 12px',
+                    padding: '8px',
+                    cursor: 'pointer',
+                  }}
+                  whileHover={{
+                    background: 'rgba(239,68,68,0.15)',
+                    scale: 1.05,
+                    rotate: 90,
+                    transition: { duration: 0.2 }
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                  aria-label="Close dialog"
+                >
+                  <FiX className="w-5 h-5 text-text-secondary" />
+                </motion.button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="space-y-4">
+                {/* Package Name */}
+                <div
+                  style={{
+                    background: isLightMode ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.03)',
+                    border: isLightMode ? '1px solid rgba(0,0,0,0.05)' : 'none',
+                    borderRadius: '12px',
+                    padding: '16px',
                   }}
                 >
-                  {detailPackage.packageName}
+                  <div className="flex items-center gap-2 text-xs font-semibold text-text-tertiary uppercase tracking-wide mb-2.5">
+                    <FiPackage className="w-3.5 h-3.5" />
+                    Package Name
+                  </div>
+                  <div
+                    className="font-mono text-sm text-text-primary break-all"
+                    style={{
+                      background: isLightMode ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)',
+                      borderRadius: '8px',
+                      padding: '10px 12px',
+                    }}
+                  >
+                    {detailPackage.packageName}
+                  </div>
+                </div>
+
+                {/* App Name */}
+                <div
+                  style={{
+                    background: isLightMode ? 'rgba(46,196,182,0.10)' : 'rgba(88,166,175,0.08)',
+                    border: isLightMode ? '1px solid rgba(46,196,182,0.15)' : 'none',
+                    borderRadius: '12px',
+                    padding: '16px',
+                  }}
+                >
+                  <div className="flex items-center gap-2 text-xs font-semibold text-accent uppercase tracking-wide mb-2.5">
+                    <FiPackage className="w-3.5 h-3.5" />
+                    Application Name
+                  </div>
+                  <div className="text-base font-semibold text-text-primary">
+                    {detailPackage.appName}
+                  </div>
+                </div>
+
+                {/* Safety Level */}
+                <div
+                  style={{
+                    background: isLightMode ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.03)',
+                    border: isLightMode ? '1px solid rgba(0,0,0,0.05)' : 'none',
+                    borderRadius: '12px',
+                    padding: '16px',
+                  }}
+                >
+                  <div className="flex items-center gap-2 text-xs font-semibold text-text-tertiary uppercase tracking-wide mb-2.5">
+                    {getSafetyIcon(detailPackage.safetyLevel)}
+                    Safety Level
+                  </div>
+                  <span className={getSafetyStyles(detailPackage.safetyLevel)}>
+                    {getSafetyIcon(detailPackage.safetyLevel)} {detailPackage.safetyLevel}
+                  </span>
                 </div>
               </div>
-              
-              {/* App Name */}
-              <div 
+
+              {/* Modal Footer */}
+              <motion.button
+                type="button"
+                onClick={() => setDetailPackage(null)}
+                className="mt-6 w-full btn-ghost text-sm font-semibold"
                 style={{
-                  background: isLightMode ? 'rgba(46,196,182,0.10)' : 'rgba(88,166,175,0.08)',
-                  border: isLightMode ? '1px solid rgba(46,196,182,0.15)' : 'none',
-                  borderRadius: '12px',
-                  padding: '16px',
+                  padding: '12px',
+                  borderRadius: '10px',
                 }}
+                whileHover={{ scale: 1.02, y: -1 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <div className="flex items-center gap-2 text-xs font-semibold text-accent uppercase tracking-wide mb-2.5">
-                  <FiPackage className="w-3.5 h-3.5" />
-                  Application Name
-                </div>
-                <div className="text-base font-semibold text-text-primary">
-                  {detailPackage.appName}
-                </div>
-              </div>
-              
-              {/* Safety Level */}
-              <div 
-                style={{
-                  background: isLightMode ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.03)',
-                  border: isLightMode ? '1px solid rgba(0,0,0,0.05)' : 'none',
-                  borderRadius: '12px',
-                  padding: '16px',
-                }}
-              >
-                <div className="flex items-center gap-2 text-xs font-semibold text-text-tertiary uppercase tracking-wide mb-2.5">
-                  {getSafetyIcon(detailPackage.safetyLevel)}
-                  Safety Level
-                </div>
-                <span className={getSafetyStyles(detailPackage.safetyLevel)}>
-                  {getSafetyIcon(detailPackage.safetyLevel)} {detailPackage.safetyLevel}
-                </span>
-              </div>
-            </div>
-            
-            {/* Modal Footer */}
-            <motion.button
-              type="button"
-              onClick={() => setDetailPackage(null)}
-              className="mt-6 w-full btn-ghost text-sm font-semibold"
-              style={{
-                padding: '12px',
-                borderRadius: '10px',
-              }}
-              whileHover={{ scale: 1.02, y: -1 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              Close
-            </motion.button>
-          </motion.div>
+                Close
+              </motion.button>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

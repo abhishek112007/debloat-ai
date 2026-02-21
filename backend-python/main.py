@@ -9,9 +9,10 @@ import traceback
 from adb_operations import ADBOperations, ADBError
 from ai_advisor import AIAdvisor
 from backup_manager import BackupManager
+from openclaw_integration import OpenClawIntegration
 
 
-def handle_command(command_data, adb, backup_mgr, advisor):
+def handle_command(command_data, adb, backup_mgr, advisor, openclaw):
     """Route a single command and return the result."""
     command = command_data.get("command")
     args = command_data.get("args", {})
@@ -40,6 +41,18 @@ def handle_command(command_data, adb, backup_mgr, advisor):
     elif command == "chat_message":
         response = advisor.chat(args.get("message", ""), args.get("history", []))
         return {"response": response}
+    
+    # OpenClaw Integration Commands
+    elif command == "parse_chat_command":
+        # Parse message for actions
+        message = args.get("message", "")
+        return openclaw.process_message(message)
+    
+    elif command == "execute_action":
+        # Execute confirmed action
+        execution_result = args.get("executionResult", {})
+        confirmed = args.get("confirmed", False)
+        return openclaw.execute_confirmed_action(execution_result, confirmed)
 
     elif command == "create_backup":
         return backup_mgr.create_backup(args.get("packages", []), args.get("deviceInfo"))
@@ -78,6 +91,9 @@ def main():
         advisor.provider = "perplexity"
         advisor.api_url = "https://api.perplexity.ai/chat/completions"
         advisor.model = "sonar"
+    
+    # Initialize OpenClaw integration
+    openclaw = OpenClawIntegration(adb)
 
     # Signal that we are ready
     sys.stdout.write(json.dumps({"status": "ready"}) + "\n")
@@ -96,7 +112,7 @@ def main():
             request_id = request.get("id")
 
             try:
-                result = handle_command(request, adb, backup_mgr, advisor)
+                result = handle_command(request, adb, backup_mgr, advisor, openclaw)
                 response = {"id": request_id, "result": result}
             except Exception as exc:
                 response = {"id": request_id, "error": str(exc)}

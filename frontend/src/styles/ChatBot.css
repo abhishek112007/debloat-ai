@@ -59,7 +59,7 @@
   width: 420px;
   background: var(--chat-bg);
   border-radius: 24px;
-  box-shadow: 
+  box-shadow:
     0 25px 50px -12px var(--chat-shadow),
     0 0 0 1px rgba(255, 255, 255, 0.1);
   overflow: hidden;
@@ -69,7 +69,7 @@
 }
 
 .chat-container:hover {
-  box-shadow: 
+  box-shadow:
     0 30px 60px -15px var(--chat-shadow),
     0 0 0 1px rgba(255, 255, 255, 0.15),
     0 0 80px -20px var(--chat-accent-glow);
@@ -80,12 +80,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
+  padding: 10px 12px;
   background: var(--chat-header-bg);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--chat-header-border);
   position: relative;
-  overflow: hidden;
+  /* overflow: hidden removed — it was clipping button hit-areas */
+  gap: 8px;
 }
 
 .chat-header::before {
@@ -95,28 +96,38 @@
   left: -100%;
   width: 200%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent);
   animation: headerShimmer 3s ease-in-out infinite;
+  pointer-events: none;
+  /* prevent shimmer overlay from eating button clicks */
 }
 
 @keyframes headerShimmer {
-  0%, 100% { transform: translateX(-50%); }
-  50% { transform: translateX(0%); }
+
+  0%,
+  100% {
+    transform: translateX(-50%);
+  }
+
+  50% {
+    transform: translateX(0%);
+  }
 }
 
 .chat-header-title {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   color: white;
   font-weight: 600;
-  font-size: 15px;
+  font-size: 14px;
   letter-spacing: -0.01em;
+  min-width: 0;
+  flex-shrink: 1;
+  overflow: hidden;
 }
 
 .chat-header-title svg {
@@ -124,8 +135,17 @@
 }
 
 @keyframes iconPulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.1); opacity: 0.8; }
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
 }
 
 .device-badge {
@@ -139,16 +159,29 @@
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   animation: badgeFadeIn 0.5s ease-out;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 @keyframes badgeFadeIn {
-  from { opacity: 0; transform: scale(0.8) translateX(-10px); }
-  to { opacity: 1; transform: scale(1) translateX(0); }
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateX(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
 }
 
 .chat-header-actions {
   display: flex;
-  gap: 6px;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 /* Header Buttons */
@@ -160,63 +193,48 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  width: 30px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
   position: relative;
-  overflow: hidden;
+  flex-shrink: 0;
 }
 
-.clear-btn::after,
-.refresh-btn::after,
-.close-btn::after,
-.export-btn::after,
-.import-btn::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, transparent 40%, rgba(255, 255, 255, 0.2) 50%, transparent 60%);
-  transform: translateX(-100%);
-  transition: transform 0.5s ease;
-}
-
-.clear-btn:hover::after,
-.refresh-btn:hover::after,
-.close-btn:hover::after,
-.export-btn:hover::after,
-.import-btn:hover::after {
-  transform: translateX(100%);
+.clear-btn:hover,
+.refresh-btn:hover,
+.close-btn:hover,
+.export-btn:hover,
+.import-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .clear-btn:hover {
-  background: rgba(239, 68, 68, 0.3);
-  transform: scale(1.1);
+  background: rgba(239, 68, 68, 0.35);
   border-color: rgba(239, 68, 68, 0.5);
-}
-
-.refresh-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
-  transform: scale(1.1) rotate(180deg);
 }
 
 .close-btn:hover {
   background: rgba(239, 68, 68, 0.4);
-  transform: scale(1.1);
+  border-color: rgba(239, 68, 68, 0.6);
 }
 
 .export-btn:hover {
   background: rgba(16, 185, 129, 0.3);
-  transform: scale(1.1) translateY(-2px);
+  border-color: rgba(16, 185, 129, 0.5);
 }
 
 .import-btn:hover {
   background: rgba(245, 158, 11, 0.3);
-  transform: scale(1.1) translateY(-2px);
+  border-color: rgba(245, 158, 11, 0.5);
 }
 
 .clear-btn:active,
@@ -224,7 +242,8 @@
 .close-btn:active,
 .export-btn:active,
 .import-btn:active {
-  transform: scale(0.95);
+  transform: scale(0.92) translateY(0);
+  box-shadow: none;
 }
 
 /* Messages Container */
@@ -271,13 +290,14 @@
 }
 
 @keyframes welcomeFadeIn {
-  from { 
-    opacity: 0; 
-    transform: translateY(20px) scale(0.95); 
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
   }
-  to { 
-    opacity: 1; 
-    transform: translateY(0) scale(1); 
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -288,9 +308,19 @@
 }
 
 @keyframes welcomeIconFloat {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  25% { transform: translateY(-5px) rotate(-5deg); }
-  75% { transform: translateY(5px) rotate(5deg); }
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  25% {
+    transform: translateY(-5px) rotate(-5deg);
+  }
+
+  75% {
+    transform: translateY(5px) rotate(5deg);
+  }
 }
 
 .welcome-message h3 {
@@ -324,8 +354,8 @@
   align-items: center;
   gap: 8px;
   padding: 16px 12px;
-  background: var(--chat-bot-bubble);
-  border: 2px solid var(--chat-bot-bubble-border);
+  background: none;
+  border: 2px solid var(--chat-accent);
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -333,25 +363,13 @@
   overflow: hidden;
 }
 
-.quick-action-btn::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--chat-accent-light);
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
 .quick-action-btn:hover {
   transform: translateY(-4px) scale(1.02);
   border-color: var(--chat-accent);
-  box-shadow: 
+  background: var(--chat-accent-light);
+  box-shadow:
     0 12px 24px -8px var(--chat-shadow),
     0 0 0 1px var(--chat-accent-light);
-}
-
-.quick-action-btn:hover::before {
-  opacity: 1;
 }
 
 .quick-action-btn:active {
@@ -371,10 +389,23 @@
 }
 
 @keyframes emojiWiggle {
-  0%, 100% { transform: scale(1.2) rotate(-5deg); }
-  25% { transform: scale(1.2) rotate(5deg); }
-  50% { transform: scale(1.2) rotate(-5deg); }
-  75% { transform: scale(1.2) rotate(5deg); }
+
+  0%,
+  100% {
+    transform: scale(1.2) rotate(-5deg);
+  }
+
+  25% {
+    transform: scale(1.2) rotate(5deg);
+  }
+
+  50% {
+    transform: scale(1.2) rotate(-5deg);
+  }
+
+  75% {
+    transform: scale(1.2) rotate(5deg);
+  }
 }
 
 .action-label {
@@ -390,7 +421,8 @@
 .message {
   display: flex;
   gap: 12px;
-  animation: messageSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  /* animation: messageSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); */
+  /* Removed CSS animation - using framer-motion instead to avoid conflicts */
 }
 
 @keyframes messageSlideIn {
@@ -398,6 +430,7 @@
     opacity: 0;
     transform: translateY(15px) scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -406,7 +439,8 @@
 
 .message.user {
   flex-direction: row-reverse;
-  animation: messageSlideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  /* animation: messageSlideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1); */
+  /* Removed CSS animation - using framer-motion instead to avoid conflicts */
 }
 
 @keyframes messageSlideInRight {
@@ -414,6 +448,7 @@
     opacity: 0;
     transform: translateX(20px) scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: translateX(0) scale(1);
@@ -618,10 +653,14 @@
 }
 
 @keyframes typingBounce {
-  0%, 60%, 100% {
+
+  0%,
+  60%,
+  100% {
     transform: translateY(0) scale(1);
     opacity: 0.6;
   }
+
   30% {
     transform: translateY(-10px) scale(1.1);
     opacity: 1;
@@ -636,8 +675,15 @@
 }
 
 @keyframes typingTextPulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
+
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 /* Input Area */
@@ -657,13 +703,14 @@
 }
 
 @keyframes suggestionsSlideUp {
-  from { 
-    opacity: 0; 
-    transform: translateY(10px); 
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -717,7 +764,7 @@
 
 .chat-input:focus {
   border-color: var(--chat-input-focus);
-  box-shadow: 
+  box-shadow:
     0 0 0 4px var(--chat-accent-light),
     0 4px 20px var(--chat-shadow);
   transform: scale(1.01);
@@ -757,10 +804,13 @@
 }
 
 @keyframes recordingPulse {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6);
     transform: scale(1);
   }
+
   50% {
     box-shadow: 0 0 0 12px rgba(239, 68, 68, 0);
     transform: scale(1.05);
@@ -827,8 +877,15 @@
 }
 
 @keyframes cursorBlink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
 }
 
 /* Error Banner */
@@ -845,11 +902,190 @@
 }
 
 @keyframes errorShake {
-  0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-8px); }
-  40% { transform: translateX(8px); }
-  60% { transform: translateX(-4px); }
-  80% { transform: translateX(4px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(-8px);
+  }
+
+  40% {
+    transform: translateX(8px);
+  }
+
+  60% {
+    transform: translateX(-4px);
+  }
+
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+/* Action Mode Status Banner */
+.action-mode-banner {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%);
+  border-bottom: 2px solid rgba(16, 185, 129, 0.3);
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--theme-text-primary);
+  gap: 8px;
+}
+
+.action-mode-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-mode-banner-title {
+  font-weight: 600;
+}
+
+.action-mode-banner-description {
+  opacity: 0.7;
+  font-size: 12px;
+}
+
+.action-mode-disable-btn {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #ef4444;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.action-mode-disable-btn:hover {
+  background: rgba(239, 68, 68, 0.3);
+}
+
+/* Action Confirmation Dialog */
+.action-confirmation {
+  background: var(--theme-bg-secondary);
+  border: 2px solid var(--theme-primary);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.action-confirmation-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--theme-text-primary);
+}
+
+.action-confirmation-message {
+  font-size: 14px;
+  color: var(--theme-text-secondary);
+}
+
+.action-confirmation-details {
+  background: var(--theme-bg-tertiary);
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  max-height: 120px;
+  overflow: auto;
+}
+
+.action-confirmation-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.action-cancel-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--theme-border);
+  background: var(--theme-bg-tertiary);
+  color: var(--theme-text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.action-cancel-btn:hover {
+  background: var(--theme-hover);
+  transform: scale(1.05);
+}
+
+.action-confirm-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background: var(--theme-primary);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.action-confirm-btn:hover {
+  background: var(--theme-accent-hover);
+  transform: scale(1.05);
+}
+
+/* Action Mode Toggle Button */
+.action-mode-toggle {
+  padding: 4px 10px;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-right: 4px;
+  white-space: nowrap;
+  height: 28px;
+  transition: all 0.3s ease;
+  outline: none;
+  flex-shrink: 0;
+}
+
+.action-mode-toggle.disabled {
+  background: none;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.action-mode-toggle.disabled:hover {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.action-mode-toggle.enabled {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.action-mode-toggle.enabled:hover {
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
 }
 
 /* Responsive */
@@ -884,10 +1120,16 @@
   .action-label {
     font-size: 14px;
   }
+
+  .action-mode-banner-description {
+    display: none;
+    /* Hide description on mobile for space */
+  }
 }
 
 /* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {

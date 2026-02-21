@@ -1,189 +1,47 @@
-# Python Backend for Debloat AI
+# Python Backend
 
-This is the Python backend that replaces the Rust/Tauri backend.
+The backend runs as a persistent process, communicating with Electron via JSON over stdin/stdout.
 
-## 🚀 Quick Start
+## Modules
 
-### 1. Install Dependencies
+| File | Purpose |
+|------|---------|
+| `main.py` | IPC command router — reads JSON from stdin, dispatches to modules |
+| `adb_operations.py` | ADB device info, package listing, uninstall, reinstall |
+| `ai_advisor.py` | Perplexity/OpenAI integration for package analysis and chat |
+| `openclaw_integration.py` | Natural language command parsing and action execution |
+| `backup_manager.py` | Create, list, restore, and delete package backups |
+| `api_types.py` | Shared type definitions |
+
+## Setup
 
 ```bash
+python -m venv .venv
+.venv/Scripts/activate          # Windows
 pip install -r requirements.txt
+echo PERPLEXITY_API_KEY=your_key > .env
 ```
 
-### 2. Set Up API Key
-
-```bash
-# Copy example file
-copy .env.example .env
-
-# Edit .env and add your API key
-# Get Perplexity: https://www.perplexity.ai/settings/api
-# OR OpenAI: https://platform.openai.com/api-keys
-```
-
-### 3. Test Backend
-
-```bash
-# Test device info
-python main.py "{\"command\": \"get_device_info\", \"args\": {}}"
-
-# Test package listing
-python main.py "{\"command\": \"list_packages\", \"args\": {\"type\": \"all\"}}"
-
-# Test AI analysis (requires API key)
-python main.py "{\"command\": \"analyze_package\", \"args\": {\"packageName\": \"com.facebook.katana\"}}"
-```
-
-## 📂 File Structure
-
-```
-backend-python/
-├── adb_operations.py    # ADB commands (device info, packages, uninstall)
-├── ai_advisor.py        # AI analysis with Perplexity/OpenAI
-├── backup_manager.py    # Backup/restore functionality
-├── main.py              # Entry point (called by Electron)
-├── types.py             # Type definitions
-├── requirements.txt     # Dependencies
-├── .env.example         # Example environment variables
-└── README.md            # This file
-```
-
-## 🔧 Modules
-
-### `adb_operations.py`
-- `get_device_info()` - Get connected device details
-- `list_packages(type)` - List installed packages
-- `uninstall_package(name)` - Remove a package
-- `reinstall_package(name)` - Restore a package
-
-### `ai_advisor.py`
-- `analyze_package(name)` - AI safety analysis
-- `chat(message, history)` - Chatbot conversation
-
-### `backup_manager.py`
-- `create_backup(packages)` - Save package list
-- `list_backups()` - Show all backups
-- `restore_backup(name)` - Load backup data
-- `delete_backup(name)` - Remove backup file
-
-### `main.py`
-- Entry point for Electron to call
-- Routes commands to appropriate modules
-- Returns JSON responses
-
-## 🧪 Testing Individual Modules
-
-```python
-# Test ADB (no API key needed)
-from adb_operations import ADBOperations
-
-adb = ADBOperations()
-device = adb.get_device_info()
-print(device)
-
-packages = adb.list_packages('all')
-print(f"Found {len(packages)} packages")
-```
-
-```python
-# Test AI (requires API key in .env)
-from ai_advisor import AIAdvisor
-
-advisor = AIAdvisor(provider='perplexity')
-result = advisor.analyze_package('com.google.android.gms')
-print(result['summary'])
-```
-
-```python
-# Test Backups
-from backup_manager import BackupManager
-
-backup = BackupManager()
-result = backup.create_backup(['com.example.app'], {'model': 'Pixel'})
-print(result)
-
-backups = backup.list_backups()
-print(f"Found {len(backups)} backups")
-```
-
-## 🌐 API Providers
-
-### Perplexity AI (Default)
-- Faster responses
-- Real-time web search
-- Good for package research
-- Model: `llama-3.1-sonar-large-128k-online`
-
-### OpenAI (Alternative)
-- More detailed analysis
-- Better reasoning
-- No real-time search
-- Model: `gpt-4-turbo-preview`
-
-Switch in `.env`:
-```bash
-AI_PROVIDER=openai  # or perplexity
-```
-
-## 🛠️ Requirements
-
-- **Python**: 3.8 or higher
-- **ADB**: Android Debug Bridge in PATH
-- **API Key**: Perplexity or OpenAI
-
-## 🐛 Common Issues
-
-### "ADB not found"
-- Install Android SDK Platform Tools
-- Add to PATH: `C:\platform-tools\` (Windows)
-
-### "API key not set"
-- Create `.env` file from `.env.example`
-- Add valid API key
-
-### "No device connected"
-- Enable USB debugging on Android device
-- Run `adb devices` to verify connection
-- Authorize device when prompted
-
-### "Module not found"
-- Run: `pip install -r requirements.txt`
-
-## 📝 Command Format
-
-When called from Electron, commands are sent as JSON:
+## IPC Commands
 
 ```json
-{
-  "command": "list_packages",
-  "args": {
-    "type": "all"
-  }
-}
+{"command": "get_device_info", "args": {}}
+{"command": "list_packages", "args": {"type": "all"}}
+{"command": "uninstall_package", "args": {"packageName": "com.example.app"}}
+{"command": "reinstall_package", "args": {"packageName": "com.example.app"}}
+{"command": "analyze_package", "args": {"packageName": "com.example.app"}}
+{"command": "chat_message", "args": {"message": "hello", "history": []}}
+{"command": "parse_chat_command", "args": {"message": "remove facebook"}}
+{"command": "execute_action", "args": {"action": {...}}}
 ```
 
-Response format:
-```json
-{
-  "success": true,
-  "data": [...]
-}
+Response: `{"success": true, "data": ...}` or `{"success": false, "error": "..."}`
+
+## Build
+
+```bash
+pip install pyinstaller
+pyinstaller backend.spec
 ```
 
-Or on error:
-```json
-{
-  "success": false,
-  "error": "Error message"
-}
-```
-
-## 🔐 Security
-
-- Never commit `.env` file (it's in `.gitignore`)
-- API keys are loaded from environment only
-- No hardcoded credentials
-
-## 📄 License
-
-Same as main project (MIT)
+Output: `build-output/backend/backend.exe` — bundled into the Electron app.

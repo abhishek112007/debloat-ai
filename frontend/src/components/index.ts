@@ -7,7 +7,6 @@ export { default as DevicePanel } from './DevicePanel';
 export { default as FloatingChat } from './FloatingChat';
 export { default as PackageList } from './PackageList';
 export { default as Settings } from './Settings';
-export { ShimmerButton } from './ShimmerButton';
 export { default as ThemeSelector } from './ThemeSelector';
 export { ThemeToggle } from './ThemeToggle';
 export { default as Toast } from './Toast';

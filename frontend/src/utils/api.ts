@@ -34,6 +34,16 @@ export const api = {
     return window.electronAPI.chatMessage(message, history);
   },
   
+  // ===== OpenClaw Integration =====
+  
+  async parseChatCommand(message: string) {
+    return window.electronAPI.parseChatCommand(message);
+  },
+  
+  async executeAction(executionResult: any, confirmed: boolean) {
+    return window.electronAPI.executeAction(executionResult, confirmed);
+  },
+  
   // ===== Backup Operations =====
   
   async createBackup(packages: string[], deviceInfo?: any) {
@@ -73,6 +83,10 @@ declare global {
       // AI
       analyzePackage: (packageName: string, provider?: string) => Promise<PackageAnalysis>;
       chatMessage: (message: string, history?: ChatMessage[]) => Promise<ChatResponse>;
+      
+      // OpenClaw Integration
+      parseChatCommand: (message: string) => Promise<CommandParseResult>;
+      executeAction: (executionResult: any, confirmed: boolean) => Promise<ActionExecutionResult>;
       
       // Backups
       createBackup: (packages: string[], deviceInfo?: any) => Promise<BackupResult>;
@@ -130,6 +144,30 @@ export interface ChatMessage {
 
 export interface ChatResponse {
   response: string;
+}
+
+export interface CommandParseResult {
+  type: 'chat' | 'action';
+  parsed: {
+    intent: string;
+    entities: any;
+    confidence: number;
+    actionable: boolean;
+    original_message: string;
+  };
+  execution: {
+    success: boolean;
+    action: string;
+    requires_confirmation: boolean;
+    data: any;
+    message: string;
+  } | null;
+}
+
+export interface ActionExecutionResult {
+  success: boolean;
+  message: string;
+  details?: any[];
 }
 
 export interface BackupResult {

@@ -5,6 +5,8 @@
 :root {
   /* Core Colors */
   --theme-bg: #F4F4F5;
+  --theme-bg-secondary: rgba(255, 255, 255, 0.9);
+  --theme-bg-tertiary: rgba(240, 240, 240, 0.8);
   --theme-card: rgba(255, 255, 255, 0.65);
   --theme-border: rgba(0, 0, 0, 0.05);
   --theme-hover: rgba(46, 196, 182, 0.08);
@@ -12,6 +14,7 @@
   --theme-text-secondary: #666666;
   --theme-accent: #2EC4B6;
   --theme-accent-hover: #28A89C;
+  --theme-primary: #2EC4B6;
   --theme-glass: rgba(255, 255, 255, 0.65);
   --theme-shadow: rgba(0, 0, 0, 0.06);
   --theme-glow: rgba(46, 196, 182, 0.2);
@@ -50,6 +53,8 @@
 /* Theme CSS Variables - Dark Mode */
 .dark {
   --theme-bg: #0A0A0A;
+  --theme-bg-secondary: rgba(20, 20, 20, 0.95);
+  --theme-bg-tertiary: rgba(30, 30, 30, 0.9);
   --theme-card: rgba(17, 17, 17, 0.6);
   --theme-border: rgba(255, 255, 255, 0.08);
   --theme-hover: rgba(88, 166, 175, 0.08);
@@ -57,6 +62,7 @@
   --theme-text-secondary: #A0A0A0;
   --theme-accent: #58A6AF;
   --theme-accent-hover: #4A8D95;
+  --theme-primary: #58A6AF;
   --theme-glass: rgba(17, 17, 17, 0.6);
   --theme-shadow: rgba(0, 0, 0, 0.3);
   --theme-glow: rgba(88, 166, 175, 0.25);

@@ -1,4 +1,5 @@
 name: Release
+
 on:
   push:
     tags:
@@ -6,23 +7,23 @@ on:
   workflow_dispatch:
 
 jobs:
-  release:
+  build:
     permissions:
       contents: write
+
     strategy:
       fail-fast: false
       matrix:
         include:
-          - platform: 'macos-latest'
-            args: '--target aarch64-apple-darwin'
-          - platform: 'macos-latest'
-            args: '--target x86_64-apple-darwin'
-          - platform: 'ubuntu-22.04'
-            args: ''
-          - platform: 'windows-latest'
-            args: ''
+          - os: windows-latest
+            platform: win
+          - os: ubuntu-22.04
+            platform: linux
+          - os: macos-latest
+            platform: mac
 
-    runs-on: ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -30,58 +31,91 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: 20
           cache: 'npm'
 
-      - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+          python-version: '3.12'
 
-      - name: Install dependencies (Ubuntu only)
-        if: matrix.platform == 'ubuntu-22.04'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.0-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+      - name: Install root dependencies
+        run: npm ci
 
       - name: Install frontend dependencies
-        run: npm install
+        working-directory: frontend
+        run: npm ci
 
-      - name: Build the app
-        uses: tauri-apps/tauri-action@v0
+      - name: Install Python dependencies
+        working-directory: backend-python
+        run: pip install -r requirements.txt pyinstaller
+
+      - name: Build frontend
+        run: npm run build:frontend
+
+      - name: Build Python backend
+        run: npm run build:backend
+
+      - name: Build Electron app
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --${{ matrix.platform }} --publish never
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: debloat-ai-${{ matrix.platform }}
+          path: |
+            dist/*.exe
+            dist/*.dmg
+            dist/*.AppImage
+            dist/*.deb
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          generate_release_notes: false
+          body: |
+            ## Debloat AI ${{ github.ref_name }}
+
+            ### What's New — OpenClaw Command Engine
+            Just tell the AI what to do in plain English. Type commands like:
+            - `remove all xiaomi bloatware`
+            - `scan for bloatware`
+            - `backup everything`
+
+            See the full [Changelog](https://github.com/abhishek112007/debloat-ai/blob/main/CHANGELOG.md).
+
+            ### Download
+
+            | Platform | File |
+            |----------|------|
+            | Windows | `DebloatAI-Setup-*.exe` |
+            | Linux | `*.AppImage` or `*.deb` |
+            | macOS | `*.dmg` |
+
+            ### Requirements
+            - ADB installed and in PATH
+            - USB Debugging enabled on your Android device
+            - Perplexity API key for AI features
+          files: |
+            artifacts/**/*.exe
+            artifacts/**/*.dmg
+            artifacts/**/*.AppImage
+            artifacts/**/*.deb
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tagName: ${{ github.ref_name }}
-          releaseName: 'Debloat AI v__VERSION__'
-          releaseBody: |
-            ## What's New
-            
-            See the full changelog at [CHANGELOG.md](https://github.com/abhishek112007/debloat-ai/blob/main/CHANGELOG.md)
-            
-            ## Installation
-            
-            ### Windows
-            - Download `Debloat-AI_x.x.x_x64_en-US.msi`
-            - Run the installer
-            - Launch Debloat AI from Start Menu
-            
-            ### Linux
-            - Download the `.AppImage` file
-            - Make it executable: `chmod +x Debloat-AI_x.x.x_amd64.AppImage`
-            - Run it: `./Debloat-AI_x.x.x_amd64.AppImage`
-            
-            ### macOS
-            - Download the `.dmg` file
-            - Open and drag to Applications folder
-            - Right-click and select "Open" on first launch
-            
-            ## Requirements
-            
-            - ADB (Android Debug Bridge) must be installed and in your system PATH
-            - USB Debugging enabled on your Android device
-            
-            **Note:** You do NOT need Node.js or Rust to run this application.
-          releaseDraft: true
-          prerelease: false
-          args: ${{ matrix.args }}

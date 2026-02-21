@@ -126,7 +126,6 @@ export const FloatingChat: React.FC<FloatingChatProps> = ({ deviceName }) => {
             exit={{ scale: 0, rotate: 180 }}
             whileHover={{ 
               scale: 1.1,
-              backgroundColor: 'rgba(239, 68, 68, 0.8)',
               boxShadow: '0 8px 32px rgba(239, 68, 68, 0.4)'
             }}
             whileTap={{ scale: 0.9 }}

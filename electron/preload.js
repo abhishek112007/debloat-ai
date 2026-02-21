@@ -15,6 +15,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   analyzePackage: (packageName, provider) => ipcRenderer.invoke('analyze-package', packageName, provider),
   chatMessage: (message, history) => ipcRenderer.invoke('chat-message', message, history),
   
+  // OpenClaw integration
+  parseChatCommand: (message) => ipcRenderer.invoke('parse-chat-command', message),
+  executeAction: (executionResult, confirmed) => ipcRenderer.invoke('execute-action', executionResult, confirmed),
+  
   // Backup operations
   createBackup: (packages, deviceInfo) => ipcRenderer.invoke('create-backup', packages, deviceInfo),
   listBackups: () => ipcRenderer.invoke('list-backups'),

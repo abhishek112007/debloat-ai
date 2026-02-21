@@ -129,6 +129,3 @@ backups/*.json
 
 # Platform tools (bundled separately)
 platform-tools/
-
-# Documentation drafts
-ICON_GENERATION_GUIDE.md

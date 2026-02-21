@@ -145,7 +145,6 @@ function createWindow() {
 
   if (process.env.NODE_ENV === 'development') {
     mainWindow.loadURL('http://localhost:5173');
-    mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(__dirname, '../frontend/dist/index.html'));
   }
@@ -205,6 +204,15 @@ ipcMain.handle('analyze-package', async (_event, packageName, provider) => {
 
 ipcMain.handle('chat-message', async (_event, message, history) => {
   return await callPython('chat_message', { message, history: history || [] });
+});
+
+// OpenClaw Integration
+ipcMain.handle('parse-chat-command', async (_event, message) => {
+  return await callPython('parse_chat_command', { message });
+});
+
+ipcMain.handle('execute-action', async (_event, executionResult, confirmed) => {
+  return await callPython('execute_action', { executionResult, confirmed });
 });
 
 ipcMain.handle('create-backup', async (_event, packages, deviceInfo) => {
