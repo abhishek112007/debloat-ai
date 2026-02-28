@@ -35,6 +35,137 @@ interface PackageListProps {
   refreshTrigger?: number;
 }
 
+const getSafetyStyles = (level: SafetyLevel): string => {
+  switch (level) {
+    case 'Safe':
+      return 'badge-safe';
+    case 'Caution':
+      return 'badge-caution';
+    case 'Expert':
+      return 'badge-expert';
+    case 'Dangerous':
+      return 'badge-dangerous';
+    default:
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-white';
+  }
+};
+
+const getSafetyIcon = (level: SafetyLevel): JSX.Element => {
+  switch (level) {
+    case 'Safe':
+      return <FiCheckCircle className="w-3.5 h-3.5" />;
+    case 'Caution':
+      return <FiAlertTriangle className="w-3.5 h-3.5" />;
+    case 'Expert':
+      return <FiZap className="w-3.5 h-3.5" />;
+    case 'Dangerous':
+      return <FiXOctagon className="w-3.5 h-3.5" />;
+    default:
+      return <FiInfo className="w-3.5 h-3.5" />;
+  }
+};
+
+interface PackageListItemProps {
+  pkg: Package;
+  isSelected: boolean;
+  isLightMode: boolean;
+  toggleSelect: (packageName: string) => void;
+  onAiAdvisorOpen?: (packageName: string) => void;
+}
+
+// ⚡ Bolt: Wrapped PackageListItem in React.memo to prevent unnecessary re-renders.
+// Now, only the clicked item will re-render instead of the entire list.
+const PackageListItem = React.memo(({ pkg, isSelected, isLightMode, toggleSelect, onAiAdvisorOpen }: PackageListItemProps) => {
+  return (
+    <div
+      className="package-card-hover pkg-fade-in"
+      style={{
+        background: isSelected
+          ? (isLightMode
+            ? 'linear-gradient(135deg, rgba(46,196,182,0.15) 0%, rgba(46,196,182,0.10) 100%)'
+            : 'linear-gradient(135deg, rgba(88,166,175,0.15) 0%, rgba(88,166,175,0.10) 100%)')
+          : (isLightMode ? 'rgba(255,255,255,0.7)' : 'rgba(40,40,40,0.6)'),
+        border: isLightMode ? '1px solid rgba(0,0,0,0.10)' : '1px solid rgba(255,255,255,0.10)',
+        borderRadius: '12px',
+        padding: '14px 16px',
+        cursor: 'pointer',
+        boxShadow: isSelected
+          ? (isLightMode
+            ? '0 0 18px rgba(46,196,182,0.20), 0 4px 14px rgba(0,0,0,0.08)'
+            : '0 0 18px rgba(88,166,175,0.15), 0 4px 14px rgba(0,0,0,0.06)')
+          : (isLightMode ? '0 2px 8px rgba(0,0,0,0.06)' : '0 2px 8px rgba(0,0,0,0.04)'),
+        transition: 'all 0.15s ease',
+      }}
+      onClick={() => toggleSelect(pkg.packageName)}
+    >
+      <div className="flex items-center gap-3">
+        {/* Checkbox */}
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={(e) => {
+            e.stopPropagation();
+            toggleSelect(pkg.packageName);
+          }}
+          className="flex-shrink-0"
+          style={{
+            width: '20px',
+            height: '20px',
+            accentColor: isLightMode ? '#2EC4B6' : '#58A6AF',
+            cursor: 'pointer',
+            border: `2px solid ${isLightMode ? '#2EC4B6' : '#58A6AF'}`,
+            borderRadius: '4px',
+          }}
+          onClick={(e) => e.stopPropagation()}
+        />
+
+        {/* Package Info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <FiPackage className="w-3.5 h-3.5 flex-shrink-0" style={{ color: isLightMode ? '#2EC4B6' : '#58A6AF' }} />
+            <span className="text-sm font-semibold truncate" style={{ color: isLightMode ? '#0F0F0F' : '#FFFFFF', fontWeight: '600' }}>
+              {pkg.appName}
+            </span>
+          </div>
+          <div className="text-xs font-mono truncate" style={{ color: isLightMode ? '#525252' : '#A0A0A0' }}>
+            {pkg.packageName}
+          </div>
+        </div>
+
+        {/* AI Advisor Button */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onAiAdvisorOpen?.(pkg.packageName);
+          }}
+          className="flex-shrink-0 p-2 rounded-lg ai-advisor-btn"
+          style={{
+            background: isLightMode ? 'rgba(46, 196, 182, 0.15)' : 'rgba(88, 166, 175, 0.15)',
+            border: isLightMode ? '1px solid rgba(46, 196, 182, 0.20)' : '1px solid rgba(88, 166, 175, 0.20)',
+          }}
+          title="AI Safety Analysis"
+        >
+          <FiZap className="w-4 h-4" style={{ color: isLightMode ? '#2EC4B6' : '#58A6AF' }} />
+        </button>
+
+        {/* Safety Badge */}
+        <div className="flex-shrink-0">
+          <span
+            className={getSafetyStyles(pkg.safetyLevel)}
+            style={{
+              fontSize: '11px',
+              padding: '4px 8px',
+              borderRadius: '6px',
+            }}
+          >
+            {getSafetyIcon(pkg.safetyLevel)} {pkg.safetyLevel}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+});
+
 const PackageList: React.FC<PackageListProps> = ({
   selectedPackages,
   onSelectionChange,
@@ -155,45 +286,23 @@ const PackageList: React.FC<PackageListProps> = ({
     });
   }, [packages, search, filterBySafety]);
 
+  // ⚡ Bolt: Use a ref to store the latest selectedPackages to avoid
+  // re-creating the toggleSelect function every time selection changes.
+  // This allows the child PackageListItem components to remain memoized.
+  const selectedPackagesRef = React.useRef(selectedPackages);
+  useEffect(() => {
+    selectedPackagesRef.current = selectedPackages;
+  }, [selectedPackages]);
+
   const toggleSelect = useCallback((packageName: string) => {
-    const newSet = new Set(selectedPackages);
+    const newSet = new Set(selectedPackagesRef.current);
     if (newSet.has(packageName)) {
       newSet.delete(packageName);
     } else {
       newSet.add(packageName);
     }
     onSelectionChange(newSet);
-  }, [selectedPackages, onSelectionChange]);
-
-  const getSafetyStyles = (level: SafetyLevel): string => {
-    switch (level) {
-      case 'Safe':
-        return 'badge-safe';
-      case 'Caution':
-        return 'badge-caution';
-      case 'Expert':
-        return 'badge-expert';
-      case 'Dangerous':
-        return 'badge-dangerous';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-white';
-    }
-  };
-
-  const getSafetyIcon = (level: SafetyLevel): JSX.Element => {
-    switch (level) {
-      case 'Safe':
-        return <FiCheckCircle className="w-3.5 h-3.5" />;
-      case 'Caution':
-        return <FiAlertTriangle className="w-3.5 h-3.5" />;
-      case 'Expert':
-        return <FiZap className="w-3.5 h-3.5" />;
-      case 'Dangerous':
-        return <FiXOctagon className="w-3.5 h-3.5" />;
-      default:
-        return <FiInfo className="w-3.5 h-3.5" />;
-    }
-  };
+  }, [onSelectionChange]);
 
   return (
     <div className="w-full p-5 md:p-6" style={{
@@ -301,99 +410,16 @@ const PackageList: React.FC<PackageListProps> = ({
             </div>
           ) : (
             <div className="space-y-2">
-              {filtered.map((pkg) => {
-                const isSelected = selectedPackages.has(pkg.packageName);
-
-                return (
-                  <div
-                    key={pkg.packageName}
-                    className="package-card-hover pkg-fade-in"
-                    style={{
-                      background: isSelected
-                        ? (isLightMode
-                          ? 'linear-gradient(135deg, rgba(46,196,182,0.15) 0%, rgba(46,196,182,0.10) 100%)'
-                          : 'linear-gradient(135deg, rgba(88,166,175,0.15) 0%, rgba(88,166,175,0.10) 100%)')
-                        : (isLightMode ? 'rgba(255,255,255,0.7)' : 'rgba(40,40,40,0.6)'),
-                      border: isLightMode ? '1px solid rgba(0,0,0,0.10)' : '1px solid rgba(255,255,255,0.10)',
-                      borderRadius: '12px',
-                      padding: '14px 16px',
-                      cursor: 'pointer',
-                      boxShadow: isSelected
-                        ? (isLightMode
-                          ? '0 0 18px rgba(46,196,182,0.20), 0 4px 14px rgba(0,0,0,0.08)'
-                          : '0 0 18px rgba(88,166,175,0.15), 0 4px 14px rgba(0,0,0,0.06)')
-                        : (isLightMode ? '0 2px 8px rgba(0,0,0,0.06)' : '0 2px 8px rgba(0,0,0,0.04)'),
-                      transition: 'all 0.15s ease',
-                    }}
-                    onClick={() => toggleSelect(pkg.packageName)}
-                  >
-                    <div className="flex items-center gap-3">
-                      {/* Checkbox */}
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={(e) => {
-                          e.stopPropagation();
-                          toggleSelect(pkg.packageName);
-                        }}
-                        className="flex-shrink-0"
-                        style={{
-                          width: '20px',
-                          height: '20px',
-                          accentColor: isLightMode ? '#2EC4B6' : '#58A6AF',
-                          cursor: 'pointer',
-                          border: `2px solid ${isLightMode ? '#2EC4B6' : '#58A6AF'}`,
-                          borderRadius: '4px',
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-
-                      {/* Package Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <FiPackage className="w-3.5 h-3.5 flex-shrink-0" style={{ color: isLightMode ? '#2EC4B6' : '#58A6AF' }} />
-                          <span className="text-sm font-semibold truncate" style={{ color: isLightMode ? '#0F0F0F' : '#FFFFFF', fontWeight: '600' }}>
-                            {pkg.appName}
-                          </span>
-                        </div>
-                        <div className="text-xs font-mono truncate" style={{ color: isLightMode ? '#525252' : '#A0A0A0' }}>
-                          {pkg.packageName}
-                        </div>
-                      </div>
-
-                      {/* AI Advisor Button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onAiAdvisorOpen?.(pkg.packageName);
-                        }}
-                        className="flex-shrink-0 p-2 rounded-lg ai-advisor-btn"
-                        style={{
-                          background: isLightMode ? 'rgba(46, 196, 182, 0.15)' : 'rgba(88, 166, 175, 0.15)',
-                          border: isLightMode ? '1px solid rgba(46, 196, 182, 0.20)' : '1px solid rgba(88, 166, 175, 0.20)',
-                        }}
-                        title="AI Safety Analysis"
-                      >
-                        <FiZap className="w-4 h-4" style={{ color: isLightMode ? '#2EC4B6' : '#58A6AF' }} />
-                      </button>
-
-                      {/* Safety Badge */}
-                      <div className="flex-shrink-0">
-                        <span
-                          className={getSafetyStyles(pkg.safetyLevel)}
-                          style={{
-                            fontSize: '11px',
-                            padding: '4px 8px',
-                            borderRadius: '6px',
-                          }}
-                        >
-                          {getSafetyIcon(pkg.safetyLevel)} {pkg.safetyLevel}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+              {filtered.map((pkg) => (
+                <PackageListItem
+                  key={pkg.packageName}
+                  pkg={pkg}
+                  isSelected={selectedPackages.has(pkg.packageName)}
+                  isLightMode={isLightMode}
+                  toggleSelect={toggleSelect}
+                  onAiAdvisorOpen={onAiAdvisorOpen}
+                />
+              ))}
             </div>
           )}
         </div>
