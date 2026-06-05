@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useDeferredValue } from 'react';
 import { api, Package } from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDeviceMonitor } from '../hooks/useDeviceMonitor';
@@ -180,6 +180,8 @@ const PackageList: React.FC<PackageListProps> = ({
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [search, setSearch] = useState<string>('');
+  // ⚡ Bolt: Use useDeferredValue to prevent expensive O(n) array filtering from blocking the main thread
+  const deferredSearch = useDeferredValue(search);
   const [detailPackage, setDetailPackage] = useState<Package | null>(null);
   const { isConnected, deviceId } = useDeviceMonitor();
 
@@ -278,7 +280,7 @@ const PackageList: React.FC<PackageListProps> = ({
   }, [baseStats, selectedPackages, onStatsChange]);
 
   const filtered = useMemo(() => {
-    const searchLower = search.toLowerCase();
+    const searchLower = deferredSearch.toLowerCase();
     return packages.filter((pkg) => {
       // ⚡ Bolt: Execute O(1) safety level check first before expensive O(n) string operations
       if (filterBySafety && pkg.safetyLevel !== filterBySafety) {
@@ -293,7 +295,7 @@ const PackageList: React.FC<PackageListProps> = ({
         pkg.appName.toLowerCase().includes(searchLower)
       );
     });
-  }, [packages, search, filterBySafety]);
+  }, [packages, deferredSearch, filterBySafety]);
 
   // ⚡ Bolt: Use a ref to store the latest selectedPackages to avoid
   // re-creating the toggleSelect function every time selection changes.

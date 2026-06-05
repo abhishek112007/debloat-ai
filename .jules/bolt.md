@@ -10,3 +10,6 @@
 ## 2024-05-26 - ADB Subprocess Bottleneck
 **Learning:** Executing sequential Python `subprocess.run` calls to fetch individual Android device properties via `adb shell getprop` introduces significant performance overhead due to repeated adb server round-trips and process spawning (e.g., 10-15ms vs 2-3ms).
 **Action:** Always batch multiple ADB shell commands into a single `subprocess.run` execution using shell separators (`;`) to minimize connection and process overhead, while ensuring outputs are safely padded and parsed.
+## 2024-05-27 - React State Deferred Value Bottleneck
+**Learning:** In React components dealing with large lists (e.g., thousands of Android packages), filtering the array synchronously on every keystroke during a text search blocks the main UI thread. This causes input lag and a poor typing experience because the expensive O(n) array operations and subsequent DOM updates must complete before the next keystroke can be processed.
+**Action:** Always wrap the fast-changing state (like a search string) with `useDeferredValue` and use the deferred value for the expensive calculation (like array filtering). This allows React to prioritize the user's keystroke rendering and interrupt the background list filtering work, keeping the UI perfectly responsive without needing external virtualization libraries.
