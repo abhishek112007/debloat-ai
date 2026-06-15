@@ -127,6 +127,7 @@ const AIPackageAdvisor: React.FC<AIPackageAdvisorProps> = ({ packageName, onClos
               </div>
             </div>
             <motion.button
+              aria-label="Close AI Package Advisor"
               onClick={onClose}
               className="p-2 rounded-lg"
               style={{

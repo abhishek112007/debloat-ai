@@ -147,6 +147,7 @@ const BackupManager: React.FC = () => {
             </motion.p>
           </div>
           <motion.button
+            aria-label="Refresh Backups"
             onClick={loadBackups}
             className="btn-ghost px-3 py-2 text-sm font-medium group overflow-hidden relative"
             style={{

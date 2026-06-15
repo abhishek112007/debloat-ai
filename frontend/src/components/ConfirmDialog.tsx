@@ -92,6 +92,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         {isDangerous && (
           <div className="mb-6">
             <button
+              aria-label="Toggle learn more"
               onClick={() => setShowLearnMore(!showLearnMore)}
               className="text-sm text-blue-600 dark:text-blue-400 hover:underline focus:outline-none"
             >
