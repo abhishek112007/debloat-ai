@@ -754,6 +754,7 @@ const App: React.FC = () => {
               }}
               whileTap={{ scale: 0.96 }}
               title="Clear selection"
+              aria-label="Clear selection"
             >
               <FiX className="w-4 h-4" />
             </motion.button>
