@@ -487,6 +487,7 @@ const PackageList: React.FC<PackageListProps> = ({
                 </div>
                 <motion.button
                   onClick={() => setDetailPackage(null)}
+                  aria-label="Close package details"
                   style={{
                     background: isLightMode ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)',
                     border: isLightMode ? '1px solid rgba(0,0,0,0.05)' : 'none',
@@ -501,7 +502,6 @@ const PackageList: React.FC<PackageListProps> = ({
                     transition: { duration: 0.2 }
                   }}
                   whileTap={{ scale: 0.95 }}
-                  aria-label="Close dialog"
                 >
                   <FiX className="w-5 h-5 text-text-secondary" />
                 </motion.button>

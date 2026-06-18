@@ -148,6 +148,7 @@ const BackupManager: React.FC = () => {
           </div>
           <motion.button
             onClick={loadBackups}
+            aria-label="Refresh backups"
             className="btn-ghost px-3 py-2 text-sm font-medium group overflow-hidden relative"
             style={{
               borderRadius: '10px',
@@ -376,6 +377,7 @@ const BackupManager: React.FC = () => {
                         </motion.button>
                         <motion.button
                           onClick={() => handleDelete(backup.name)}
+                          aria-label="Delete backup"
                           className="px-3 py-2 text-xs font-medium rounded-lg flex items-center justify-center gap-1.5"
                           style={{
                             background: 'rgba(239,68,68,0.12)',
