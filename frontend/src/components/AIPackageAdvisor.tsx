@@ -129,6 +129,7 @@ const AIPackageAdvisor: React.FC<AIPackageAdvisorProps> = ({ packageName, onClos
             <motion.button
               onClick={onClose}
               className="p-2 rounded-lg"
+              aria-label="Close advisor"
               style={{
                 background: isLightMode ? 'rgba(0, 0, 0, 0.03)' : 'rgba(255, 255, 255, 0.03)',
                 border: isLightMode ? '1px solid rgba(0, 0, 0, 0.05)' : 'none',
@@ -242,6 +243,7 @@ const AIPackageAdvisor: React.FC<AIPackageAdvisorProps> = ({ packageName, onClos
                     <motion.button
                       onClick={refetch}
                       className="mt-3 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5"
+                      aria-label="Retry analysis"
                       style={{
                         background: 'rgba(239, 68, 68, 0.15)',
                         color: '#EF4444',
