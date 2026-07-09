@@ -10,3 +10,9 @@
 ## 2024-05-26 - ADB Subprocess Bottleneck
 **Learning:** Executing sequential Python `subprocess.run` calls to fetch individual Android device properties via `adb shell getprop` introduces significant performance overhead due to repeated adb server round-trips and process spawning (e.g., 10-15ms vs 2-3ms).
 **Action:** Always batch multiple ADB shell commands into a single `subprocess.run` execution using shell separators (`;`) to minimize connection and process overhead, while ensuring outputs are safely padded and parsed.
+## 2026-05-02 - React useDeferredValue for List Filtering
+**Learning:** When filtering large arrays in React based on a user-controlled text input, relying on a standard state variable () for the search string causes the expensive  array filtering logic to run synchronously on every keystroke, which blocks the main thread and makes the input UI feel sluggish.
+**Action:** Always wrap the search state with `useDeferredValue` (e.g., `const deferredSearch = useDeferredValue(search)`) and use the deferred value in the `useMemo` filtering logic. This allows React to prioritize updating the input UI immediately while computing the filtered array in the background, keeping the application highly responsive.
+## 2024-05-27 - React useDeferredValue for List Filtering
+**Learning:** When filtering large arrays in React based on a user-controlled text input, relying on a standard state variable (`useState`) for the search string causes the expensive `O(n)` array filtering logic to run synchronously on every keystroke, which blocks the main thread and makes the input UI feel sluggish.
+**Action:** Always wrap the search state with `useDeferredValue` (e.g., `const deferredSearch = useDeferredValue(search)`) and use the deferred value in the `useMemo` filtering logic. This allows React to prioritize updating the input UI immediately while computing the filtered array in the background, keeping the application highly responsive.
