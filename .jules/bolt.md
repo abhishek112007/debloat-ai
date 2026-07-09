@@ -10,3 +10,6 @@
 ## 2024-05-26 - ADB Subprocess Bottleneck
 **Learning:** Executing sequential Python `subprocess.run` calls to fetch individual Android device properties via `adb shell getprop` introduces significant performance overhead due to repeated adb server round-trips and process spawning (e.g., 10-15ms vs 2-3ms).
 **Action:** Always batch multiple ADB shell commands into a single `subprocess.run` execution using shell separators (`;`) to minimize connection and process overhead, while ensuring outputs are safely padded and parsed.
+## 2024-06-03 - React List Filtering Bottleneck
+**Learning:** In a React component rendering a large list, tying an expensive array `filter` operation to an input's `onChange` event directly in state can cause the main thread to block, resulting in a sluggish typing experience for the user.
+**Action:** Use `useDeferredValue` to defer the search state and use it in the array filtering `useMemo` dependency array. This allows the search input to update immediately while the expensive filtering logic is executed in the background, keeping the UI responsive.
